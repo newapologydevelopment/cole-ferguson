@@ -2,7 +2,6 @@
 
 import { NavigationHomePage, Project } from "@/app/components";
 import { Project as ProjectType } from '@/types';
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 export const Home = ({ projects }: { projects: ProjectType[] }) => {
@@ -37,7 +36,7 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
 
     return (
         <div className="h-screen overflow-hidden p-[24px] text-[12px] text-primary-dark">
-            <h1 className="fixed top-[24px] left-[24px] pointer-events-none">Cole Ferguson </h1>
+            {/* <h1 className="fixed top-[24px] left-[24px] pointer-events-none">Cole Ferguson </h1> */}
 
             <div className="fixed  z-[2] top-[50%] translate-y-[-100%] mt-[16px] flex flex-col gap-[8px]">
                 <NavigationHomePage
@@ -49,10 +48,10 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
                 />
             </div>
 
-            <div className="fixed z-[3]  md:bottom-[24px] md:left-[24px] bottom-[20px] left-[20px] flex flex-col gap-[8px]">
+            {/* <div className="fixed z-[3]  md:bottom-[24px] md:left-[24px] bottom-[20px] left-[20px] flex flex-col gap-[8px]">
                 <Link href="/gallery" className="cursor-pointer">Index</Link>
                 <div>Information</div>
-            </div>
+            </div> */}
 
             <div ref={scrollRef} className="absolute inset-0 overflow-y-auto snap-y snap-mandatory scroll-smooth pointer-events-auto">
                 {projects.map((project, i) => (
