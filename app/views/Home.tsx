@@ -2,10 +2,13 @@
 
 import { NavigationHomePage, Project } from "@/app/components";
 import { Project as ProjectType } from '@/types';
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 export const Home = ({ projects }: { projects: ProjectType[] }) => {
     const projectTitles = useMemo(() => projects.map((p) => p.title), [projects]);
+
+    console.log('projects', projects)
 
     const scrollRef = useRef<HTMLDivElement | null>(null)
     const sectionRefs = useRef<(HTMLElement | null)[]>([])
@@ -46,8 +49,8 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
                 />
             </div>
 
-            <div className="fixed md:bottom-[24px] md:left-[24px] bottom-[20px] left-[20px] flex flex-col gap-[8px] pointer-events-none">
-                <div>Index</div>
+            <div className="fixed z-[3]  md:bottom-[24px] md:left-[24px] bottom-[20px] left-[20px] flex flex-col gap-[8px]">
+                <Link href="/gallery" className="cursor-pointer">Index</Link>
                 <div>Information</div>
             </div>
 

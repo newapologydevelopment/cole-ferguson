@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import localFont from "next/font/local";
+import { GridOverlay, PageTransition } from "./components";
 import "./globals.css";
 
 
@@ -8,6 +9,8 @@ const recitalBook = localFont({
   src: "../assets/Recital-Book.woff2",
   variable: "--font-recital-book",
 });
+
+const SHOW_GRID = false;
 
 export const metadata: Metadata = {
   title: "Cole Ferguson",
@@ -75,7 +78,8 @@ export default function RootLayout({
       <body
         className={`${recitalBook.className} antialiased`}
       >
-        {children}
+        {SHOW_GRID && <GridOverlay />}
+        <PageTransition>{children}</PageTransition>
       </body>
     </html>
   );

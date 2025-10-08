@@ -14,12 +14,24 @@ export const client = createClient({
 const projectsQuery = `*[_type == "project"]{
   _id,
   title,
+  // legacy images
   images[]{
     ...,
     "alt": coalesce(alt, ""),
     "blurDataURL": asset->metadata.lqip,
     "width": asset->metadata.dimensions.width,
     "height": asset->metadata.dimensions.height
+  },
+  // new views
+  views[]{
+    _type,
+    images[]{
+      ...,
+      "alt": coalesce(alt, ""),
+      "blurDataURL": asset->metadata.lqip,
+      "width": asset->metadata.dimensions.width,
+      "height": asset->metadata.dimensions.height
+    }
   }
 }`
 
