@@ -1,5 +1,4 @@
 export * from './GridOverlay';
-export * from './InfoBar';
 export * from './LenisProvider';
 export * from './NavigationHomePage';
 export * from './PageTransition';

@@ -67,17 +67,17 @@ export const Project = ({ project }: { project: ProjectType }) => {
 
     return (
         <div className="relative h-screen w-screen flex items-center justify-center select-none overflow-x-hidden">
-            {/* Frame: responsive 1377x1026 max, 8-col grid */}
-            <div className="relative w-[min(95vw,1377px)] h-[min(90vh,1026px)] grid grid-cols-8 gap-[16px] md:gap-[32px]">
+            <div className="relative grid grid-cols-24 gap-[16px] md:gap-[32px]">
                 {current ? (
                     current._type === 'twoView' && current.images?.length === 2 ? (
                         /* Two images layout fills container */
-                        <div className="col-span-8 h-full w-full">
+                        <div className="col-span-24 h-full w-full">
                             <TwoImagesView images={current.images} />
+
                         </div>
                     ) : current._type === 'threeView' && current.images?.length === 3 ? (
                         /* Three images layout fills container */
-                        <div className="col-span-8 h-full w-full">
+                        <div className="col-span-24 h-full w-full">
                             <ThreeImagesView images={current.images} />
                         </div>
                     ) : (
@@ -89,7 +89,7 @@ export const Project = ({ project }: { project: ProjectType }) => {
                             const height = img?.height ?? 1067
                             const alt = img?.alt ?? project.title
                             return src ? (
-                                <div className="col-start-2 col-span-7 flex items-center justify-center">
+                                <div className="col-start-5 col-span-16 flex items-center justify-center">
                                     <Image
                                         src={src}
                                         alt={alt}
@@ -97,7 +97,7 @@ export const Project = ({ project }: { project: ProjectType }) => {
                                         height={height}
                                         placeholder={img?.blurDataURL ? 'blur' : 'empty'}
                                         blurDataURL={img?.blurDataURL}
-                                        className="max-w-full max-h-[842px] w-auto h-auto object-contain"
+                                        className="max-w-full max-h-[642px] w-auto h-auto object-contain"
                                         priority
                                     />
                                 </div>

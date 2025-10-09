@@ -38,7 +38,7 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
         <div className="h-screen overflow-hidden p-[24px] text-[12px] text-primary-dark">
             {/* <h1 className="fixed top-[24px] left-[24px] pointer-events-none">Cole Ferguson </h1> */}
 
-            <div className="fixed  z-[2] top-[50%] translate-y-[-100%] mt-[16px] flex flex-col gap-[8px]">
+            <div className="fixed z-[2] top-[50%] translate-y-[-25%] mt-[16px] flex flex-col gap-[8px]">
                 <NavigationHomePage
                     titles={projectTitles}
                     activeIndex={activeIndex}

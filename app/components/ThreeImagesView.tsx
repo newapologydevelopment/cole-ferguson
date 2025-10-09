@@ -5,51 +5,60 @@ import type { ProjectImage } from '@/types/project'
 import Image from 'next/image'
 
 export function ThreeImagesView({ images }: { images: ProjectImage[] }) {
-    const [a, b, c] = images
+    const [a, b, c] = images ?? []
     const srcA = a ? urlFor(a).url() : ''
     const srcB = b ? urlFor(b).url() : ''
     const srcC = c ? urlFor(c).url() : ''
     return (
-        <div className="grid grid-cols-12 gap-[16px] md:gap-[32px] w-full h-full">
-            {a && (
-                <div className="col-span-12 md:col-span-4 flex items-center justify-center w-full h-full">
-                    <Image
-                        src={srcA}
-                        alt={a.alt || ''}
-                        width={a.width ?? 1200}
-                        height={a.height ?? 800}
-                        placeholder={a.blurDataURL ? 'blur' : 'empty'}
-                        blurDataURL={a.blurDataURL}
-                        className="max-w-full max-h-[842px] object-contain"
-                    />
-                </div>
-            )}
-            {b && (
-                <div className="col-span-12 md:col-span-4 flex items-center justify-center w-full h-full">
-                    <Image
-                        src={srcB}
-                        alt={b.alt || ''}
-                        width={b.width ?? 1200}
-                        height={b.height ?? 800}
-                        placeholder={b.blurDataURL ? 'blur' : 'empty'}
-                        blurDataURL={b.blurDataURL}
-                        className="max-w-full max-h-[842px] object-contain"
-                    />
-                </div>
-            )}
-            {c && (
-                <div className="col-span-12 md:col-span-4 flex items-center justify-center w-full h-full">
-                    <Image
-                        src={srcC}
-                        alt={c.alt || ''}
-                        width={c.width ?? 1200}
-                        height={c.height ?? 800}
-                        placeholder={c.blurDataURL ? 'blur' : 'empty'}
-                        blurDataURL={c.blurDataURL}
-                        className="max-w-full max-h-[842px] object-contain"
-                    />
-                </div>
-            )}
+        // 24‑колоночна сітка на всю ширину; внутрішня область 4..21 (18 колонок), 3×6 рівномірно по центру
+        <div className="grid w-full h-full gap-x-[16px] md:gap-x-[32px]" style={{ gridTemplateColumns: 'repeat(24, minmax(0,1fr))' }}>
+            <div className="grid col-start-[4] col-end-[22]" style={{ gridTemplateColumns: 'repeat(18, minmax(0,1fr))', columnGap: '32px' }}>
+                {a && (
+                    <div style={{ gridColumn: 'span 6 / span 6' }}>
+                        <div className="relative w-full aspect-[16/10] overflow-hidden">
+                            <Image
+                                src={srcA}
+                                alt={a.alt || ''}
+                                fill
+                                sizes="(min-width:1280px) 28vw, (min-width:768px) 33vw, 100vw"
+                                placeholder={a.blurDataURL ? 'blur' : 'empty'}
+                                blurDataURL={a.blurDataURL}
+                                className="object-cover"
+                            />
+                        </div>
+                    </div>
+                )}
+                {b && (
+                    <div style={{ gridColumn: 'span 6 / span 6' }}>
+                        <div className="relative w-full aspect-[16/10] overflow-hidden">
+                            <Image
+                                src={srcB}
+                                alt={b.alt || ''}
+                                fill
+                                sizes="(min-width:1280px) 28vw, (min-width:768px) 33vw, 100vw"
+                                placeholder={b.blurDataURL ? 'blur' : 'empty'}
+                                blurDataURL={b.blurDataURL}
+                                className="object-cover"
+                            />
+                        </div>
+                    </div>
+                )}
+                {c && (
+                    <div style={{ gridColumn: 'span 6 / span 6' }}>
+                        <div className="relative w-full aspect-[16/10] overflow-hidden">
+                            <Image
+                                src={srcC}
+                                alt={c.alt || ''}
+                                fill
+                                sizes="(min-width:1280px) 28vw, (min-width:768px) 33vw, 100vw"
+                                placeholder={c.blurDataURL ? 'blur' : 'empty'}
+                                blurDataURL={c.blurDataURL}
+                                className="object-cover"
+                            />
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     )
 }
