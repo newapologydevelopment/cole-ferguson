@@ -36,4 +36,14 @@ export type Project = {
     views?: ProjectView[]
 }
 
+export type FlatImage = {
+    projectId: string
+    projectTitle: string
+    viewType?: ProjectView['_type']
+    viewIndex?: number
+    imageIndex: number
+    image: ProjectImage
+    displayLabel?: string
+}
+
 

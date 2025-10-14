@@ -92,7 +92,6 @@ export default function RootLayout({
             </div>
           </PageTransition>
         </InfoShell>
-
       </body>
     </html>
   );

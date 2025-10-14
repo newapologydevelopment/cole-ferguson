@@ -1,9 +1,12 @@
+import { getProjectsCached } from "@/sanity/lib/client";
+
 import { GalleryView } from "../views";
 
-export default function Gallery() {
+export default async function Gallery() {
+    const projects = await getProjectsCached();
     return (
         <div className="w-screen h-screen">
-            <GalleryView />
+            <GalleryView projects={projects} />
         </div>
     )
 }
