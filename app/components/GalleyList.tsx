@@ -27,14 +27,15 @@ export const GalleyList = ({ items, archiveCount, className, onHoverProject }: P
             <div className="flex-1 min-h-0 overflow-y-auto hide-scrollbar">
                 <div className="flex flex-col gap-[7px]">
                     {allProjects.map((project, i) => (
-                        <div
+                        <Link
+                            href={`/project/${project.slug?.current ?? ''}`}
                             key={project.title + i}
                             className="flex items-center justify-between cursor-pointer"
                             onMouseEnter={() => onHoverProject?.(project as Project)}
                         >
                             <div>{project.title}</div>
                             <div>{project.imageCount}</div>
-                        </div>
+                        </Link>
                     ))}
                 </div>
             </div>

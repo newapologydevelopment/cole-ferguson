@@ -32,6 +32,7 @@ export type ProjectView = ProjectViewSingle | ProjectViewTwo | ProjectViewThree
 export type Project = {
     _id: string
     title: string
+    slug?: { current: string }
     images?: ProjectImage[]
     views?: ProjectView[]
 }
@@ -49,7 +50,7 @@ export type FlatImage = {
 export type ArchiveProject = {
     _id: string
     title: string
-    image: ProjectImage[];
+    image: ProjectImage;
 }
 
 

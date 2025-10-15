@@ -11,6 +11,23 @@ export const project = defineType({
       type: 'string',
       validation: (rule) => rule.required().min(1).max(200),
     }),
+    defineField({
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      options: {
+        source: 'title',
+        maxLength: 96,
+        slugify: (input: string) =>
+          input
+            .toLowerCase()
+            .replace(/\s+/g, '-')
+            .replace(/[^a-z0-9-]/g, '')
+            .replace(/--+/g, '-')
+            .replace(/^-+|-+$/g, ''),
+      },
+      validation: (rule) => rule.required(),
+    }),
     // New: views with 1/2/3 images per screen
     defineField({
       name: 'views',

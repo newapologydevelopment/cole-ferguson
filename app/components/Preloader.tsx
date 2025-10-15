@@ -130,7 +130,8 @@ export const Preloader = ({
                 width={width || 57}
                 height={height || 72}
                 priority
-                className="h-auto object-contain"
+                className="w-auto h-auto object-contain"
+                style={{ width: 'auto', height: 'auto' }}
             />
         </div>
     )

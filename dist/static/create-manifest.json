@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "createdAt": "2025-10-15T12:34:33.760Z",
+  "createdAt": "2025-10-15T13:58:18.202Z",
   "workspaces": [
     {
-      "name": "Cole Ferguson",
-      "title": "Cole Ferguson",
+      "name": "default",
+      "title": "Default",
       "basePath": "/studio",
       "projectId": "jhqolk0n",
       "dataset": "production",
@@ -12,7 +12,7 @@
       "mediaLibrary": {
         "enabled": false
       },
-      "schema": "fb237a23.create-schema.json",
+      "schema": "8c5c8405.create-schema.json",
       "tools": "918180e5.create-tools.json"
     }
   ]
