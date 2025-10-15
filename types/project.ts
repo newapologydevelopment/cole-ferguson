@@ -46,4 +46,10 @@ export type FlatImage = {
     displayLabel?: string
 }
 
+export type ArchiveProject = {
+    _id: string
+    title: string
+    image: ProjectImage[];
+}
+
 

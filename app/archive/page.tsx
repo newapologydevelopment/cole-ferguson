@@ -1,8 +1,12 @@
-export default function Archive() {
-    return (
-      <div className="h-screen flex items-center justify-center">
-       <h1>Archive Cole Ferguson Portfolio</h1>
-      </div>
-    );
-  }
-  
+import { getArchiveCached } from '@/sanity/lib/client';
+import { ArchiveView } from "../views";
+
+export default async function Archive() {
+  const archiveProjects = await getArchiveCached()
+
+  console.log('archiveProjects', archiveProjects)
+
+  return (
+    <ArchiveView archiveProjects={archiveProjects} />
+  );
+}

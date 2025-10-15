@@ -71,7 +71,7 @@ export const Project = ({ project }: { project: ProjectType }) => {
                 {current ? (
                     current._type === 'twoView' && current.images?.length === 2 ? (
                         /* Two images layout fills container */
-                        <div className="col-span-24 h-full w-full">
+                        <div className="colcol-span-24 h-full w-full">
                             <TwoImagesView images={current.images} />
 
                         </div>

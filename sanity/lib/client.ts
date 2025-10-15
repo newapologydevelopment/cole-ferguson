@@ -44,3 +44,81 @@ export const getProjectsCached = unstable_cache(
   ['sanity-projects-v1'],
   { revalidate: 60 * 60 }
 )
+
+// Archive projects
+export type ArchiveProject = {
+  _id: string
+  title: string
+  image: {
+    asset?: { _ref: string }
+    alt?: string
+    blurDataURL?: string
+    width?: number
+    height?: number
+  }
+  description: string
+}
+
+const archiveQuery = `*[_type == "archiveProject"]|order(_createdAt desc){
+  _id,
+  title,
+  image{
+    ...,
+    "alt": coalesce(alt, ""),
+    "blurDataURL": asset->metadata.lqip,
+    "width": asset->metadata.dimensions.width,
+    "height": asset->metadata.dimensions.height
+  },
+  description
+}`
+
+export async function getArchive(): Promise<ArchiveProject[]> {
+  return client.fetch(archiveQuery)
+}
+
+export const getArchiveCached = unstable_cache(
+  async () => client.fetch<ArchiveProject[]>(archiveQuery),
+  ['sanity-archive-v1'],
+  { revalidate: 60 * 60 }
+)
+
+// Archive count (scalar)
+const archiveCountQuery = 'count(*[_type == "archiveProject"])'
+
+export async function getArchiveCount(): Promise<number> {
+  return client.fetch(archiveCountQuery)
+}
+
+export const getArchiveCountCached = unstable_cache(
+  async () => client.fetch<number>(archiveCountQuery),
+  ['sanity-archive-count-v1'],
+  { revalidate: 60 * 60 }
+)
+
+// Highlights (up to 10 project references)
+// Highlights returns plain array of Project
+
+// const highlightsQuery = `*[_type == "highlights"][0].projects[]->{
+//   _id,
+//   title,
+//   views[]{
+//     _type,
+//     images[]{
+//       ...,
+//       "alt": coalesce(alt, ""),
+//       "blurDataURL": asset->metadata.lqip,
+//       "width": asset->metadata.dimensions.width,
+//       "height": asset->metadata.dimensions.height
+//     }
+//   }
+// }`
+
+export async function getHighlights(): Promise<Project[]> {
+  return client.fetch(projectsQuery)
+}
+
+export const getHighlightsCached = unstable_cache(
+  async () => client.fetch<Project[]>(projectsQuery),
+  ['sanity-highlights-v1'],
+  { revalidate: 60 * 60 }
+)

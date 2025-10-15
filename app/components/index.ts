@@ -1,3 +1,6 @@
+export * from './GalleryGridView';
+export * from './GalleryListView';
+export * from './GalleyList';
 export * from './GridOverlay';
 export * from './LenisProvider';
 export * from './NavigationHomePage';
