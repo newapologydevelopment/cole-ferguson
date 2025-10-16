@@ -6,9 +6,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 export const Home = ({ projects }: { projects: ProjectType[] }) => {
     const projectTitles = useMemo(() => projects.map((p) => p.title), [projects]);
-
-    console.log('projects', projects)
-
     const scrollRef = useRef<HTMLDivElement | null>(null)
     const sectionRefs = useRef<(HTMLElement | null)[]>([])
     const [activeIndex, setActiveIndex] = useState(0)

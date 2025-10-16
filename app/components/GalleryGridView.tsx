@@ -19,6 +19,7 @@ type Props = {
     gapY?: number
     thumbWidth?: number
     className?: string
+    onClick: () => void;
 }
 
 export const GalleryGridView = ({
@@ -30,6 +31,7 @@ export const GalleryGridView = ({
     gapY = 60,
     thumbWidth = 130,
     className,
+    onClick
 }: Props) => {
     const seen = new Map<string, number>()
     return (
@@ -58,6 +60,7 @@ export const GalleryGridView = ({
                             })}
                             onMouseEnter={() => onHoverProject?.(it.projectTitle)}
                             onMouseLeave={() => onHoverProject?.(null)}
+                            onClick={onClick}
                         >
                             <Image
                                 src={src}

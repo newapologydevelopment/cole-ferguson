@@ -12,7 +12,7 @@ const recitalBook = localFont({
   variable: "--font-recital-book",
 });
 
-const SHOW_GRID = true;
+const SHOW_GRID = !true;
 
 export const metadata: Metadata = {
   title: "Cole Ferguson",
@@ -81,10 +81,10 @@ export default function RootLayout({
         className={`${recitalBook.className} antialiased`}
       >
         {SHOW_GRID && <GridOverlay />}
+        {/* <Preloader /> */}
         <Link href="/" className="fixed z-[4] top-[24px] left-[24px] text-[12px] text-primary-dark cursor-pointer">Cole Ferguson </Link>
         <InfoShell>
           <PageTransition>
-
             {children}
             <div className="fixed z-[3]  md:bottom-[24px] md:left-[24px] bottom-[20px] left-[20px] flex flex-col gap-[8px] text-[12px] text-primary-dark">
               <Link href="/gallery" className="cursor-pointer">Index</Link>

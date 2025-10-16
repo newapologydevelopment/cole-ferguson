@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 interface Props {
     onDone?: () => void
@@ -27,12 +27,12 @@ const FRAME_SIZES = [
 ]
 
 export const Preloader = ({
-    onDone,
-    durationMs = 3000,
-    fadeOutMs = 600,
-    lastHoldMs = 400,
-    jitterProb = 0.3,
-    jitterMaxMs = 200,
+    // onDone,
+    // durationMs = 3000,
+    // fadeOutMs = 600,
+    // lastHoldMs = 400,
+    // jitterProb = 0.3,
+    // jitterMaxMs = 200,
 }: Props) => {
     const images = useMemo(
         () => [
@@ -52,8 +52,8 @@ export const Preloader = ({
 
     const [idx, setIdx] = useState(0)
     const [visible, setVisible] = useState(true)
-    const [fading, setFading] = useState(false)
-    const timersRef = useRef<number[]>([])
+    // const [fading, setFading] = useState(false)
+    // const timersRef = useRef<number[]>([])
 
     // useEffect(() => {
     //     const total = Math.max(1, durationMs)
