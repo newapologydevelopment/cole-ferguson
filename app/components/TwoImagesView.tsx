@@ -66,13 +66,13 @@ export function TwoImagesView({ images }: { images: ProjectImage[] }) {
     const srcB = b ? urlFor(b).url() : ''
 
     return (
-        <section className="w-screen col-span-24 px-[24px] flex">
+        <section className="w-screen px-[24px] flex gap-[60px] ">
             <div className="relative w-full aspect-[16/10] overflow-hidden">
                 <Image
                     src={srcA}
                     alt={a.alt || ''}
                     fill
-                    sizes="(min-width:1280px) 42vw, (min-width:768px) 50vw, 100vw"
+                    sizes="(min-width:1280px) 22vw, (min-width:768px) 50vw, 100vw"
                     placeholder={a.blurDataURL ? 'blur' : 'empty'}
                     blurDataURL={a.blurDataURL}
                     className="object-cover"
@@ -85,13 +85,12 @@ export function TwoImagesView({ images }: { images: ProjectImage[] }) {
                     src={srcB}
                     alt={b.alt || ''}
                     fill
-                    sizes="(min-width:1280px) 42vw, (min-width:768px) 50vw, 100vw"
+                    sizes="(min-width:1280px) 22vw, (min-width:768px) 50vw, 100vw"
                     placeholder={b.blurDataURL ? 'blur' : 'empty'}
                     blurDataURL={b.blurDataURL}
                     className="object-cover"
                 />
             </div>
-
         </section>
     )
 }

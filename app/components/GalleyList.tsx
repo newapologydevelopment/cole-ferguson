@@ -11,7 +11,7 @@ type Props = {
     archiveCount: number
     className?: string
     onHoverProject?: (project: Project | null) => void
-    onClick?: () => void;
+    onClick?: (project: Project) => void;
 }
 
 export const GalleyList: React.FC<Props> = ({
@@ -41,7 +41,7 @@ export const GalleyList: React.FC<Props> = ({
                                 key={project.title + i}
                                 className="flex items-center justify-between cursor-pointer"
                                 onMouseEnter={() => onHoverProject?.(project as Project)}
-                                onClick={onClick}
+                                onClick={() => onClick?.(project as Project)}
                             >
                                 <div>{project.title}</div>
                                 <div>{project.imageCount}</div>

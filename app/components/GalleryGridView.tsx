@@ -1,5 +1,5 @@
 import { urlFor } from "@/sanity/lib/image"
-import type { ProjectImage } from "@/types/project"
+import type { ProjectImage, Project as ProjectType } from "@/types/project"
 import { cn } from "@/utils"
 import Image from "next/image"
 
@@ -12,6 +12,7 @@ export type GalleryGridItem = {
 
 type Props = {
     items: GalleryGridItem[]
+    projects: ProjectType[]
     selectedProject?: string | null
     onHoverProject?: (projectTitle: string | null) => void
     columns?: number
@@ -19,11 +20,13 @@ type Props = {
     gapY?: number
     thumbWidth?: number
     className?: string
-    onClick: () => void;
+    onClick: (project: ProjectType) => void;
+    selectActualPhoto: (image: string) => void;
 }
 
 export const GalleryGridView = ({
     items,
+    projects,
     selectedProject = null,
     onHoverProject,
     columns = 6,
@@ -31,9 +34,15 @@ export const GalleryGridView = ({
     gapY = 60,
     thumbWidth = 130,
     className,
-    onClick
+    onClick,
+    selectActualPhoto
 }: Props) => {
     const seen = new Map<string, number>()
+
+    const handleProjectSelect = (project: GalleryGridItem) => {
+        onClick?.(projects.find(p => p._id === project.projectId) as unknown as ProjectType)
+        selectActualPhoto(project?.image?.asset?._ref || '')
+    }
     return (
         <div className={cn("col-start-7 col-span-full h-full", className)}>
             <div className="w-full h-full grid" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`, columnGap: `${gapX}px`, rowGap: `${gapY}px` }}>
@@ -60,7 +69,7 @@ export const GalleryGridView = ({
                             })}
                             onMouseEnter={() => onHoverProject?.(it.projectTitle)}
                             onMouseLeave={() => onHoverProject?.(null)}
-                            onClick={onClick}
+                            onClick={() => handleProjectSelect(it)}
                         >
                             <Image
                                 src={src}

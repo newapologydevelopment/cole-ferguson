@@ -7,7 +7,13 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { ThreeImagesView } from './ThreeImagesView'
 import { TwoImagesView } from './TwoImagesView'
 
-export const Project = ({ project }: { project: ProjectType }) => {
+interface Props {
+    project: ProjectType
+    actualPhoto: string | null
+}
+
+export const Project: React.FC<Props> = ({ project, actualPhoto }) => {
+    console.log('actualPhoto', actualPhoto);
     const views: ProjectView[] = (project.views && project.views.length > 0)
         ? project.views
         : (project.images && project.images.length > 0)
@@ -15,6 +21,13 @@ export const Project = ({ project }: { project: ProjectType }) => {
             : []
 
     const [index, setIndex] = useState(0)
+
+    useEffect(() => {
+        if (!actualPhoto || views.length === 0) return
+        const idx = views.findIndex(v => v.images?.some(img => img?.asset?._ref === actualPhoto))
+        if (idx !== -1) setIndex(idx)
+    }, [actualPhoto, views])
+
 
     const goPrev = useCallback(() => {
         if (views.length === 0) return
@@ -71,7 +84,7 @@ export const Project = ({ project }: { project: ProjectType }) => {
                 {current ? (
                     current._type === 'twoView' && current.images?.length === 2 ? (
                         /* Two images layout fills container */
-                        <div className="colcol-span-24 h-full w-full">
+                        <div className="h-full w-full">
                             <TwoImagesView images={current.images} />
 
                         </div>

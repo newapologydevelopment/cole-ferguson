@@ -57,9 +57,16 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
     const [selectedProject, setSelectedProject] = useState<string | null>(null);
     const [lightBoxOpen, setLightBoxOpen] = useState(false);
     const [listViewSelectedProject, setListViewSelectedProject] = useState<ProjectType | null>(projects[0]);
+    const [actualPhoto, setActualPhoto] = useState<string | null>(null);
     const allImages = collectAllImages(projects);
 
-    const handleLightBoxOpen = () => setLightBoxOpen(!lightBoxOpen);
+    const handleLightBoxOpen = (project: ProjectType) => {
+        setLightBoxOpen(!lightBoxOpen);
+
+        if (project) {
+            setListViewSelectedProject(projects.find(p => p._id === project._id) as ProjectType);
+        }
+    }
 
     return (
         <div className="w-full h-full grid grid-cols-24 text-[12px] text-primary-dark p-[24px]">
@@ -91,9 +98,11 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
             {view === 'grid' &&
                 <GalleryGridView
                     items={allImages}
+                    projects={projects}
                     selectedProject={selectedProject}
                     onHoverProject={setSelectedProject}
                     onClick={handleLightBoxOpen}
+                    selectActualPhoto={setActualPhoto}
                 />
             }
 
@@ -103,11 +112,17 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
                         project={listViewSelectedProject}
                         thumbWidth={260}
                     />
-                </div>}
+                </div>
+            }
 
-            {lightBoxOpen && <LightBox close={handleLightBoxOpen}>
-                <Project project={listViewSelectedProject as unknown as ProjectType} />
-            </LightBox>}
+            {lightBoxOpen &&
+                <LightBox close={() => setLightBoxOpen(false)}>
+                    <Project
+                        actualPhoto={actualPhoto}
+                        project={listViewSelectedProject as unknown as ProjectType}
+                    />
+                </LightBox>
+            }
         </div>
     )
 }
