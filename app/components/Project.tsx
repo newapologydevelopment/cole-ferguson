@@ -9,11 +9,10 @@ import { TwoImagesView } from './TwoImagesView'
 
 interface Props {
     project: ProjectType
-    actualPhoto: string | null
+    actualPhoto?: string | null
 }
 
 export const Project: React.FC<Props> = ({ project, actualPhoto }) => {
-    console.log('actualPhoto', actualPhoto);
     const views: ProjectView[] = (project.views && project.views.length > 0)
         ? project.views
         : (project.images && project.images.length > 0)
