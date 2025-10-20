@@ -29,9 +29,6 @@ export const GalleryGridView = ({
     projects,
     selectedProject = null,
     onHoverProject,
-    columns = 6,
-    gapX = 100,
-    gapY = 60,
     thumbWidth = 130,
     className,
     onClick,
@@ -45,7 +42,7 @@ export const GalleryGridView = ({
     }
     return (
         <div className={cn("col-start-7 col-span-full h-full", className)}>
-            <div className="w-full h-full grid" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`, columnGap: `${gapX}px`, rowGap: `${gapY}px` }}>
+            <div className="w-full h-full grid grid-cols-6 gap-x-[60px] gap-y-[100px] content-start items-start auto-rows-max">
                 {items.map((it, i) => {
                     const ref = it.image?.asset?._ref
                     if (!ref) return null
@@ -53,7 +50,6 @@ export const GalleryGridView = ({
                     const w = it.image?.width || 1
                     const h = it.image?.height || 1
                     const thumbW = thumbWidth
-                    const thumbH = Math.round((thumbW * h) / w)
 
                     const src = urlFor({ _type: 'image', asset: { _ref: ref } })
                         .width(thumbW)
@@ -62,26 +58,29 @@ export const GalleryGridView = ({
                         .url()
 
                     return (
-                        <div
-                            key={`${it.projectId}-${i}`}
-                            className={cn("relative flex flex-col items-center gap-[5.22px] duration-300 ease-in-out", {
-                                'opacity-20': selectedProject !== it.projectTitle && selectedProject !== null,
-                            })}
-                            onMouseEnter={() => onHoverProject?.(it.projectTitle)}
-                            onMouseLeave={() => onHoverProject?.(null)}
-                            onClick={() => handleProjectSelect(it)}
-                        >
-                            <Image
-                                src={src}
-                                alt={it.image?.alt || ''}
-                                width={thumbW}
-                                height={thumbH}
-                                placeholder={it.image?.blurDataURL ? 'blur' : 'empty'}
-                                blurDataURL={it.image?.blurDataURL}
-                                sizes={`${thumbW}px`}
-                                loading="lazy"
-                                decoding="async"
-                            />
+                        <div key={`${it.projectId}-${i}`} className="flex flex-col gap-[5.22px]">
+                            <div
+                                className={cn("relative flex flex-col items-center gap-[5.22px] duration-300 ease-in-out", {
+                                    'opacity-20': selectedProject !== it.projectTitle && selectedProject !== null,
+                                })}
+                                style={{ aspectRatio: Number(w.toFixed(1)) / Number(h.toFixed(1)) }}
+                                onMouseEnter={() => onHoverProject?.(it.projectTitle)}
+                                onMouseLeave={() => onHoverProject?.(null)}
+                                onClick={() => handleProjectSelect(it)}
+                            >
+                                <Image
+                                    src={src}
+                                    alt={it.image?.alt || ''}
+                                    fill
+                                    className="object-cover"
+                                    placeholder={it.image?.blurDataURL ? 'blur' : 'empty'}
+                                    blurDataURL={it.image?.blurDataURL}
+                                    sizes={`${thumbW}px`}
+                                    loading="lazy"
+                                    decoding="async"
+                                />
+
+                            </div>
                             <p className='text-center text-[10px]'>
                                 {(() => {
                                     const prev = seen.get(it.projectId) ?? -1

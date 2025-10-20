@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 
 import localFont from "next/font/local";
 import Link from "next/link";
-import { GridOverlay, PageTransition, Preloader } from "./components";
+import {
+  GridOverlay,
+  PageTransition
+} from "./components";
 import { InfoShell } from "./components/InfoShell";
 import "./globals.css";
 
@@ -81,7 +84,7 @@ export default function RootLayout({
         className={`${recitalBook.className} antialiased`}
       >
         {SHOW_GRID && <GridOverlay />}
-        <Preloader />
+        {/* <Preloader /> */}
         <Link href="/" className="fixed z-[4] top-[24px] left-[24px] text-[12px] text-primary-dark cursor-pointer">Cole Ferguson </Link>
         <InfoShell>
           <PageTransition>

@@ -10,11 +10,12 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
 
     useGSAP(() => {
         const tl = gsap.timeline();
-        tl.to('.info-shell', {
-            y: open ? '88vh' : '0',
-            duration: 0.5,
-            ease: 'power2.inOut'
-        }).
+        tl.
+            // to('.info-shell', {
+            //     y: open ? '88vh' : '0',
+            //     duration: 0.5,
+            //     ease: 'power2.inOut'
+            // }).
             to('.text', {
                 height: open ? '48vh' : '0',
                 ease: 'power2.inOut'

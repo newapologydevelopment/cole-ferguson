@@ -10,6 +10,7 @@ export * from './PageTransition';
 export * from './PhotoIndicator';
 export * from './Preloader';
 export * from './Project';
+export * from './ProjectAlternative';
 export * from './ThreeImagesView';
 export * from './TwoImagesView';
 

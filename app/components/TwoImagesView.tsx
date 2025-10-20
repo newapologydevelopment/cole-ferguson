@@ -66,8 +66,8 @@ export function TwoImagesView({ images }: { images: ProjectImage[] }) {
     const srcB = b ? urlFor(b).url() : ''
 
     return (
-        <section className="w-screen px-[24px] flex gap-[60px] ">
-            <div className="relative w-full aspect-[16/10] overflow-hidden">
+        <section className="w-full px-[24px] flex gap-[60px] bg-red-500">
+            <div className="relative w-full overflow-hidden">
                 <Image
                     src={srcA}
                     alt={a.alt || ''}

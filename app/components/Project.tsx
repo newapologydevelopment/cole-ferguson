@@ -13,6 +13,7 @@ interface Props {
 }
 
 export const Project: React.FC<Props> = ({ project, actualPhoto }) => {
+    console.log('project', project)
     const views: ProjectView[] = (project.views && project.views.length > 0)
         ? project.views
         : (project.images && project.images.length > 0)
@@ -79,13 +80,12 @@ export const Project: React.FC<Props> = ({ project, actualPhoto }) => {
 
     return (
         <div className="relative h-screen w-screen flex items-center justify-center select-none overflow-x-hidden">
-            <div className="relative grid grid-cols-24 gap-[16px] md:gap-[32px]">
+            <div className="relative grid grid-cols-24 gap-[16px] md:gap-[32px] bg-blue-500">
                 {current ? (
                     current._type === 'twoView' && current.images?.length === 2 ? (
                         /* Two images layout fills container */
-                        <div className="h-full w-full">
+                        <div className="col-span-24">
                             <TwoImagesView images={current.images} />
-
                         </div>
                     ) : current._type === 'threeView' && current.images?.length === 3 ? (
                         /* Three images layout fills container */

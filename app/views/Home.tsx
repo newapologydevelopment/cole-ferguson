@@ -1,6 +1,6 @@
 'use client';
 
-import { NavigationHomePage, Project } from "@/app/components";
+import { NavigationHomePage, ProjectAlternative } from "@/app/components";
 import { Project as ProjectType } from '@/types';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -51,7 +51,10 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
                         ref={(el) => { sectionRefs.current[i] = el }}
                         className={`snap-start h-screen transition-opacity duration-300 ${i === activeIndex || showAll ? 'opacity-100' : 'opacity-0'}`}
                     >
-                        <Project project={project} />
+                        {/* <Project project={project} /> */}
+                        <ProjectAlternative
+                            project={project}
+                        />
                     </section>
                 ))}
             </div>
