@@ -60,10 +60,10 @@ export const GalleryGridView = ({
                     return (
                         <div key={`${it.projectId}-${i}`} className="flex flex-col gap-[5.22px]">
                             <div
-                                className={cn("relative flex flex-col items-center gap-[5.22px] duration-300 ease-in-out", {
+                                className={cn("relative w-full overflow-hidden duration-300 ease-in-out", {
                                     'opacity-20': selectedProject !== it.projectTitle && selectedProject !== null,
                                 })}
-                                style={{ aspectRatio: Number(w.toFixed(1)) / Number(h.toFixed(1)) }}
+                                style={{ aspectRatio: `${w} / ${h}` }}
                                 onMouseEnter={() => onHoverProject?.(it.projectTitle)}
                                 onMouseLeave={() => onHoverProject?.(null)}
                                 onClick={() => handleProjectSelect(it)}

@@ -35,6 +35,7 @@ export function GridOverlay() {
                     <div className="absolute inset-x-0 top-[24px] h-px bg-sky-600/40" />
                     <div className="absolute inset-x-0 bottom-[24px] h-px bg-sky-600/40" />
                     <div className="absolute inset-x-0 top-1/2 h-px bg-red-500/50 -translate-y-1/2" />
+                    <div className="absolute inset-y-0 left-1/2 w-px bg-red-500/50 -translate-x-1/2" />
 
                     {/* ґрід + внутрішні лінії 24px від контейнера */}
                     <div

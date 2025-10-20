@@ -15,7 +15,7 @@ const recitalBook = localFont({
   variable: "--font-recital-book",
 });
 
-const SHOW_GRID = !true;
+const SHOW_GRID = true;
 
 export const metadata: Metadata = {
   title: "Cole Ferguson",

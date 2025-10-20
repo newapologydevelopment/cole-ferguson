@@ -1,24 +1,50 @@
-// import { urlFor } from "@/sanity/lib/image";
 import { Project as ProjectType } from "@/types/project";
-// import Image from "next/image";
+
+export interface SanityAssetRef {
+    _type: "reference"
+    _ref: string
+}
+
+export interface SanityImage {
+    _key: string
+    _type: "image"
+    alt?: string
+    asset: SanityAssetRef
+    blurDataURL?: string
+    width?: number
+    height?: number
+}
+
+export type ViewType = "singleView" | "twoView" | "threeView"
+
+export interface View {
+    _type: ViewType
+    images: SanityImage[]
+}
 
 interface Props {
     project: ProjectType
 }
 
 export const ProjectAlternative: React.FC<Props> = ({ project }) => {
-    // const singleView = project.views?.find((view) => view._type === 'singleView')?.images;
-    // const src = singleView?.[0]?.asset?.url ? urlFor(singleView?.[0]?.asset?.url).url() : '';
+    const views = project.views || [];
+
+    const viewPicker = (view: View) => {
+        switch (view._type) {
+            case 'singleView':
+                return <div className="w-full h-full">singleView</div>;
+            case 'twoView':
+                return <div>twoView</div>;
+            case 'threeView':
+                return <div>threeView</div>;
+            default:
+                return null;
+        }
+    }
+
     return (
         <div className="w-full h-full flex items-center justify-center">
-            {project.title}
-            {/* <div className="w-[63vw] h-full">
-                <Image
-                    src={src}
-                    alt={singleView?.[0]?.alt}
-                    fill
-                />
-            </div> */}
+            {views.map((view) => viewPicker(view as View))}
         </div>
     )
 }

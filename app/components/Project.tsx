@@ -4,6 +4,7 @@ import { urlFor } from '@/sanity/lib/image'
 import type { Project as ProjectType, ProjectView } from "@/types/project"
 import Image from 'next/image'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { SingleImageView } from './SingleImageView'
 import { ThreeImagesView } from './ThreeImagesView'
 import { TwoImagesView } from './TwoImagesView'
 
@@ -80,17 +81,21 @@ export const Project: React.FC<Props> = ({ project, actualPhoto }) => {
 
     return (
         <div className="relative h-screen w-screen flex items-center justify-center select-none overflow-x-hidden">
-            <div className="relative grid grid-cols-24 gap-[16px] md:gap-[32px] bg-blue-500">
+            <div className="relative w-full h-full">
                 {current ? (
                     current._type === 'twoView' && current.images?.length === 2 ? (
-                        /* Two images layout fills container */
-                        <div className="col-span-24">
+                        <div className="h-full w-full">
                             <TwoImagesView images={current.images} />
+
                         </div>
                     ) : current._type === 'threeView' && current.images?.length === 3 ? (
                         /* Three images layout fills container */
-                        <div className="col-span-24 h-full w-full">
+                        <div className="h-full w-full">
                             <ThreeImagesView images={current.images} />
+                        </div>
+                    ) : current._type === 'singleView' && current.images?.length === 1 ? (
+                        <div className="h-full w-full">
+                            <SingleImageView image={current.images[0]} />
                         </div>
                     ) : (
                         /* One image: place from col 2 to 8 */
@@ -101,7 +106,7 @@ export const Project: React.FC<Props> = ({ project, actualPhoto }) => {
                             const height = img?.height ?? 1067
                             const alt = img?.alt ?? project.title
                             return src ? (
-                                <div className="col-start-5 col-span-16 flex items-center justify-center">
+                                <div className="col-start-5 col-span-16 h-full` flex items-center justify-center">
                                     <Image
                                         src={src}
                                         alt={alt}
@@ -113,9 +118,10 @@ export const Project: React.FC<Props> = ({ project, actualPhoto }) => {
                                         priority
                                     />
                                 </div>
-                            ) : (
-                                <div className="col-start-2 col-span-7 flex items-center justify-center">{project.title}</div>
                             )
+                                : (
+                                    <div className="col-start-2 col-span-7 flex items-center justify-center">{project.title}</div>
+                                )
                         })()
                     )
                 ) : (
