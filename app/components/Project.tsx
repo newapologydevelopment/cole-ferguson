@@ -11,9 +11,10 @@ import { TwoImagesView } from './TwoImagesView'
 interface Props {
     project: ProjectType
     actualPhoto?: string | null
+    showIndicator?: boolean
 }
 
-export const Project: React.FC<Props> = ({ project, actualPhoto }) => {
+export const Project: React.FC<Props> = ({ project, actualPhoto, showIndicator = true }) => {
     console.log('project', project)
     const views: ProjectView[] = (project.views && project.views.length > 0)
         ? project.views
@@ -130,7 +131,7 @@ export const Project: React.FC<Props> = ({ project, actualPhoto }) => {
             </div>
 
             {/* Indicator fixed to viewport bottom center */}
-            {totalImages > 0 && (
+            {showIndicator && totalImages > 0 && (
                 <div className="pointer-events-none fixed bottom-[24px] left-1/2 -translate-x-1/2 z-[40]">
                     <div ref={digitsRef} className="relative flex gap-[4px] text-[12px]">
                         {Array.from({ length: totalImages }).map((_, i) => {

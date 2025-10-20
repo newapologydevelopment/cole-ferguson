@@ -55,7 +55,7 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
                         ref={(el) => { sectionRefs.current[i] = el }}
                         className={`snap-start h-screen transition-opacity duration-300 ${i === activeIndex || showAll ? 'opacity-100' : 'opacity-0'}`}
                     >
-                        <Project project={project} />
+                        <Project project={project} showIndicator={!showAll && i === activeIndex} />
                         {/* <ProjectAlternative
                             project={project}
                         /> */}

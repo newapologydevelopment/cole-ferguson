@@ -4,7 +4,8 @@ import localFont from "next/font/local";
 import Link from "next/link";
 import {
   GridOverlay,
-  PageTransition
+  PageTransition,
+  Preloader
 } from "./components";
 import { InfoShell } from "./components/InfoShell";
 import "./globals.css";
@@ -15,7 +16,7 @@ const recitalBook = localFont({
   variable: "--font-recital-book",
 });
 
-const SHOW_GRID = true;
+const SHOW_GRID = !true;
 
 export const metadata: Metadata = {
   title: "Cole Ferguson",
@@ -84,7 +85,7 @@ export default function RootLayout({
         className={`${recitalBook.className} antialiased`}
       >
         {SHOW_GRID && <GridOverlay />}
-        {/* <Preloader /> */}
+        <Preloader />
         <Link href="/" className="fixed z-[4] top-[24px] left-[24px] text-[12px] text-primary-dark cursor-pointer">Cole Ferguson </Link>
         <InfoShell>
           <PageTransition>
