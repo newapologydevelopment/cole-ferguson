@@ -3,22 +3,35 @@
 import { cn } from '@/utils'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export function InfoShell({ children }: { children: React.ReactNode }) {
     const [open, setOpen] = useState(false)
+    const touchStartY = useRef(0)
+
+    useEffect(() => {
+        if (open) window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+    }, [open])
 
     useEffect(() => {
         if (!open) return
-        const onScroll = () => setOpen(false)
-        window.addEventListener('scroll', onScroll, { passive: true })
-        return () => window.removeEventListener('scroll', onScroll)
+        const onWheel = (e: WheelEvent) => { if (e.deltaY !== 0) setOpen(false) }
+        const onTouchStart = (e: TouchEvent) => { touchStartY.current = e.touches[0].clientY }
+        const onTouchMove = (e: TouchEvent) => {
+            const dy = e.touches[0].clientY - touchStartY.current
+            if (Math.abs(dy) > 8) setOpen(false)
+        }
+        window.addEventListener('wheel', onWheel, { passive: true })
+        window.addEventListener('touchstart', onTouchStart, { passive: true })
+        window.addEventListener('touchmove', onTouchMove, { passive: true })
+        return () => {
+            window.removeEventListener('wheel', onWheel)
+            window.removeEventListener('touchstart', onTouchStart)
+            window.removeEventListener('touchmove', onTouchMove)
+        }
     }, [open])
 
     useGSAP(() => {
-        if (open) {
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
-        };
 
         const tl = gsap.timeline();
         tl.
