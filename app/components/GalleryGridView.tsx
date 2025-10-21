@@ -41,7 +41,7 @@ export const GalleryGridView = ({
         selectActualPhoto(project?.image?.asset?._ref || '')
     }
     return (
-        <div className={cn("col-start-7 col-span-full h-full", className)}>
+        <div className={cn("col-start-7 col-span-full h-full pb-[24px]", className)}>
             <div className="w-full h-full grid grid-cols-6 gap-x-[60px] gap-y-[100px] content-start items-start auto-rows-max">
                 {items.map((it, i) => {
                     const ref = it.image?.asset?._ref

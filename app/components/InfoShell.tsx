@@ -3,19 +3,25 @@
 import { cn } from '@/utils'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export function InfoShell({ children }: { children: React.ReactNode }) {
     const [open, setOpen] = useState(false)
 
+    useEffect(() => {
+        if (!open) return
+        const onScroll = () => setOpen(false)
+        window.addEventListener('scroll', onScroll, { passive: true })
+        return () => window.removeEventListener('scroll', onScroll)
+    }, [open])
+
     useGSAP(() => {
+        if (open) {
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+        };
+
         const tl = gsap.timeline();
         tl.
-            // to('.info-shell', {
-            //     y: open ? '88vh' : '0',
-            //     duration: 0.5,
-            //     ease: 'power2.inOut'
-            // }).
             to('.text', {
                 height: open ? '48vh' : '0',
                 ease: 'power2.inOut'
@@ -33,9 +39,10 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
     }, [open])
 
     return (
-        <div className="relative">
+        <div className="relative" >
             <div className={cn('transition-transform duration-500', {
-                '-translate-y-[88vh]': open
+                '-translate-y-[88vh]': open,
+                'pointer-events-none': open
             })}>
                 {children}
             </div>
@@ -46,6 +53,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                 onClick={() => setOpen(o => !o)}
                 aria-expanded={open}
                 role="button"
+                data-hide-cursor="true"
             >
                 <div className="h-full overflow-auto px-[24px] text-left text-[12px] text-primary-dark">
                     <div className="pt-[-24px] text-btn" data-hide-cursor="true">Information</div>

@@ -21,21 +21,17 @@ export const LightBox: React.FC<Props> = ({ close, children, title }) => {
 
         const tl = gsap.timeline();
 
-        // анімація контейнера (легке появлення)
         tl.fromTo(
             boxRef.current,
             { scale: 0.95, opacity: 0 },
             { scale: 1, opacity: 1, ease: 'power1.inOut', duration: 0.25 }
         );
 
-        // 1) ставимо заголовок у центр (y = від центру до 24px), одразу видно
         const startY = Math.max(0, window.innerHeight / 2 - 24);
         tl.set(titleRef.current, { y: startY, opacity: 1 });
 
-        // 1a) тримаємо заголовок у центрі (паузимо тл на 0.6s)
         tl.to({}, { duration: 0.6 });
 
-        // 2) піднімаємо заголовок до 24px зверху (y: 0)
         tl.to(titleRef.current, {
             y: 0,
             opacity: 1,
@@ -43,7 +39,6 @@ export const LightBox: React.FC<Props> = ({ close, children, title }) => {
             duration: 0.6,
         });
 
-        // контент з'являється наприкінці (або трохи накладаємо)
         tl.fromTo(
             contentRef.current,
             { y: 10, opacity: 0 },
@@ -70,7 +65,6 @@ export const LightBox: React.FC<Props> = ({ close, children, title }) => {
                 Close
             </button>
 
-            {/* ВАЖЛИВО: НІЯКОГО translate-y-[50vh] */}
             <p
                 ref={titleRef}
                 className="light-box-title absolute top-[24px] left-1/2 -translate-x-1/2 w-full text-center opacity-0 will-change-transform"
