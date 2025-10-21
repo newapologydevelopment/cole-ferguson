@@ -12,13 +12,10 @@ const isRatio = (v: unknown): v is Ratio =>
 
 type WithWH = { width?: number | null; height?: number | null }
 const hasWH = (x: unknown): x is WithWH =>
-    !!x &&
-    typeof (x as any).width === 'number' &&
-    typeof (x as any).height === 'number'
+    !!x && typeof (x as any).width === 'number' && typeof (x as any).height === 'number'
 
 type WithRatio = { ratio?: Ratio }
-const hasRatio = (x: unknown): x is WithRatio =>
-    !!x && isRatio((x as any).ratio)
+const hasRatio = (x: unknown): x is WithRatio => !!x && isRatio((x as any).ratio)
 
 function detectRatio(w?: number | null, h?: number | null): Ratio | null {
     if (!w || !h) return null
@@ -36,31 +33,28 @@ function getImageRatio(img: unknown): Ratio | null {
     return null
 }
 
+// layout лише про ширини/позиції колонок
 const LAYOUT = {
-    '3:2|3:2': {
-        a: 'col-span-8 col-start-5',
-        b: 'col-span-8',
-        aAspect: 'aspect-[3/2]',
-        bAspect: 'aspect-[3/2]',
-    },
-    '4:5|4:5': {
-        a: 'col-span-6 col-start-7',
-        b: 'col-span-6',
-        aAspect: 'aspect-[4/5]',
-        bAspect: 'aspect-[4/5]',
-    },
-    '5:4|5:4': {
-        a: 'col-span-8 col-start-5',
-        b: 'col-span-8',
-        aAspect: 'aspect-[5/4]',
-        bAspect: 'aspect-[5/4]',
-    },
+    '3:2|3:2': { a: 'col-span-8 col-start-5', b: 'col-span-8' },
+    '4:5|4:5': { a: 'col-span-7 col-start-6', b: 'col-span-7' },
+    '5:4|5:4': { a: 'col-span-8 col-start-5', b: 'col-span-8' },
+    '4:5|5:4': { a: 'col-span-6 col-start-5', b: 'col-span-9' },
+    '5:4|4:5': { a: 'col-span-9 col-start-5', b: 'col-span-6' },
 } as const
 
 type LayoutKey = keyof typeof LAYOUT
 const FALLBACK_KEY: LayoutKey = '3:2|3:2'
-
 const isLayoutKey = (s: string): s is LayoutKey => s in LAYOUT
+
+// мапа aspect-класів, щоб швидко підставляти на однакових парах
+const ASPECT_BY_RATIO: Record<Ratio, string> = {
+    '3:2': 'aspect-[3/2]',
+    '4:5': 'aspect-[4/5]',
+    '5:4': 'aspect-[5/4]',
+}
+
+// висота пари тільки для різних пропорцій
+const PAIR_H = 'h-[clamp(360px,60vh,820px)]'
 
 export function TwoImagesView({ images }: { images: ProjectImage[] }) {
     const [a, b] = images ?? []
@@ -76,18 +70,33 @@ export function TwoImagesView({ images }: { images: ProjectImage[] }) {
     const rb = getImageRatio(b)
 
     let key: LayoutKey = FALLBACK_KEY
-    if (ra && rb && ra === rb) {
-        const k = `${ra}|${rb}`
-        if (isLayoutKey(k)) key = k
+    if (ra && rb) {
+        const k1 = `${ra}|${rb}`
+        if (isLayoutKey(k1)) key = k1 as LayoutKey
+        else {
+            const k2 = `${rb}|${ra}`
+            if (isLayoutKey(k2)) key = k2 as LayoutKey
+        }
     }
 
-    const { a: aCls, b: bCls, aAspect, bAspect } = LAYOUT[key]
+    const { a: aCls, b: bCls } = LAYOUT[key]
+    const isMixed = !!(ra && rb && ra !== rb)
+
+    // для однакових пропорцій: aspect-* як раніше
+    const aAspect = !isMixed && ra ? ASPECT_BY_RATIO[ra] : ''
+    const bAspect = !isMixed && rb ? ASPECT_BY_RATIO[rb] : ''
+
+    // для змішаних: фіксуємо однакову висоту
+    const aHeight = isMixed ? PAIR_H : ''
+    const bHeight = isMixed ? PAIR_H : ''
+
+    console.log('layout:', key, { ra, rb, isMixed })
 
     return (
-        <div className="px-[24px] grid grid-cols-24 h-screen w-screen content-center items-center auto-rows-max">
+        <div className="px-[24px] grid grid-cols-24 w-screen md:min-h-screen content-center items-center">
             {/* A */}
-            <div className={`relative flex items-center justify-center ${aCls} ${aAspect}`}>
-                {srcA ? (
+            <div className={`relative min-w-0 ${aCls} ${aAspect} ${aHeight}`}>
+                {srcA && (
                     <Image
                         src={srcA}
                         alt={a?.alt || ''}
@@ -98,14 +107,14 @@ export function TwoImagesView({ images }: { images: ProjectImage[] }) {
                         className="object-cover"
                         priority
                     />
-                ) : null}
+                )}
             </div>
 
             <div className="w-[60px]" />
 
             {/* B */}
-            <div className={`relative flex items-center justify-center ${bCls} ${bAspect}`}>
-                {srcB ? (
+            <div className={`relative min-w-0 ${bCls} ${bAspect} ${bHeight}`}>
+                {srcB && (
                     <Image
                         src={srcB}
                         alt={b?.alt || ''}
@@ -115,7 +124,7 @@ export function TwoImagesView({ images }: { images: ProjectImage[] }) {
                         blurDataURL={b?.blurDataURL}
                         className="object-cover"
                     />
-                ) : null}
+                )}
             </div>
         </div>
     )

@@ -116,7 +116,10 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
             }
 
             {lightBoxOpen &&
-                <LightBox close={() => setLightBoxOpen(false)}>
+                <LightBox
+                    close={() => setLightBoxOpen(false)}
+                    title={listViewSelectedProject?.title || ''}
+                >
                     <Project
                         actualPhoto={actualPhoto}
                         project={listViewSelectedProject as unknown as ProjectType}

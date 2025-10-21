@@ -26,7 +26,8 @@ export const project = defineType({
             .replace(/--+/g, '-')
             .replace(/^-+|-+$/g, ''),
       },
-      validation: (rule) => rule.required(),
+      // Тимчасово приховуємо slug зі студії
+      hidden: true,
     }),
     // New: views with 1/2/3 images per screen
     defineField({
@@ -43,7 +44,28 @@ export const project = defineType({
               name: 'images',
               title: 'Images',
               type: 'array',
-              of: [{ type: 'image', options: { hotspot: true } }],
+              of: [{
+                type: 'image',
+                options: { hotspot: true },
+                fields: [
+                  defineField({
+                    name: 'ratio',
+                    title: 'Aspect ratio (optional)',
+                    type: 'string',
+                    options: {
+                      list: [
+                        { title: '16:10', value: '16:10' },
+                        { title: '5:4', value: '5:4' },
+                        { title: '4:5', value: '4:5' },
+                        { title: '3:2', value: '3:2' },
+                        { title: '2:3', value: '2:3' },
+                        { title: '1:1', value: '1:1' },
+                      ],
+                    },
+                  }),
+                  defineField({ name: 'alt', title: 'Alt', type: 'string' }),
+                ],
+              }],
               validation: (rule) => rule.required().min(1).max(1),
               options: { layout: 'grid' },
             }),
@@ -64,7 +86,28 @@ export const project = defineType({
               name: 'images',
               title: 'Images',
               type: 'array',
-              of: [{ type: 'image', options: { hotspot: true } }],
+              of: [{
+                type: 'image',
+                options: { hotspot: true },
+                fields: [
+                  defineField({
+                    name: 'ratio',
+                    title: 'Aspect ratio (optional)',
+                    type: 'string',
+                    options: {
+                      list: [
+                        { title: '16:10', value: '16:10' },
+                        { title: '5:4', value: '5:4' },
+                        { title: '4:5', value: '4:5' },
+                        { title: '3:2', value: '3:2' },
+                        { title: '2:3', value: '2:3' },
+                        { title: '1:1', value: '1:1' },
+                      ],
+                    },
+                  }),
+                  defineField({ name: 'alt', title: 'Alt', type: 'string' }),
+                ],
+              }],
               validation: (rule) => rule.required().min(2).max(2),
               options: { layout: 'grid' },
             }),
@@ -85,7 +128,28 @@ export const project = defineType({
               name: 'images',
               title: 'Images',
               type: 'array',
-              of: [{ type: 'image', options: { hotspot: true } }],
+              of: [{
+                type: 'image',
+                options: { hotspot: true },
+                fields: [
+                  defineField({
+                    name: 'ratio',
+                    title: 'Aspect ratio (optional)',
+                    type: 'string',
+                    options: {
+                      list: [
+                        { title: '16:10', value: '16:10' },
+                        { title: '5:4', value: '5:4' },
+                        { title: '4:5', value: '4:5' },
+                        { title: '3:2', value: '3:2' },
+                        { title: '2:3', value: '2:3' },
+                        { title: '1:1', value: '1:1' },
+                      ],
+                    },
+                  }),
+                  defineField({ name: 'alt', title: 'Alt', type: 'string' }),
+                ],
+              }],
               validation: (rule) => rule.required().min(3).max(3),
               options: { layout: 'grid' },
             }),

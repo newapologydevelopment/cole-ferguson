@@ -10,6 +10,7 @@ export type ProjectImage = {
     blurDataURL?: string
     width?: number
     height?: number
+    ratio?: '16:10' | '5:4' | '4:5' | '3:2' | '2:3' | '1:1'
 }
 
 export type ProjectViewSingle = {

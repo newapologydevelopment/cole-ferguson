@@ -40,7 +40,7 @@ function getImageRatio(img: unknown): Ratio | null {
 const SINGLE_LAYOUT = {
     '16:10': { wrap: 'col-span-14 col-start-6', aspect: 'aspect-[16/10]' },
     '5:4': { wrap: 'col-span-12 col-start-7', aspect: 'aspect-[5/4]' },
-    '4:5': { wrap: 'col-span-8 col-start-9', aspect: 'aspect-[4/5]' },
+    '4:5': { wrap: 'col-span-9 col-start-8', aspect: 'aspect-[4/5]' },
     '3:2': { wrap: 'col-span-14 col-start-6', aspect: 'aspect-[3/2]' },
     '2:3': { wrap: 'col-span-8 col-start-9', aspect: 'aspect-[2/3]' },
     '1:1': { wrap: 'col-span-10 col-start-8', aspect: 'aspect-[1/1]' },

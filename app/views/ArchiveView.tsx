@@ -4,7 +4,7 @@ import { ArchiveProject as ArchiveProjectType } from "@/sanity/lib/client"
 import { urlFor } from "@/sanity/lib/image"
 import Image from "next/image"
 import { useCallback, useState } from "react"
-import { ArchiveProject, LightBox } from "../components"
+import { ArchiveLightBox, ArchiveProject } from "../components"
 
 type Props = { archiveProjects: ArchiveProjectType[] }
 
@@ -69,13 +69,15 @@ export const ArchiveView = ({ archiveProjects }: Props) => {
             </div>
 
             {showLightBox && selectedProject !== null && (
-                <LightBox close={() => setShowLightBox(false)}>
+                <ArchiveLightBox
+                    close={() => setShowLightBox(false)}
+                >
                     <ArchiveProject
                         onNext={goNext}
                         onPrev={goPrev}
                         archiveProject={archiveProjects[selectedProject] as ArchiveProjectType}
                     />
-                </LightBox>
+                </ArchiveLightBox>
             )}
         </div>
     )
