@@ -3,10 +3,12 @@
 import { cn } from '@/utils'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
+import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 
 export function InfoShell({ children }: { children: React.ReactNode }) {
     const [open, setOpen] = useState(false)
+    // const [showVideo, setShowVideo] = useState(false)
     const touchStartY = useRef(0)
 
     useEffect(() => {
@@ -77,7 +79,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                             </h1>
 
                             <div className="grid grid-cols-8 gap-x-[32px]">
-                                <div className="col-span-2 flex flex-col gap-[12px]">
+                                <div className="col-span-2 flex flex-col gap-[12px] self-end">
                                     <h3>Clients</h3>
                                     <p className="text-[16px]">
                                         Nike, Louis Vuitton, Dior, VEVO, Disney, Island Records, Hollywood Records,
@@ -85,7 +87,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                                     </p>
                                 </div>
 
-                                <div className="col-span-2 col-start-3 flex flex-col gap-[12px]">
+                                <div className="col-span-2 col-start-3 flex flex-col gap-[12px] self-end">
                                     <h3>Publications</h3>
                                     <p className="text-[16px]">
                                         Vanity Fair, Vogue Greece, HYPEBEAST, Men’s Health, Vman, People Magazine,
@@ -93,11 +95,17 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                                     </p>
                                 </div>
 
-                                <div className="col-span-2 col-start-5 flex flex-col justify-between">
+                                <div className="col-span-2 col-start-5 flex flex-col justify-between self-end">
                                     <h3>Contact</h3>
                                     <p className="text-[16px]">
                                         studio@coleferguson.com <br /> @coleferguson
                                     </p>
+                                </div>
+
+                                <div className='col-span-3 col-start-8 bg-blue-500 h-[145px] relative'
+                                // onClick={() => setShowVideo(showVideo => !showVideo)}
+                                >
+                                    <Image src="/video-mock.png" alt="Cole Ferguson Studio" fill className='object-cover' />
                                 </div>
                             </div>
                         </div>

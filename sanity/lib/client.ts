@@ -97,29 +97,38 @@ export const getArchiveCountCached = unstable_cache(
 )
 
 // Highlights (up to 10 project references)
-// Highlights returns plain array of Project
-
-// const highlightsQuery = `*[_type == "highlights"][0].projects[]->{
-//   _id,
-//   title,
-//   views[]{
-//     _type,
-//     images[]{
-//       ...,
-//       "alt": coalesce(alt, ""),
-//       "blurDataURL": asset->metadata.lqip,
-//       "width": asset->metadata.dimensions.width,
-//       "height": asset->metadata.dimensions.height
-//     }
-//   }
-// }`
+// Highlights returns plain array of Project from the `highlights` doc
+const highlightsQuery = `*[_type == "highlights"][0].projects[]->{
+  _id,
+  title,
+  slug,
+  // legacy images (fallback)
+  images[]{
+    ...,
+    "alt": coalesce(alt, ""),
+    "blurDataURL": asset->metadata.lqip,
+    "width": asset->metadata.dimensions.width,
+    "height": asset->metadata.dimensions.height
+  },
+  // new views
+  views[]{
+    _type,
+    images[]{
+      ...,
+      "alt": coalesce(alt, ""),
+      "blurDataURL": asset->metadata.lqip,
+      "width": asset->metadata.dimensions.width,
+      "height": asset->metadata.dimensions.height
+    }
+  }
+}`
 
 export async function getHighlights(): Promise<Project[]> {
-  return client.fetch(projectsQuery)
+  return client.fetch(highlightsQuery)
 }
 
 export const getHighlightsCached = unstable_cache(
-  async () => client.fetch<Project[]>(projectsQuery),
+  async () => client.fetch<Project[]>(highlightsQuery),
   ['sanity-highlights-v1'],
   { revalidate: 60 * 60 }
 )

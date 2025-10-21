@@ -5,6 +5,8 @@ export default async function Page() {
   const highlights = await getHighlightsCached()
 
   return (
-    <HomeView projects={highlights} />
+    <>
+      <HomeView projects={highlights} />
+    </>
   );
 }

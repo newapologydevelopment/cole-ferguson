@@ -82,6 +82,14 @@ export const Project: React.FC<Props> = ({ project, actualPhoto, showIndicator =
         return () => { window.removeEventListener('resize', onResize); clearTimeout(t) }
     }, [measure])
 
+    // Ensure underline is measured when the indicator first appears (on project activation)
+    useEffect(() => {
+        if (!showIndicator) return
+        const raf = window.requestAnimationFrame(() => measure())
+        const t = setTimeout(measure, 0)
+        return () => { window.cancelAnimationFrame(raf); clearTimeout(t) }
+    }, [showIndicator, measure, beforeCount, currentCount, totalImages])
+
     return (
         <div className="relative h-screen w-screen flex items-center justify-center select-none overflow-x-hidden cursor-none">
             <div className="relative w-full h-full">
@@ -109,7 +117,7 @@ export const Project: React.FC<Props> = ({ project, actualPhoto, showIndicator =
                             const height = img?.height ?? 1067
                             const alt = img?.alt ?? project.title
                             return src ? (
-                                <div className="col-start-5 col-span-16 h-full` flex items-center justify-center">
+                                <div className="col-start-5 col-span-16 h-full flex items-center justify-center">
                                     <Image
                                         src={src}
                                         alt={alt}

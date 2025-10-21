@@ -107,10 +107,9 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
             }
 
             {view === 'list' &&
-                <div className=" col-start-12 col-span-13 h-ful flex items-center justify-center">
+                <div className=" col-start-12 col-span-13 h-full flex items-center justify-center">
                     <GalleryListView
                         project={listViewSelectedProject}
-                        thumbWidth={260}
                     />
                 </div>
             }
