@@ -33,7 +33,6 @@ function getImageRatio(img: unknown): Ratio | null {
     return null
 }
 
-// layout лише про ширини/позиції колонок
 const LAYOUT = {
     '3:2|3:2': { a: 'col-span-8 col-start-5', b: 'col-span-8' },
     '4:5|4:5': { a: 'col-span-7 col-start-6', b: 'col-span-7' },
@@ -46,14 +45,12 @@ type LayoutKey = keyof typeof LAYOUT
 const FALLBACK_KEY: LayoutKey = '3:2|3:2'
 const isLayoutKey = (s: string): s is LayoutKey => s in LAYOUT
 
-// мапа aspect-класів, щоб швидко підставляти на однакових парах
 const ASPECT_BY_RATIO: Record<Ratio, string> = {
     '3:2': 'aspect-[3/2]',
     '4:5': 'aspect-[4/5]',
     '5:4': 'aspect-[5/4]',
 }
 
-// висота пари тільки для різних пропорцій
 const PAIR_H = 'h-[clamp(360px,60vh,820px)]'
 
 export function TwoImagesView({ images }: { images: ProjectImage[] }) {
@@ -82,15 +79,11 @@ export function TwoImagesView({ images }: { images: ProjectImage[] }) {
     const { a: aCls, b: bCls } = LAYOUT[key]
     const isMixed = !!(ra && rb && ra !== rb)
 
-    // для однакових пропорцій: aspect-* як раніше
     const aAspect = !isMixed && ra ? ASPECT_BY_RATIO[ra] : ''
     const bAspect = !isMixed && rb ? ASPECT_BY_RATIO[rb] : ''
 
-    // для змішаних: фіксуємо однакову висоту
     const aHeight = isMixed ? PAIR_H : ''
     const bHeight = isMixed ? PAIR_H : ''
-
-    console.log('layout:', key, { ra, rb, isMixed })
 
     return (
         <div className="px-[24px] grid grid-cols-24 w-screen md:min-h-screen content-center items-center">

@@ -4,6 +4,7 @@
 import type { ArchiveProject as ArchiveProjectType } from '@/sanity/lib/client'
 import { urlFor } from '@/sanity/lib/image'
 import Image from 'next/image'
+import { CursorLabel } from './CursorLabel'
 
 type Ratio = '16:10' | '5:4' | '4:5' | '3:2' | '2:3' | '1:1'
 
@@ -98,16 +99,17 @@ export const ArchiveProject: React.FC<Props> = ({ archiveProject, onPrev, onNext
                 type="button"
                 aria-label="Previous"
                 onClick={onPrev}
-                className="absolute left-0 top-0 h-full w-1/2 cursor-w-resize focus:outline-none"
+                className="absolute left-0 top-0 h-full w-1/2 cursor-none focus:outline-none"
                 style={{ background: 'transparent' }}
             />
             <button
                 type="button"
                 aria-label="Next"
                 onClick={onNext}
-                className="absolute right-0 top-0 h-full w-1/2 cursor-e-resize focus:outline-none"
+                className="absolute right-0 top-0 h-full w-1/2 cursor-none focus:outline-none next-btn"
                 style={{ background: 'transparent' }}
             />
+            <CursorLabel />
         </section>
     )
 }

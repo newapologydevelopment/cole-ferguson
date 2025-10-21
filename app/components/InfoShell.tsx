@@ -48,7 +48,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                 role="button"
             >
                 <div className="h-full overflow-auto px-[24px] text-left text-[12px] text-primary-dark">
-                    <div className="pt-[-24px] text-btn">Information</div>
+                    <div className="pt-[-24px] text-btn" data-hide-cursor="true">Information</div>
                     <div className="h-[50vh] absolute left-0 right-0 bottom-[24px]  grid grid-cols-8  px-[24px] text">
                         <div className="col-start-2 col-end-[-1] flex flex-col justify-between text-info opacity-0">
                             <h1 className="text-[64px] leading-[115%]">

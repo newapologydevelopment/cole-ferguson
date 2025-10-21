@@ -51,6 +51,7 @@ export const NavigationHomePage = ({ titles, activeIndex, showAll, onHoverChange
             style={{ transform: `translateY(${Number.isFinite(offset) ? offset : 0}px)` }}
             onMouseEnter={() => onHoverChange(true)}
             onMouseLeave={() => onHoverChange(false)}
+            data-hide-cursor="true"
         >
             {titles.map((title, idx) => (
                 <li

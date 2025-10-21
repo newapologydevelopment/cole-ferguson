@@ -4,6 +4,7 @@ import { urlFor } from '@/sanity/lib/image'
 import type { Project as ProjectType, ProjectView } from "@/types/project"
 import Image from 'next/image'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { CursorLabel } from './CursorLabel'
 import { SingleImageView } from './SingleImageView'
 import { ThreeImagesView } from './ThreeImagesView'
 import { TwoImagesView } from './TwoImagesView'
@@ -15,7 +16,8 @@ interface Props {
 }
 
 export const Project: React.FC<Props> = ({ project, actualPhoto, showIndicator = true }) => {
-    console.log('project', project)
+    const [pos, setPos] = useState({ x: 0, y: 0 })
+
     const views: ProjectView[] = (project.views && project.views.length > 0)
         ? project.views
         : (project.images && project.images.length > 0)
@@ -81,7 +83,7 @@ export const Project: React.FC<Props> = ({ project, actualPhoto, showIndicator =
     }, [measure])
 
     return (
-        <div className="relative h-screen w-screen flex items-center justify-center select-none overflow-x-hidden">
+        <div className="relative h-screen w-screen flex items-center justify-center select-none overflow-x-hidden cursor-none">
             <div className="relative w-full h-full">
                 {current ? (
                     current._type === 'twoView' && current.images?.length === 2 ? (
@@ -130,9 +132,10 @@ export const Project: React.FC<Props> = ({ project, actualPhoto, showIndicator =
                 )}
             </div>
 
-            {/* Indicator fixed to viewport bottom center */}
             {showIndicator && totalImages > 0 && (
-                <div className="pointer-events-none fixed bottom-[24px] left-1/2 -translate-x-1/2 z-[40]">
+                <div className="pointer-events-none fixed bottom-[24px] left-1/2 -translate-x-1/2 z-[40]"
+                    data-hide-cursor="true"
+                >
                     <div ref={digitsRef} className="relative flex gap-[4px] text-[12px]">
                         {Array.from({ length: totalImages }).map((_, i) => {
                             const isActive = i >= beforeCount && i < beforeCount + currentCount
@@ -156,23 +159,34 @@ export const Project: React.FC<Props> = ({ project, actualPhoto, showIndicator =
                 </div>
             )}
 
-            {/* Left click area */}
+
             <button
                 type="button"
                 aria-label="Previous"
                 onClick={goPrev}
-                className="absolute left-0 top-0 h-full w-1/2 cursor-w-resize focus:outline-none"
+                className="absolute left-0 top-0 h-full w-1/2 cursor-none focus:outline-none prev-btn"
                 style={{ background: 'transparent' }}
+                onMouseMove={(e) => setPos({ x: e.clientX, y: e.clientY })}
             />
-
-            {/* Right click area */}
             <button
                 type="button"
                 aria-label="Next"
                 onClick={goNext}
-                className="absolute right-0 top-0 h-full w-1/2 cursor-e-resize focus:outline-none"
+                className="absolute right-0 top-0 h-full w-1/2 cursor-none focus:outline-none next-btn"
                 style={{ background: 'transparent' }}
+                onMouseMove={(e) => setPos({ x: e.clientX, y: e.clientY })}
             />
+            <CursorLabel />
+            {/* <div
+                className="pointer-events-none fixed text-[12px] capitalize"
+                style={{
+                    left: pos.x,
+                    top: pos.y,
+                    transform: 'translate(-50%, -50%)',
+                }}
+            >
+                {pos.x < window.innerWidth / 2 ? 'Prev.' : 'Next'}
+            </div> */}
         </div>
     )
 }

@@ -23,9 +23,27 @@ body {
 
 .hide-scrollbar {
   overflow-y: scroll;
-  scrollbar-width: none; 
-  -ms-overflow-style: none; 
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 .hide-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari */
+}
+
+.prev-btn::after,
+.next-btn::after {
+  /* content: attr(aria-label); */
+  position: fixed;
+  pointer-events: none;
+  color: black;
+  font-size: 12px;
+  text-transform: capitalize;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.prev-btn:hover::after,
+.next-btn:hover::after {
+  opacity: 1;
 }

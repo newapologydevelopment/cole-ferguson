@@ -1,5 +1,6 @@
 export * from './ArchiveLightBox';
 export * from './ArchiveProject';
+export * from './CursorLabel';
 export * from './GalleryGridView';
 export * from './GalleryListView';
 export * from './GalleyList';

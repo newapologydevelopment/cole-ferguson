@@ -19,7 +19,7 @@ export const ArchiveLightBox: React.FC<Props> = ({ close, children }) => {
 
     return (
         <div className="light-box text-primary-dark text-[12px] absolute inset-0  bg-white/95 backdrop-blur-md flex items-center justify-center z-100 scale-0">
-            <div onClick={close} className="absolute top-[24px] right-[24px] cursor-pointer z-[102]">Close</div>
+            <div onClick={close} className="absolute top-[24px] right-[24px] cursor-pointer z-[102]" data-hide-cursor="true">Close</div>
             {children}
         </div>
     )
