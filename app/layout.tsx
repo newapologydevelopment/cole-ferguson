@@ -17,7 +17,7 @@ const recitalBook = localFont({
   variable: "--font-recital-book",
 });
 
-const SHOW_GRID = true;
+const SHOW_GRID = !true;
 const SHOW_PRELOADER = true;
 
 export const metadata: Metadata = {

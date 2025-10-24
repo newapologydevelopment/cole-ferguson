@@ -121,7 +121,7 @@ export const Preloader = ({
 
     return (
         <div
-            className="fixed inset-0 bg-white flex items-center justify-center z-[9999]"
+            className="fixed inset-0 bg-white flex items-center justify-center z-[10002]"
         // style={{ opacity: fading ? 0 : 1, transition: `opacity ${Math.min(durationMs, fadeOutMs)}ms ease-out` }}
         >
             <Image
