@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { urlFor } from "@/sanity/lib/image";
@@ -6,18 +7,68 @@ import Image from "next/image";
 
 type Props = { project: Project | null };
 
-const gatherImages = (p: Project | null): ProjectImage[] => {
-    const fromViews = p?.views?.[0]?.images ?? [];
-    const fromRoot = p?.images ?? [];
-    // пріоритезуємо images з першого view, потім кореневі
-    return [...fromViews, ...fromRoot].filter(Boolean) as ProjectImage[];
+type Dims = { w: number; h: number } | null;
+
+const getRef = (img?: ProjectImage | null) =>
+    (img as any)?.asset?._ref as string | undefined;
+
+const getDims = (img?: ProjectImage | null): Dims => {
+    if (!img) return null;
+
+    const w = Number((img as any).width);
+    const h = Number((img as any).height);
+    if (Number.isFinite(w) && Number.isFinite(h) && w > 0 && h > 0) {
+        return { w, h };
+    }
+
+    const ref = getRef(img);
+    if (ref) {
+        const m = ref.match(/-(\d+)x(\d+)-/);
+        if (m) {
+            const rw = Number(m[1]);
+            const rh = Number(m[2]);
+            if (rw > 0 && rh > 0) return { w: rw, h: rh };
+        }
+    }
+
+    return null;
 };
 
-const isPortrait = (img?: ProjectImage | null) =>
-    !!(img?.width && img?.height && img.height > img.width);
+const isPortrait = (img?: ProjectImage | null) => {
+    const d = getDims(img);
+    return !!(d && d.h > d.w);
+};
 
-const isLandscape = (img?: ProjectImage | null) =>
-    !!(img?.width && img?.height && img.width >= img.height);
+const isLandscape = (img?: ProjectImage | null) => {
+    const d = getDims(img);
+    return !!(d && d.w >= d.h);
+};
+
+
+const gatherImages = (p: Project | null): ProjectImage[] => {
+    if (!p) return [];
+    const allViews = p.views ?? [];
+    const firstView = allViews[0]?.images ?? [];
+    const restViews = allViews.slice(1).flatMap(v => v?.images ?? []);
+    const fromRoot = p.images ?? [];
+
+    const getRef = (img?: ProjectImage | null) =>
+        (img as any)?.asset?._ref as string | undefined;
+
+    const isValid = (img?: ProjectImage | null): img is ProjectImage => !!(img && getRef(img));
+
+    const uniqByRef = (arr: ProjectImage[]) => {
+        const seen = new Set<string>();
+        return arr.filter(img => {
+            const r = getRef(img);
+            if (!r || seen.has(r)) return false;
+            seen.add(r);
+            return true;
+        });
+    };
+
+    return uniqByRef([...firstView, ...restViews, ...fromRoot].filter(isValid));
+};
 
 export const GalleryListView = ({ project }: Props) => {
     const images = gatherImages(project);
@@ -25,13 +76,13 @@ export const GalleryListView = ({ project }: Props) => {
     if (!first) return null;
 
     const alt = (img?: ProjectImage | null) =>
-        img?.alt || project?.title || "Project image";
+        img?.alt?.trim() || project?.title || "Project image";
+
     const src = (img: ProjectImage) => urlFor(img).width(1600).url();
 
-    // 1) Перше фото — портрет: показуємо лише його
     if (isPortrait(first)) {
         return (
-            <div className="relative w-full h-full">
+            <div className="relative w-full h-full overflow-hidden">
                 <Image
                     fill
                     src={src(first)}
@@ -39,40 +90,25 @@ export const GalleryListView = ({ project }: Props) => {
                     sizes="(max-width:768px) 100vw, 33vw"
                     placeholder={first.blurDataURL ? "blur" : "empty"}
                     blurDataURL={first.blurDataURL}
-                    className="object-cover"
+                    className="object-contain object-right"
                     loading="lazy"
                 />
             </div>
         );
     }
 
-    // 2) Перше — альбом: беремо ПЕРШІ ДВІ альбомні
-    const landscapes = images.filter(isLandscape).slice(0, 2);
+    const landscapes = images.filter(isLandscape);
+    const photos =
+        landscapes.length >= 2
+            ? landscapes.slice(0, 2)
+            : [landscapes[0] ?? first].filter(Boolean) as ProjectImage[];
 
-    // якщо з якихось причин знайшли тільки одну — покажемо одну
-    if (landscapes.length <= 1) {
-        const only = landscapes[0] ?? first;
-        return (
-            <div className="relative w-full h-full">
-                <Image
-                    fill
-                    src={src(only)}
-                    alt={alt(only)}
-                    sizes="(max-width:768px) 100vw, 33vw"
-                    placeholder={only.blurDataURL ? "blur" : "empty"}
-                    blurDataURL={only.blurDataURL}
-                    className="object-cover"
-                    loading="lazy"
-                />
-            </div>
-        );
-    }
+    if (photos.length === 0) photos.push(first);
 
-    // дві альбомні — як у макеті: два блоки, 24px між ними
     return (
         <div className="relative flex h-full w-full flex-col gap-[24px]">
-            {landscapes.map((img, i) => (
-                <div key={i} className="relative w-full flex-1">
+            {photos.map((img, i) => (
+                <div key={getRef(img) ?? i} className="relative w-full flex-1 overflow-hidden">
                     <Image
                         fill
                         src={src(img)}
@@ -80,7 +116,7 @@ export const GalleryListView = ({ project }: Props) => {
                         sizes="(max-width:768px) 100vw, 33vw"
                         placeholder={img.blurDataURL ? "blur" : "empty"}
                         blurDataURL={img.blurDataURL}
-                        className="object-cover"
+                        className="object-contain object-right"
                         loading="lazy"
                     />
                 </div>

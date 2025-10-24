@@ -39,7 +39,7 @@ function getImageRatio(img: unknown): Ratio | null {
 
 const SINGLE_LAYOUT = {
     '16:10': { wrap: 'col-span-14 col-start-6', aspect: 'aspect-[16/10]' },
-    '5:4': { wrap: 'col-span-12 col-start-7', aspect: 'aspect-[5/4]' },
+    '5:4': { wrap: 'col-span-12 col-start-7', aspect: 'aspect-[5/4]', shift: 'translate-y-[60px]' },
     '4:5': { wrap: 'col-span-9 col-start-8', aspect: 'aspect-[4/5]' },
     '3:2': { wrap: 'col-span-14 col-start-6', aspect: 'aspect-[3/2]' },
     '2:3': { wrap: 'col-span-8 col-start-9', aspect: 'aspect-[2/3]' },
@@ -59,7 +59,7 @@ export function SingleImageView({ image }: { image: ProjectImage }) {
 
     return (
         <div className="px-[24px] grid grid-cols-24 h-screen w-screen content-center items-center auto-rows-max">
-            <div className={`relative flex items-center justify-center ${wrap} ${aspect}`}>
+            <div className={`relative flex items-center justify-center ${wrap} ${aspect} translate-x-[30px]`}>
                 {src ? (
                     <Image
                         src={src}

@@ -4,6 +4,7 @@
 import type { ArchiveProject as ArchiveProjectType } from '@/sanity/lib/client'
 import { urlFor } from '@/sanity/lib/image'
 import Image from 'next/image'
+import { useEffect, useMemo, useState } from 'react'
 import { CursorLabel } from './CursorLabel'
 
 type Ratio = '16:10' | '5:4' | '4:5' | '3:2' | '2:3' | '1:1'
@@ -18,7 +19,6 @@ const hasWH = (x: unknown): x is WithWH =>
 type WithRatio = { ratio?: Ratio }
 const hasRatio = (x: unknown): x is WithRatio => !!x && isRatio((x as any).ratio)
 
-// Спроба взяти розміри з image або з метаданих Sanity (asset.metadata.dimensions)
 function detectRatio(w?: number | null, h?: number | null): Ratio | null {
     if (!w || !h) return null
     const r = w / h
@@ -64,27 +64,83 @@ interface Props {
 }
 
 export const ArchiveProject: React.FC<Props> = ({ archiveProject, onPrev, onNext }) => {
-    const ratio = getImageRatio(archiveProject.image) ?? FALLBACK
-    const { wrap, aspect } = SINGLE_LAYOUT[ratio]
+    // 1) Те, що реально показуємо
+    const [activeImage, setActiveImage] = useState<any>(archiveProject.image)
+    // 2) Те, що підвантажуємо невидимо
+    const [pendingImage, setPendingImage] = useState<any | null>(null)
+    const [isFading, setIsFading] = useState(false)
 
-    // даємо великий оригінал; next/image сам даунскейлить. width/height тут не потрібні, бо fill.
-    const src = urlFor(archiveProject.image).url()
+    // Коли прийшов новий проп — починаємо підвантаження як pending
+    useEffect(() => {
+        // якщо той самий asset — нічого не робимо
+        const aRef = activeImage?.asset?._ref
+        const incomingRef = archiveProject.image?.asset?._ref
+        if (!incomingRef || aRef === incomingRef) return
+
+        setPendingImage(archiveProject.image)
+    }, [archiveProject.image, activeImage])
+
+    // Аспект рахуємо від ACTIVE, щоб не було стрибка до моменту свопа
+    const ratio = useMemo(
+        () => getImageRatio(activeImage) ?? FALLBACK,
+        [activeImage as any]
+    )
+    const { wrap, aspect } = SINGLE_LAYOUT[ratio as LayoutKey]
+
+    const activeSrc = useMemo(() => urlFor(activeImage).url(), [activeImage])
+    const pendingSrc = useMemo(
+        () => (pendingImage ? urlFor(pendingImage).url() : null),
+        [pendingImage as any]
+        [pendingImage]
+    )
+
+    // Після завантаження pending — м’яко підміняємо active і гасимо pending
+    const commitSwap = () => {
+        if (!pendingImage) return
+        setIsFading(true)            // старт кросфейду
+        // невелика затримка дає CSS встигнути змінити opacity
+        requestAnimationFrame(() => {
+            setActiveImage(pendingImage) // одночасно міняється і аспект (бо від active)
+            setPendingImage(null)
+            // завершення анімації
+            setTimeout(() => setIsFading(false), 250)
+        })
+    }
 
     return (
         <section className="relative w-full min-h-screen flex items-center">
             <div className="px-[24px] grid grid-cols-24 w-full items-center content-center gap-y-[55px]">
-                {/* Враппер з аспектом */}
+                {/* Контейнер з фіксованим на час свопа аспектом active */}
                 <div className={`relative flex items-center justify-center ${wrap} ${aspect}`}>
-                    {src && (
+                    {/* ACTIVE layer */}
+                    {activeSrc && (
                         <Image
-                            src={src}
-                            alt={archiveProject.image?.alt || archiveProject.title}
+                            key={activeImage?.asset?._ref ?? 'active'}
+                            src={activeSrc}
+                            alt={activeImage?.alt || archiveProject.title}
                             fill
                             sizes="(min-width:1280px) 60vw, (min-width:768px) 80vw, 100vw"
-                            placeholder={archiveProject.image?.blurDataURL ? 'blur' : 'empty'}
-                            blurDataURL={archiveProject.image?.blurDataURL}
-                            className="object-cover"
+                            placeholder={activeImage?.blurDataURL ? 'blur' : 'empty'}
+                            blurDataURL={activeImage?.blurDataURL}
+                            className={`object-cover transition-opacity duration-200 ${isFading ? 'opacity-0' : 'opacity-100'}`}
                             priority
+                        />
+                    )}
+
+                    {/* PENDING layer — невидимий, поки не завантажиться */}
+                    {pendingSrc && (
+                        <Image
+                            key={pendingImage?.asset?._ref ?? 'pending'}
+                            src={pendingSrc}
+                            alt={pendingImage?.alt || archiveProject.title}
+                            fill
+                            sizes="(min-width:1280px) 60vw, (min-width:768px) 80vw, 100vw"
+                            // hint браузеру підвантажити швидше
+                            fetchPriority="high"
+                            decoding="async"
+                            // як тільки pending завантажився — свопимо active + аспект
+                            onLoadingComplete={commitSwap}
+                            className="object-cover opacity-0 pointer-events-none"
                         />
                     )}
                 </div>
@@ -94,7 +150,7 @@ export const ArchiveProject: React.FC<Props> = ({ archiveProject, onPrev, onNext
                 </div>
             </div>
 
-            {/* Click areas Prev/Next поверх усього */}
+            {/* Click areas */}
             <button
                 type="button"
                 aria-label="Previous"
@@ -106,7 +162,7 @@ export const ArchiveProject: React.FC<Props> = ({ archiveProject, onPrev, onNext
                 type="button"
                 aria-label="Next"
                 onClick={onNext}
-                className="absolute right-0 top-0 h-full w-1/2 cursor-none focus:outline-none next-btn"
+                className="absolute right-0 top-0 h-full w-1/2 cursor-none focus:outline-none"
                 style={{ background: 'transparent' }}
             />
             <CursorLabel />

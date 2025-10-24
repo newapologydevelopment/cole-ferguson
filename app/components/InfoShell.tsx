@@ -51,12 +51,13 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                 duration: 0.5,
                 ease: 'power2.inOut'
             }, '<')
+
     }, [open])
 
     return (
         <div className="relative" >
             <div className={cn('transition-transform duration-500', {
-                '-translate-y-[88vh]': open,
+                '-translate-y-[80vh]': open,
                 'pointer-events-none': open
             })}>
                 {children}

@@ -1,9 +1,7 @@
 'use client'
 
-import { urlFor } from '@/sanity/lib/image'
 import type { Project as ProjectType, ProjectView } from "@/types/project"
-import Image from 'next/image'
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { CursorLabel } from './CursorLabel'
 import { SingleImageView } from './SingleImageView'
 import { ThreeImagesView } from './ThreeImagesView'
@@ -15,14 +13,27 @@ interface Props {
     showIndicator?: boolean
 }
 
-export const Project: React.FC<Props> = ({ project, actualPhoto, showIndicator = true }) => {
-    const [pos, setPos] = useState({ x: 0, y: 0 })
+// ——— helpers ———
+const normalizeViews = (project: ProjectType): ProjectView[] => {
+    const base: ProjectView[] =
+        (project.views && project.views.length > 0)
+            ? project.views
+            : (project.images && project.images.length > 0)
+                ? [{ _type: 'singleView', images: [project.images[0]] }]
+                : []
 
-    const views: ProjectView[] = (project.views && project.views.length > 0)
-        ? project.views
-        : (project.images && project.images.length > 0)
-            ? [{ _type: 'singleView', images: [project.images[0]] }]
-            : []
+    // Будь-який view з 1 зображенням → singleView (уніфікація)
+    return base.map(v => {
+        const len = v.images?.length ?? 0
+        if (len === 1 && v._type !== 'singleView') {
+            return { _type: 'singleView', images: v.images }
+        }
+        return v
+    })
+}
+
+export const Project: React.FC<Props> = ({ project, actualPhoto, showIndicator = true }) => {
+    const views = useMemo(() => normalizeViews(project), [project])
 
     const [index, setIndex] = useState(0)
 
@@ -32,26 +43,24 @@ export const Project: React.FC<Props> = ({ project, actualPhoto, showIndicator =
         if (idx !== -1) setIndex(idx)
     }, [actualPhoto, views])
 
-
     const goPrev = useCallback(() => {
         if (views.length === 0) return
-        setIndex((i) => (i - 1 + views.length) % views.length)
+        setIndex(i => (i - 1 + views.length) % views.length)
     }, [views.length])
 
     const goNext = useCallback(() => {
         if (views.length === 0) return
-        setIndex((i) => (i + 1) % views.length)
+        setIndex(i => (i + 1) % views.length)
     }, [views.length])
 
     const current = views[index]
 
-    // Indicator data: total images across all views and active range
+    // Indicator
     const imageCounts = views.map(v => v.images?.length ?? 0)
     const totalImages = imageCounts.reduce((a, b) => a + b, 0)
     const beforeCount = imageCounts.slice(0, index).reduce((a, b) => a + b, 0)
     const currentCount = current?.images?.length ?? 0
 
-    // underline measurement within digits wrapper
     const digitsRef = useRef<HTMLDivElement | null>(null)
     const digitRefs = useRef<(HTMLSpanElement | null)[]>([])
     const [underline, setUnderline] = useState({ left: 0, width: 0 })
@@ -71,18 +80,13 @@ export const Project: React.FC<Props> = ({ project, actualPhoto, showIndicator =
         setUnderline({ left, width })
     }, [beforeCount, currentCount, totalImages])
 
-    useLayoutEffect(() => {
-        measure()
-    }, [measure, index])
-
+    useLayoutEffect(() => { measure() }, [measure, index])
     useEffect(() => {
         const onResize = () => measure()
         window.addEventListener('resize', onResize)
         const t = setTimeout(measure, 0)
         return () => { window.removeEventListener('resize', onResize); clearTimeout(t) }
     }, [measure])
-
-    // Ensure underline is measured when the indicator first appears (on project activation)
     useEffect(() => {
         if (!showIndicator) return
         const raf = window.requestAnimationFrame(() => measure())
@@ -90,67 +94,40 @@ export const Project: React.FC<Props> = ({ project, actualPhoto, showIndicator =
         return () => { window.cancelAnimationFrame(raf); clearTimeout(t) }
     }, [showIndicator, measure, beforeCount, currentCount, totalImages])
 
+    // ——— єдина точка рендеру view без дубляжу single ———
+    const renderView = (v?: ProjectView | null) => {
+        if (!v || !v.images || v.images.length === 0) return null
+        if (v._type === 'twoView' && v.images.length === 2) {
+            return <TwoImagesView images={v.images} />
+        }
+        if (v._type === 'threeView' && v.images.length === 3) {
+            return <ThreeImagesView images={v.images} />
+        }
+        // усе, що має 1 фото — завжди один шлях:
+        if (v.images.length === 1) {
+            return <SingleImageView image={v.images[0]} />
+        }
+        // (неочікуваний кейс)  — на всяк випадок покажемо перше як single
+        return <SingleImageView image={v.images[0]} />
+    }
+
     return (
         <div className="relative h-screen w-screen flex items-center justify-center select-none overflow-x-hidden cursor-none">
             <div className="relative w-full h-full">
-                {current ? (
-                    current._type === 'twoView' && current.images?.length === 2 ? (
-                        <div className="h-full w-full">
-                            <TwoImagesView images={current.images} />
-
-                        </div>
-                    ) : current._type === 'threeView' && current.images?.length === 3 ? (
-                        /* Three images layout fills container */
-                        <div className="h-full w-full">
-                            <ThreeImagesView images={current.images} />
-                        </div>
-                    ) : current._type === 'singleView' && current.images?.length === 1 ? (
-                        <div className="h-full w-full">
-                            <SingleImageView image={current.images[0]} />
-                        </div>
-                    ) : (
-                        /* One image: place from col 2 to 8 */
-                        (() => {
-                            const img = current.images?.[0]
-                            const src = img ? urlFor(img).url() : undefined
-                            const width = img?.width ?? 1600
-                            const height = img?.height ?? 1067
-                            const alt = img?.alt ?? project.title
-                            return src ? (
-                                <div className="col-start-5 col-span-16 h-full flex items-center justify-center">
-                                    <Image
-                                        src={src}
-                                        alt={alt}
-                                        width={width}
-                                        height={height}
-                                        placeholder={img?.blurDataURL ? 'blur' : 'empty'}
-                                        blurDataURL={img?.blurDataURL}
-                                        className="max-w-full max-h-[642px] w-auto h-auto object-contain"
-                                        priority
-                                    />
-                                </div>
-                            )
-                                : (
-                                    <div className="col-start-2 col-span-7 flex items-center justify-center">{project.title}</div>
-                                )
-                        })()
-                    )
-                ) : (
-                    <div className="col-start-2 col-span-7 flex items-center justify-center">{project.title}</div>
+                {renderView(current) ?? (
+                    <div className="flex items-center justify-center h-full">{project.title}</div>
                 )}
             </div>
 
             {showIndicator && totalImages > 0 && (
-                <div className="pointer-events-none fixed bottom-[24px] left-1/2 -translate-x-1/2 z-[40]"
-                    data-hide-cursor="true"
-                >
+                <div className="pointer-events-none fixed bottom-[24px] left-1/2 -translate-x-1/2 z-[40]" data-hide-cursor="true">
                     <div ref={digitsRef} className="relative flex gap-[4px] text-[12px]">
                         {Array.from({ length: totalImages }).map((_, i) => {
                             const isActive = i >= beforeCount && i < beforeCount + currentCount
                             return (
                                 <span
                                     key={i}
-                                    ref={(el) => { digitRefs.current[i] = el; }}
+                                    ref={el => { digitRefs.current[i] = el }}
                                     className={`inline-block px-[1px] ${isActive ? '-translate-y-[2px]' : ''}`}
                                 >
                                     {i + 1}
@@ -167,14 +144,12 @@ export const Project: React.FC<Props> = ({ project, actualPhoto, showIndicator =
                 </div>
             )}
 
-
             <button
                 type="button"
                 aria-label="Previous"
                 onClick={goPrev}
                 className="absolute left-0 top-0 h-full w-1/2 cursor-none focus:outline-none prev-btn"
                 style={{ background: 'transparent' }}
-                onMouseMove={(e) => setPos({ x: e.clientX, y: e.clientY })}
             />
             <button
                 type="button"
@@ -182,19 +157,8 @@ export const Project: React.FC<Props> = ({ project, actualPhoto, showIndicator =
                 onClick={goNext}
                 className="absolute right-0 top-0 h-full w-1/2 cursor-none focus:outline-none next-btn"
                 style={{ background: 'transparent' }}
-                onMouseMove={(e) => setPos({ x: e.clientX, y: e.clientY })}
             />
             <CursorLabel />
-            {/* <div
-                className="pointer-events-none fixed text-[12px] capitalize"
-                style={{
-                    left: pos.x,
-                    top: pos.y,
-                    transform: 'translate(-50%, -50%)',
-                }}
-            >
-                {pos.x < window.innerWidth / 2 ? 'Prev.' : 'Next'}
-            </div> */}
         </div>
     )
 }

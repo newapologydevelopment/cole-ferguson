@@ -88,7 +88,7 @@ export function TwoImagesView({ images }: { images: ProjectImage[] }) {
     return (
         <div className="px-[24px] grid grid-cols-24 w-screen md:min-h-screen content-center items-center">
             {/* A */}
-            <div className={`relative min-w-0 ${aCls} ${aAspect} ${aHeight}`}>
+            <div className={`relative min-w-0 ${aCls} ${aAspect} ${aHeight} translate-x-[-30px]`}>
                 {srcA && (
                     <Image
                         src={srcA}
@@ -106,7 +106,7 @@ export function TwoImagesView({ images }: { images: ProjectImage[] }) {
             <div className="w-[60px]" />
 
             {/* B */}
-            <div className={`relative min-w-0 ${bCls} ${bAspect} ${bHeight}`}>
+            <div className={`relative min-w-0 ${bCls} ${bAspect} ${bHeight} translate-x-[-30px]`}>
                 {srcB && (
                     <Image
                         src={srcB}

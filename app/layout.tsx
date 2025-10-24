@@ -17,6 +17,7 @@ const recitalBook = localFont({
 });
 
 const SHOW_GRID = !true;
+const SHOW_PRELOADER = true;
 
 export const metadata: Metadata = {
   title: "Cole Ferguson",
@@ -85,7 +86,7 @@ export default function RootLayout({
         className={`${recitalBook.className} antialiased`}
       >
         {SHOW_GRID && <GridOverlay />}
-        <Preloader />
+        {SHOW_PRELOADER && <Preloader />}
         <Link
           href="/"
           className="fixed z-[4] top-[24px] left-[24px] text-[12px] text-primary-dark cursor-pointer"
