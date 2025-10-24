@@ -1,7 +1,8 @@
 export * from './ArchiveLightBox';
 export * from './ArchiveProject';
 export * from './CursorLabel';
-export * from './GalleryGridView';
+export { GalleryGridView, type GalleryGridItem } from './GalleryGridView';
+export { GalleryGridViewMobile, type GalleryGridItem as MobileGalleryGridItem } from './GalleryGridViewMobile';
 export * from './GalleryListView';
 export * from './GalleyList';
 export * from './GridOverlay';

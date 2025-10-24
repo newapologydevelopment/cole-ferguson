@@ -17,7 +17,7 @@ const recitalBook = localFont({
   variable: "--font-recital-book",
 });
 
-const SHOW_GRID = !true;
+const SHOW_GRID = true;
 const SHOW_PRELOADER = true;
 
 export const metadata: Metadata = {
@@ -90,7 +90,7 @@ export default function RootLayout({
         {SHOW_PRELOADER && <Preloader />}
         <Link
           href="/"
-          className="fixed z-[4] md:top-[24px] top-[20px] md:left-[24px] left-[20px] text-[12px] text-primary-dark cursor-pointer"
+          className="fixed z-[10001] md:top-[24px] top-[20px] md:left-[24px] left-[20px] text-[12px] text-primary-dark cursor-pointer bg-white"
           data-hide-cursor="true"
           data-brand-header
         >

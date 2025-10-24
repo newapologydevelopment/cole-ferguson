@@ -3,7 +3,7 @@
 import { Project as ProjectType } from '@/types';
 import { cn, collectAllImages } from "@/utils";
 import { useState } from "react";
-import { GalleryGridView, GalleryListView, GalleyList, LightBox, Project } from '../components';
+import { GalleryGridView, GalleryGridViewMobile, GalleryListView, GalleyList, LightBox, Project } from '../components';
 import { useBreakpoint } from '../hooks';
 
 // export const projectsMock: { title: string, images: number }[] = [
@@ -72,7 +72,7 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
 
     if (isMobile) return (
         <div className='sm:hidden h-[100dvh] grid grid-cols-8 text-[12px] text-primary-dark px-[20px]'>
-            <div className="fixed z-[2] top-[10%] flex gap-[15px] left-1/2 -translate-x-1/2">
+            <div className="fixed z-[2] top-[50px] flex gap-[15px] left-1/2 -translate-x-1/2">
                 <div className={cn("cursor-pointer", {
                     'underline underline-offset-[4px] translate-y-[-4px]': view === 'grid'
                 })}
@@ -96,6 +96,17 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
                     onClick={handleLightBoxOpen}
                 />
             )}
+
+            {view === 'grid' &&
+                <GalleryGridViewMobile
+                    items={allImages}
+                    projects={projects}
+                    selectedProject={selectedProject}
+                    onHoverProject={setSelectedProject}
+                    onClick={handleLightBoxOpen}
+                    selectActualPhoto={setActualPhoto}
+                />
+            }
         </div>
     )
 

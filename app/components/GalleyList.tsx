@@ -30,7 +30,7 @@ export const GalleyList: React.FC<Props> = ({
 
     if (isMobile) return (
         <>
-            <div className={cn("relative col-span-full col-start-1 self-center h-[100dvh] min-h-0 flex flex-col", className)}>
+            <div className={cn("relative col-span-full col-start-1 self-center h-[100dvh] min-h-0 flex flex-col pt-[96px]", className)}>
                 <div className="flex items-center justify-between mb-[30px] shrink-0">
                     <p>All</p>
                     <div>{allProjects.length}</div>
