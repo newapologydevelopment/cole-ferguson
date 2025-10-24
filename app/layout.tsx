@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import Link from "next/link";
 import {
   GridOverlay,
+  MenuMobile,
   PageTransition,
   Preloader
 } from "./components";
@@ -89,17 +90,20 @@ export default function RootLayout({
         {SHOW_PRELOADER && <Preloader />}
         <Link
           href="/"
-          className="fixed z-[4] top-[24px] left-[24px] text-[12px] text-primary-dark cursor-pointer"
+          className="fixed z-[4] md:top-[24px] top-[20px] md:left-[24px] left-[20px] text-[12px] text-primary-dark cursor-pointer"
           data-hide-cursor="true"
           data-brand-header
         >
           Cole Ferguson
         </Link>
+        {/* <div className="fixed right-[20px] top-[20px] text-[12px] text-primary-dark md:hidden">Menu</div> */}
+
         <InfoShell>
+          <MenuMobile />
           <PageTransition>
             {children}
             <div className="fixed z-[3]  md:bottom-[24px] md:left-[24px] bottom-[20px] left-[20px] flex flex-col gap-[8px] text-[12px] text-primary-dark" data-index-container>
-              <Link href="/gallery" className="cursor-pointer" data-hide-cursor="true">Index</Link>
+              <Link href="/gallery" className="cursor-pointer sm:block hidden" data-hide-cursor="true">Index</Link>
               <div className=" realtive invisible w-screen pointer-events-none z-[-1]" >1</div>
             </div>
           </PageTransition>

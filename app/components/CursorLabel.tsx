@@ -3,8 +3,17 @@ import { useEffect, useState } from 'react'
 
 export const CursorLabel = () => {
     const [pos, setPos] = useState({ x: 0, y: 0, label: 'Next', visible: true })
+    const [enabled, setEnabled] = useState(false)
 
     useEffect(() => {
+        // Enable custom cursor only on devices that support hover and fine pointer (desktops)
+        const isCoarse = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(pointer: coarse)').matches
+        const noHover = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(hover: none)').matches
+        setEnabled(!(isCoarse || noHover))
+    }, [])
+
+    useEffect(() => {
+        if (!enabled) return
         const move = (e: MouseEvent) => {
             const el = document.elementFromPoint(e.clientX, e.clientY)
             const isBlocked = el?.closest('.ui-overlay, [data-hide-cursor="true"]')
@@ -17,7 +26,9 @@ export const CursorLabel = () => {
         }
         window.addEventListener('mousemove', move)
         return () => window.removeEventListener('mousemove', move)
-    }, [])
+    }, [enabled])
+
+    if (!enabled) return null
 
     return (
         <div

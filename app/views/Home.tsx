@@ -2,16 +2,18 @@
 
 import {
     NavigationHomePage,
-    // ProjectAlternative,
-    Project
+    Project,
+    ProjectMobile
 } from "@/app/components";
 import { Project as ProjectType } from '@/types';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useBreakpoint } from "../hooks";
 
 export const Home = ({ projects }: { projects: ProjectType[] }) => {
     const projectTitles = useMemo(() => projects.map((p) => p.title), [projects]);
     const scrollRef = useRef<HTMLDivElement | null>(null)
     const sectionRefs = useRef<(HTMLElement | null)[]>([])
+    const { isMobile } = useBreakpoint()
     const [activeIndex, setActiveIndex] = useState(0)
     const [showAll, setShowAll] = useState(false)
 
@@ -36,9 +38,9 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
     }, [])
 
     return (
-        <div className="h-screen overflow-hidden p-[24px] text-[12px] text-primary-dark">
+        <div className="h-screen overflow-hidden p-[20px] sm:p-[24px] text-[12px] text-primary-dark">
 
-            <div className="fixed z-[2] top-[50%] translate-y-[-25%] mt-[16px] flex flex-col gap-[8px]">
+            <div className="fixed z-[2] top-[50%] translate-y-[-25%] mt-[16px] hidden sm:flex flex-col gap-[8px] ">
                 <NavigationHomePage
                     titles={projectTitles}
                     activeIndex={activeIndex}
@@ -55,10 +57,11 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
                         ref={(el) => { sectionRefs.current[i] = el }}
                         className={`snap-start h-screen transition-opacity duration-300 ${i === activeIndex || showAll ? 'opacity-100' : 'opacity-0'}`}
                     >
-                        <Project project={project} showIndicator={!showAll && i === activeIndex} />
-                        {/* <ProjectAlternative
-                            project={project}
-                        /> */}
+                        {isMobile ?
+                            <ProjectMobile project={project} /> :
+                            <Project project={project} showIndicator={!showAll && i === activeIndex} />
+                        }
+                        {/* <Project project={project} showIndicator={!showAll && i === activeIndex} /> */}
                     </section>
                 ))}
             </div>

@@ -108,7 +108,7 @@ export const ArchiveProject: React.FC<Props> = ({ archiveProject, onPrev, onNext
     }
 
     return (
-        <section className="relative w-full min-h-screen flex items-center">
+        <section className="relative w-full min-h-screen items-center sm:flex hidden">
             <div className="px-[24px] grid grid-cols-24 w-full items-center content-center gap-y-[55px]">
                 {/* Контейнер з фіксованим на час свопа аспектом active */}
                 <div className={`relative flex items-center justify-center ${wrap} ${aspect}`}>

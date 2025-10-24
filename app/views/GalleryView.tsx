@@ -4,6 +4,7 @@ import { Project as ProjectType } from '@/types';
 import { cn, collectAllImages } from "@/utils";
 import { useState } from "react";
 import { GalleryGridView, GalleryListView, GalleyList, LightBox, Project } from '../components';
+import { useBreakpoint } from '../hooks';
 
 // export const projectsMock: { title: string, images: number }[] = [
 //     { title: "Dodgers—ESPN", images: 7 },
@@ -54,6 +55,7 @@ import { GalleryGridView, GalleryListView, GalleyList, LightBox, Project } from 
 
 export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectType[]; archiveCount?: number }) => {
     const [view, setView] = useState('grid');
+    const { isMobile } = useBreakpoint();
     const [selectedProject, setSelectedProject] = useState<string | null>(null);
     const [lightBoxOpen, setLightBoxOpen] = useState(false);
     const [listViewSelectedProject, setListViewSelectedProject] = useState<ProjectType | null>(projects[0]);
@@ -68,8 +70,37 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
         }
     }
 
+    if (isMobile) return (
+        <div className='sm:hidden h-[100dvh] grid grid-cols-8 text-[12px] text-primary-dark px-[20px]'>
+            <div className="fixed z-[2] top-[10%] flex gap-[15px] left-1/2 -translate-x-1/2">
+                <div className={cn("cursor-pointer", {
+                    'underline underline-offset-[4px] translate-y-[-4px]': view === 'grid'
+                })}
+                    onClick={() => setView('grid')}>
+                    Grid
+                </div>
+                <div
+                    className={cn("cursor-pointer", {
+                        'underline underline-offset-[4px] translate-y-[-4px]': view === 'list'
+                    })}
+                    onClick={() => setView('list')}>
+                    List
+                </div>
+            </div>
+
+            {view === 'list' && (
+                <GalleyList
+                    items={projects}
+                    archiveCount={archiveCount}
+                    onHoverProject={(project) => setListViewSelectedProject(project)}
+                    onClick={handleLightBoxOpen}
+                />
+            )}
+        </div>
+    )
+
     return (
-        <div className="w-full h-full grid grid-cols-24 text-[12px] text-primary-dark p-[24px]">
+        <div className="hidden sm:grid grid-cols-24 w-full h-full text-[12px] text-primary-dark p-[24px] ">
             <div className="fixed z-[2] top-[50%] translate-y-[-25%] flex gap-[15px] translate-y-[-50%]">
                 <div className={cn("cursor-pointer", {
                     'underline underline-offset-[4px] translate-y-[-4px]': view === 'grid'

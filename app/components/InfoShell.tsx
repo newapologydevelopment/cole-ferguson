@@ -5,9 +5,12 @@ import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
+import { useBreakpoint } from '../hooks'
+import { MenuMobile } from './MenuMobile'
 
 export function InfoShell({ children }: { children: React.ReactNode }) {
     const [open, setOpen] = useState(false)
+    const { isMobile } = useBreakpoint()
     // const [showVideo, setShowVideo] = useState(false)
     const touchStartY = useRef(0)
 
@@ -83,6 +86,19 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
 
     }, [open])
 
+    // if (isMobile) return (
+    //     <div className='sm:hidden pt-[75px] h-[100dvh] px-[20px]'>
+    //         <div className='relative z-[10000]'>
+    //             <MenuMobile />
+    //         </div>
+
+    //         <h1 className="text-[21px] leading-[130%]">
+    //             Cole is a photographer and director living in Los Angeles, California.
+    //         </h1>
+
+    //     </div>
+    // )
+
     return (
         <div className="relative" >
             <div className={cn('transition-transform duration-500', {
@@ -91,6 +107,8 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
             })}>
                 {children}
             </div>
+
+            {/* <MenuMobile /> */}
 
             <div
                 className="fixed left-0 right-0 bottom-0 transition-[height] duration-500 cursor-pointer z-[30]"
@@ -101,7 +119,8 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                 data-hide-cursor="true"
             >
                 <div className="h-full overflow-auto px-[24px] text-left text-[12px] text-primary-dark">
-                    <div className="pt-[-24px] text-btn" data-hide-cursor="true">Information</div>
+                    <div className="pt-[-24px] text-btn hidden sm:block" data-hide-cursor="true">Information</div>
+
                     <div className="h-[50vh] absolute left-0 right-0 bottom-[24px]  grid grid-cols-8  px-[24px] text">
                         <div className="col-start-2 col-end-[-1] flex flex-col justify-between text-info opacity-0">
                             <h1 className="text-[64px] leading-[115%]">
