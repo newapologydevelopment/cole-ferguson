@@ -91,13 +91,14 @@ export default function RootLayout({
           href="/"
           className="fixed z-[4] top-[24px] left-[24px] text-[12px] text-primary-dark cursor-pointer"
           data-hide-cursor="true"
+          data-brand-header
         >
           Cole Ferguson
         </Link>
         <InfoShell>
           <PageTransition>
             {children}
-            <div className="fixed z-[3]  md:bottom-[24px] md:left-[24px] bottom-[20px] left-[20px] flex flex-col gap-[8px] text-[12px] text-primary-dark">
+            <div className="fixed z-[3]  md:bottom-[24px] md:left-[24px] bottom-[20px] left-[20px] flex flex-col gap-[8px] text-[12px] text-primary-dark" data-index-container>
               <Link href="/gallery" className="cursor-pointer" data-hide-cursor="true">Index</Link>
               <div className=" realtive invisible w-screen pointer-events-none z-[-1]" >1</div>
             </div>

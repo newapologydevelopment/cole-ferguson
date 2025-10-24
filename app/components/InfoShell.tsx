@@ -52,6 +52,35 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                 ease: 'power2.inOut'
             }, '<')
 
+        // Animate Index button to stop under the brand header when information opens
+        const indexContainer = document.querySelector('[data-index-container]') as HTMLElement | null
+        const brandHeader = document.querySelector('[data-brand-header]') as HTMLElement | null
+        if (indexContainer && brandHeader) {
+            if (open) {
+                const headerBottom = brandHeader.getBoundingClientRect().bottom
+                const indexRect = indexContainer.getBoundingClientRect()
+                const wrapperDelta = -0.8 * window.innerHeight // matches -translate-y-[80vh]
+                const gap = 8 // px spacing under the title
+                const targetTop = headerBottom + gap
+                const finalWithoutExtra = indexRect.top + wrapperDelta
+                const extraDelta = targetTop - finalWithoutExtra
+
+                gsap.set(indexContainer, { zIndex: 40 })
+                gsap.to(indexContainer, {
+                    y: extraDelta,
+                    duration: 0.5,
+                    ease: 'power2.inOut'
+                })
+            } else {
+                gsap.to(indexContainer, {
+                    y: 0,
+                    duration: 0.5,
+                    ease: 'power2.inOut',
+                    onComplete: () => { gsap.set(indexContainer, { zIndex: 3 }) }
+                })
+            }
+        }
+
     }, [open])
 
     return (
