@@ -66,7 +66,7 @@ export const MenuMobile = () => {
                     >
                         <div className='flex items-center justify-between relative'>
                             <Link
-                                href="/gallery" className='py-3 z-[3]'
+                                href="/gallery" className='py-3 z-[4]'
                                 onClick={() => setInformationOpen(false)}>
                                 Index
                             </Link>

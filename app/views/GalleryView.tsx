@@ -73,7 +73,7 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
     }
 
     if (isMobile) return (
-        <div className='sm:hidden h-[100dvh] grid grid-cols-8 text-[12px] text-primary-dark px-[20px]'>
+        <div className='sm:hidden h-[100dvh] w-full text-[12px] text-primary-dark px-[20px] pb-[40px]'>
             <div className="fixed z-[2] top-[50px] flex gap-[15px] left-1/2 -translate-x-1/2">
                 <div className={cn("cursor-pointer", {
                     'underline underline-offset-[4px] translate-y-[-4px]': view === 'grid'
@@ -104,10 +104,24 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
                     items={allImages}
                     projects={projects}
                     selectedProject={selectedProject}
-                    onHoverProject={setSelectedProject}
                     onClick={handleLightBoxOpen}
                     selectActualPhoto={setActualPhoto}
                 />
+            }
+
+            {lightBoxOpen &&
+                // <LightBox
+                //     close={() => setLightBoxOpen(false)}
+                //     title={listViewSelectedProject?.title || ''}
+                // >
+                //     <Project
+                //         actualPhoto={actualPhoto}
+                //         project={listViewSelectedProject as unknown as ProjectType}
+                //     />
+                // </LightBox>
+                <div
+                    onClick={() => setLightBoxOpen(false)}
+                    className='w-full h-full absolute top-0 left-0 bg-red-500 flex items-center justify-center'>hello</div>
             }
         </div>
     )

@@ -3,7 +3,7 @@
 import { Project } from "@/types";
 import { cn } from "@/utils";
 import Link from "next/link";
-import { useBreakpoint } from "../hooks";
+import { useBreakpoint, useScrollToTop } from "../hooks";
 
 export type GalleryListItem = { title: string; images: number }
 
@@ -22,6 +22,7 @@ export const GalleryList: React.FC<Props> = ({
     onHoverProject,
     onClick }) => {
     const { isMobile } = useBreakpoint();
+    useScrollToTop();
 
     const allProjects = items.map(project => {
         const allImages = project.views?.flatMap(v => v.images) || []
@@ -30,7 +31,7 @@ export const GalleryList: React.FC<Props> = ({
 
     if (isMobile) return (
         <>
-            <div className={cn("relative col-span-full col-start-1 self-center h-full min-h-0 flex flex-col pt-[96px] pb-[20px] bg-red-600", className)}>
+            <div className={cn("fixed right-[20px] top-[84px] left-[20px] col-span-full col-start-1 self-center min-h-0 h-[calc(100dvh-84px)] flex flex-col pb-[20px] hide-scrollbar", className)}>
                 <div className="flex items-center justify-between mb-[30px] shrink-0">
                     <p>All</p>
                     <div>{allProjects.length}</div>
@@ -42,7 +43,6 @@ export const GalleryList: React.FC<Props> = ({
                             <div
                                 key={project.title + i}
                                 className="flex items-center justify-between cursor-pointer"
-                                onMouseEnter={() => onHoverProject?.(project as Project)}
                                 onClick={() => onClick?.(project as Project)}
                             >
                                 <div>{project.title}</div>
@@ -52,12 +52,12 @@ export const GalleryList: React.FC<Props> = ({
                     </div>
                 </div>
 
-                <div className="pointer-events-none absolute inset-x-0 bottom-[56px] h-[47px] bg-gradient-to-t from-white to-transparent z-10" />
+                <div className="pointer-events-none absolute inset-x-0 bottom-[46px] h-[47px] bg-gradient-to-t from-white to-transparent z-[10001]" />
                 <div className="flex items-center justify-between mt-[20px] shrink-0">
                     <Link href="/archive">Archive</Link>
                     <div>{archiveCount}</div>
                 </div>
-            </div>
+            </div >
         </>
     )
 

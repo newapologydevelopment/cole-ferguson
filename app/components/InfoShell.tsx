@@ -85,18 +85,11 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
 
     }, [open])
 
-    // if (isMobile) return (
-    //     <div className='sm:hidden pt-[75px] h-[100dvh] px-[20px]'>
-    //         <div className='relative z-[10000]'>
-    //             <MenuMobile />
-    //         </div>
-
-    //         <h1 className="text-[21px] leading-[130%]">
-    //             Cole is a photographer and director living in Los Angeles, California.
-    //         </h1>
-
-    //     </div>
-    // )
+    if (isMobile) return (
+        <div className='sm:hidden p-20px'>
+            {children}
+        </div>
+    )
 
     return (
         <div className="relative" >
@@ -107,10 +100,8 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                 {children}
             </div>
 
-            {/* <MenuMobile /> */}
-
             <div
-                className="fixed left-0 right-0 bottom-0 transition-[height] duration-500 cursor-pointer z-[30]"
+                className="fixed left-0 right-0 bottom-0 transition-[height] duration-500 cursor-pointer z-[30] hidden sm:block"
                 style={{ height: open ? '88vh' : '40px' }}
                 onClick={() => setOpen(o => !o)}
                 aria-expanded={open}
