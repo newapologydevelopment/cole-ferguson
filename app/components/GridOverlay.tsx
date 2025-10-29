@@ -16,15 +16,23 @@ export function GridOverlay() {
             <button
                 type="button"
                 onClick={cycleMode}
-                className="hidden md:block pointer-events-auto fixed top-2 right-2 z-[10000] rounded bg-black/70 px-2 py-1 text-[10px] uppercase tracking-wide text-white hover:bg-black"
+                className="hidden md:block pointer-events-auto fixed top-2 right-2 z-[20000] rounded bg-black/70 px-2 py-1 text-[10px] uppercase tracking-wide text-white hover:bg-black"
                 aria-label="Toggle grid overlay"
                 title="Toggle grid (click to cycle: off → 8 → 24)"
             >
                 {mode === 'off' ? 'Grid: off' : mode === '8' ? 'Grid: 8' : 'Grid: 24'}
             </button>
 
+            {/* Mobile: always show 20px padding outline */}
+            <div className="pointer-events-none fixed inset-0 z-[2147483647] md:hidden">
+                <div className="absolute inset-y-0 left-[20px] w-px bg-sky-600/40" />
+                <div className="absolute inset-y-0 right-[20px] w-px bg-sky-600/40" />
+                <div className="absolute inset-x-0 top-[20px] h-px bg-sky-600/40" />
+                <div className="absolute inset-x-0 bottom-[20px] h-px bg-sky-600/40" />
+            </div>
+
             {isOn && (
-                <div className="pointer-events-none fixed inset-0 z-[9990]">
+                <div className="pointer-events-none fixed inset-0 z-[2147483647]">
                     {/* mobile: 20px, desktop: 24px */}
                     <div className="absolute inset-y-0 left-[20px] md:left-[24px] w-px bg-sky-600/40" />
                     <div className="absolute inset-y-0 right-[20px] md:right-[24px] w-px bg-sky-600/40" />

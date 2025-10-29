@@ -49,10 +49,10 @@ export const ArchiveView = ({ archiveProjects }: Props) => {
     if (isMobile) return (
         <div className="relative sm:hidden">
 
-            <div className="fixed top-[48px] left-1/2 -translate-x-1/2 z-[1000] flex items-center gap-[21px] text-[12px] text-primary-dark sm:hidden">
+            <div className="fixed top-[48px] left-1/2 -translate-x-1/2 z-[1000] flex items-center gap-[21px] text-[12px] sm:hidden">
                 <span>Columns</span>
 
-                <div className="flex gap-[10px]" role="tablist" aria-label="Columns">
+                <div className="flex gap-[8px]" role="tablist" aria-label="Columns">
                     {[1, 2, 4].map((n) => (
                         <button
                             key={n}
@@ -64,7 +64,7 @@ export const ArchiveView = ({ archiveProjects }: Props) => {
                                 className={cn(
                                     "relative inline-block leading-none pb-[5px] transition-transform",
                                     {
-                                        "after:content-[''] after:absolute after:left-[-2px] after:right-[-2px] after:bottom-0 after:h-[1px] after:bg-primary-dark -translate-y-[2px]":
+                                        "after:content-[''] after:absolute after:left-[-2px] after:right-[-2px] after:bottom-0 after:h-[1px] after:bg-primary-dark -translate-y-[6px]":
                                             gridMode === n,
                                     }
                                 )}
