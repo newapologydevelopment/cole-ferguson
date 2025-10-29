@@ -1,7 +1,11 @@
+"use client"
+
 import { urlFor } from "@/sanity/lib/image"
 import type { ProjectImage, Project as ProjectType } from "@/types/project"
 import { cn } from "@/utils"
 import Image from "next/image"
+import { useEffect, useState } from "react"
+import { LenisProvider } from "./LenisProvider"
 
 export type GalleryGridItem = {
     projectId: string
@@ -35,6 +39,19 @@ export const GalleryGridView = ({
     selectActualPhoto
 }: Props) => {
     const seen = new Map<string, number>()
+    const [isScrolling, setIsScrolling] = useState(false)
+
+    useEffect(() => {
+        let timeout: NodeJS.Timeout
+        const handleScroll = () => {
+            setIsScrolling(true)
+            clearTimeout(timeout)
+            timeout = setTimeout(() => setIsScrolling(false), 50) // після 150мс без скролу — знову активується
+        }
+        window.addEventListener("scroll", handleScroll)
+        return () => window.removeEventListener("scroll", handleScroll)
+    }, [])
+
 
     const handleProjectSelect = (project: GalleryGridItem) => {
         onClick?.(projects.find(p => p._id === project.projectId) as unknown as ProjectType)
@@ -42,6 +59,7 @@ export const GalleryGridView = ({
     }
     return (
         <div className={cn("col-start-7 col-span-full h-full pb-[24px]", className)}>
+            <LenisProvider />
             <div className="w-full h-full grid grid-cols-6 gap-x-[60px] gap-y-[100px] content-start items-start auto-rows-max">
                 {items.map((it, i) => {
                     const ref = it.image?.asset?._ref
@@ -62,6 +80,8 @@ export const GalleryGridView = ({
                             <div
                                 className={cn("relative w-full overflow-hidden duration-300 ease-in-out", {
                                     'opacity-20': selectedProject !== it.projectTitle && selectedProject !== null,
+                                    'pointer-events-none': isScrolling,
+                                    'pointer-events-auto': !isScrolling,
                                 })}
                                 style={{ aspectRatio: `${w} / ${h}` }}
                                 onMouseEnter={() => onHoverProject?.(it.projectTitle)}
@@ -93,6 +113,7 @@ export const GalleryGridView = ({
                     )
                 })}
             </div>
+
         </div>
     )
 }

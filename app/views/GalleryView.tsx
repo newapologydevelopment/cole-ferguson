@@ -3,8 +3,8 @@
 import { Project as ProjectType } from '@/types';
 import { cn, collectAllImages } from "@/utils";
 import { useState } from "react";
-import { GalleryGridView, GalleryGridViewMobile, GalleryListView, GalleyList, LightBox, Project } from '../components';
-import { useBreakpoint } from '../hooks';
+import { GalleryGridView, GalleryGridViewMobile, GalleryList, GalleryListView, LightBox, Project } from '../components';
+import { useBreakpoint, useScrollToTop } from '../hooks';
 
 // export const projectsMock: { title: string, images: number }[] = [
 //     { title: "Dodgers—ESPN", images: 7 },
@@ -62,6 +62,8 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
     const [actualPhoto, setActualPhoto] = useState<string | null>(null);
     const allImages = collectAllImages(projects);
 
+    useScrollToTop()
+
     const handleLightBoxOpen = (project: ProjectType) => {
         setLightBoxOpen(!lightBoxOpen);
 
@@ -89,7 +91,7 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
             </div>
 
             {view === 'list' && (
-                <GalleyList
+                <GalleryList
                     items={projects}
                     archiveCount={archiveCount}
                     onHoverProject={(project) => setListViewSelectedProject(project)}
@@ -129,7 +131,7 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
             </div>
 
             {view === 'list' && (
-                <GalleyList
+                <GalleryList
                     items={projects}
                     archiveCount={archiveCount}
                     onHoverProject={(project) => setListViewSelectedProject(project)}

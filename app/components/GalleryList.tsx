@@ -15,7 +15,7 @@ type Props = {
     onClick?: (project: Project) => void;
 }
 
-export const GalleyList: React.FC<Props> = ({
+export const GalleryList: React.FC<Props> = ({
     items,
     archiveCount,
     className,
@@ -30,7 +30,7 @@ export const GalleyList: React.FC<Props> = ({
 
     if (isMobile) return (
         <>
-            <div className={cn("relative col-span-full col-start-1 self-center h-[100dvh] min-h-0 flex flex-col pt-[96px]", className)}>
+            <div className={cn("relative col-span-full col-start-1 self-center h-full min-h-0 flex flex-col pt-[96px] pb-[20px] bg-red-600", className)}>
                 <div className="flex items-center justify-between mb-[30px] shrink-0">
                     <p>All</p>
                     <div>{allProjects.length}</div>
@@ -52,7 +52,7 @@ export const GalleyList: React.FC<Props> = ({
                     </div>
                 </div>
 
-                <div className="pointer-events-none absolute inset-x-0 bottom-[32px] h-[47px] bg-gradient-to-t from-white to-transparent z-10" />
+                <div className="pointer-events-none absolute inset-x-0 bottom-[56px] h-[47px] bg-gradient-to-t from-white to-transparent z-10" />
                 <div className="flex items-center justify-between mt-[20px] shrink-0">
                     <Link href="/archive">Archive</Link>
                     <div>{archiveCount}</div>

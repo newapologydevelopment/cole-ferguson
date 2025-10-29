@@ -6,7 +6,6 @@ import gsap from 'gsap'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import { useBreakpoint } from '../hooks'
-import { MenuMobile } from './MenuMobile'
 
 export function InfoShell({ children }: { children: React.ReactNode }) {
     const [open, setOpen] = useState(false)

@@ -1,17 +1,60 @@
 'use client'
 import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
-import { useState } from 'react'
+import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { InformationMobile } from './InformationMobile'
 
 export const MenuMobile = () => {
     const [open, setOpen] = useState(false)
+    const [informationOpen, setInformationOpen] = useState(false)
+    const pathname = usePathname()
+
+    useEffect(() => {
+        setOpen(false)
+        setInformationOpen(false)
+    }, [pathname])
+
+    useEffect(() => {
+        if (!informationOpen) return
+
+        let startY = 0
+        const onTouchStart = (e: TouchEvent) => {
+            startY = e.touches[0].clientY
+        }
+
+        const onTouchEnd = (e: TouchEvent) => {
+            const endY = e.changedTouches[0].clientY
+            const diff = startY - endY
+
+            if (diff > 50) {
+                setInformationOpen(false)
+            }
+        }
+
+        window.addEventListener('touchstart', onTouchStart)
+        window.addEventListener('touchend', onTouchEnd)
+        return () => {
+            window.removeEventListener('touchstart', onTouchStart)
+            window.removeEventListener('touchend', onTouchEnd)
+        }
+    }, [informationOpen])
+
     return (
         <>
-            <div
-                onClick={() => setOpen(!open)}
-                className='fixed right-[20px] top-[20px] text-[12px] text-primary-dark z-[10000] sm:hidden bg-white'>
-                {!open ? 'Menu' : 'Close'}
-            </div>
+            <div className='fixed left-0 right-0 top-[0] flex items-center justify-between px-[20px] pt-[20px] pb-[4px] bg-white z-[10000] sm:hidden'>
+                <Link href="/" className='text-[12px] text-primary-dark' >
+                    {open ? 'CF' : 'Cole Ferguson'}
+                </Link >
+                <div
+                    onClick={() => setOpen(!open)}
+                    className=' text-[12px] text-primary-dark sm:hidden bg-white z-[1] relative'>
+                    {!open ? 'Menu' : 'Close'}
+                </div>
+
+            </div >
+            <div className='fixed left-0 right-0 top-0 h-[64px] bg-white' />
+
             <AnimatePresence>
                 {open && (
                     <motion.div
@@ -21,11 +64,38 @@ export const MenuMobile = () => {
                         transition={{ duration: 0.3, ease: [0.4, 0.0, 0.2, 1] }}
                         className='fixed left-[20px] right-[20px] top-[40px] text-[12px] text-primary-dark z-[9998] sm:hidden bg-white'
                     >
-                        <div className='flex items-center gap-[33%] '>
-                            <Link href="/gallery" className='py-3'>Index</Link>
-                            <Link href="/archive" className='py-3'>Archive</Link>
-                            {/* <div>Information</div> */}
+                        <div className='flex items-center justify-between relative'>
+                            <Link
+                                href="/gallery" className='py-3 z-[3]'
+                                onClick={() => setInformationOpen(false)}>
+                                Index
+                            </Link>
+
+                            <Link
+                                href="/archive"
+                                className='absolute text-center w-full z-[2]'
+                                onClick={() => { setInformationOpen(false); }}>
+                                Archive
+                            </Link>
+                            <div
+                                className='z-[2]'
+                                onClick={() => setInformationOpen(!informationOpen)}>
+                                Information
+                            </div>
                         </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+            <AnimatePresence>
+                {informationOpen && (
+                    <motion.div
+                        initial={{ y: '-100%', opacity: 0, zIndex: 0 }}
+                        animate={{ y: 0, opacity: 1, zIndex: 9998 }}
+                        exit={{ y: '-100%', opacity: 0, zIndex: 0 }}
+                        transition={{ duration: 0.3, ease: [0.4, 0.0, 0.2, 1] }}>
+                        <InformationMobile
+                            isOpen={informationOpen}
+                        />
                     </motion.div>
                 )}
             </AnimatePresence>
