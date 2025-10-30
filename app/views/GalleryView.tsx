@@ -175,6 +175,7 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
                         actualPhoto={actualPhoto}
                         project={listViewSelectedProject as unknown as ProjectType}
                         showIndicator={true}
+                        showBottomTitle={false}
                     />
                 </LightBox>
             )}

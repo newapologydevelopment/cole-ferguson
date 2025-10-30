@@ -21,23 +21,43 @@ export const LightBox: React.FC<Props> = ({ close, children, title }) => {
 
         const tl = gsap.timeline();
 
+        // Загальний fade/scale контейнера
         tl.fromTo(
             boxRef.current,
             { scale: 0.95, opacity: 0 },
             { scale: 1, opacity: 1, ease: 'power1.inOut', duration: 0.25 }
         );
 
-        const startY = Math.max(0, window.innerHeight / 2 - 24);
-        tl.set(titleRef.current, { y: startY, opacity: 1 });
+        const isMobile = window.matchMedia('(max-width: 640px)').matches
+        const titleEl = titleRef.current
 
-        tl.to({}, { duration: 0.6 });
-
-        tl.to(titleRef.current, {
-            y: 0,
-            opacity: 1,
-            ease: 'power2.out',
-            duration: 0.6,
-        });
+        if (titleEl) {
+            if (isMobile) {
+                // На мобільному: тайтл рухається вниз до позиції тайтлу ProjectMobile (над індикатором)
+                const topBase = 24 // початковий top із класу
+                const titleH = titleEl.getBoundingClientRect().height || 0
+                const bottomOffset = 48 // ще трохи вище
+                const deltaY = Math.max(0, window.innerHeight - bottomOffset - titleH - topBase)
+                tl.set(titleEl, { y: 0, opacity: 0 })
+                tl.to(titleEl, {
+                    y: deltaY,
+                    opacity: 1,
+                    ease: 'power2.out',
+                    duration: 0.6,
+                }, 0.05)
+            } else {
+                // Десктоп: як було — з середини до верху
+                const startY = Math.max(0, window.innerHeight / 2 - 24)
+                tl.set(titleEl, { y: startY, opacity: 1 })
+                tl.to({}, { duration: 0.6 })
+                tl.to(titleEl, {
+                    y: 0,
+                    opacity: 1,
+                    ease: 'power2.out',
+                    duration: 0.6,
+                })
+            }
+        }
 
         tl.fromTo(
             contentRef.current,
@@ -58,7 +78,7 @@ export const LightBox: React.FC<Props> = ({ close, children, title }) => {
             <button
                 type="button"
                 onClick={close}
-                className="absolute right-6 top-[82px] sm:top-6 z-[102] cursor-pointer"
+                className="absolute right-6 top-[52px] sm:top-6 z-[102] cursor-pointer"
                 aria-label="Close lightbox"
                 data-hide-cursor="true"
             >

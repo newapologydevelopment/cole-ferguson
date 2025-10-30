@@ -12,6 +12,7 @@ interface Props {
     project: ProjectType
     actualPhoto?: string | null
     showIndicator?: boolean
+    showBottomTitle?: boolean
 }
 
 const normalizeViews = (project: ProjectType): ProjectView[] => {
@@ -34,7 +35,8 @@ const normalizeViews = (project: ProjectType): ProjectView[] => {
 export const ProjectMobile: React.FC<Props> = ({
     project,
     actualPhoto,
-    showIndicator = true
+    showIndicator = true,
+    showBottomTitle = true
 }) => {
     // стабільний ключ проєкту
     const projectKey = project?._id || (project as any)?.slug || project?.title || 'project'
@@ -231,9 +233,11 @@ export const ProjectMobile: React.FC<Props> = ({
             />
 
             {/* титул */}
-            <div className="fixed bottom-[25px] left-0 right-0 p-[20px] text-center z-[10]">
-                {project.title}
-            </div>
+            {showBottomTitle && (
+                <div className="fixed bottom-[25px] left-0 right-0 p-[20px] text-center z-[10]">
+                    {project.title}
+                </div>
+            )}
         </div>
     )
 }

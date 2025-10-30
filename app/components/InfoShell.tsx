@@ -108,7 +108,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                 role="button"
                 data-hide-cursor="true"
             >
-                <div className="h-full overflow-auto px-[24px] text-left text-[12px] text-primary-dark">
+                <div className="h-full overflow-auto px-[24px] bg-white text-left text-[12px] text-primary-dark">
                     <div className="pt-[-24px] text-btn hidden sm:block" data-hide-cursor="true">Information</div>
 
                     <div className="h-[50vh] absolute left-0 right-0 bottom-[24px]  grid grid-cols-8  px-[24px] text">
