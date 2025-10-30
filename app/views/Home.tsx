@@ -40,7 +40,7 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
     }, [])
 
     return (
-        <div className="h-screen overflow-hidden p-[20px] sm:p-[24px] text-[12px] text-primary-dark">
+        <div className="h-screen overflow-hidden px-[20px] sm:p-[24px] text-[12px] text-primary-dark">
 
             <div className="fixed z-[2] top-[50%] translate-y-[-25%] mt-[40px] hidden sm:flex flex-col gap-[8px] ">
                 <NavigationHomePage
@@ -57,7 +57,7 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
                     <section
                         key={project._id}
                         ref={(el) => { sectionRefs.current[i] = el }}
-                        className={`snap-start h-screen transition-opacity duration-300 ${i === activeIndex || showAll ? 'opacity-100' : 'opacity-0'}`}
+                        className={`snap-start h-[100dvh] transition-opacity duration-300 ${i === activeIndex || showAll ? 'opacity-100' : 'opacity-0'}`}
                     >
                         {isMobile ?
                             <ProjectMobile project={project} /> :

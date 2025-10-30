@@ -1,6 +1,7 @@
 'use client'
 
 import { cn } from "@/utils";
+import { motion, useSpring } from 'framer-motion';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 interface Props {
@@ -44,11 +45,19 @@ export const NavigationHomePage = ({ titles, activeIndex, showAll, onHoverChange
 
     const offset = -(activeIndex * (itemSpacing || 0) + (itemHeight || 0) / 2)
 
+    // плавний MotionValue замість перерендерів з animate
+    const y = useSpring(0, { stiffness: 420, damping: 36, mass: 0.25 })
+    useEffect(() => {
+        const target = Number.isFinite(offset) ? offset : 0
+        y.set(target)
+    }, [offset, y])
+
     return (
-        <ul
+        <motion.ul
             ref={listRef}
-            className="flex flex-col gap-[6px] cursor-pointer transition-transform duration-300 will-change-transform"
-            style={{ transform: `translateY(${Number.isFinite(offset) ? offset : 0}px)` }}
+            className="flex flex-col gap-[6px] cursor-pointer will-change-transform"
+            initial={false}
+            style={{ y, transform: 'translateZ(0)' }}
             onMouseEnter={() => onHoverChange(true)}
             onMouseLeave={() => onHoverChange(false)}
             data-hide-cursor="true"
@@ -65,6 +74,6 @@ export const NavigationHomePage = ({ titles, activeIndex, showAll, onHoverChange
                     {title}
                 </li>
             ))}
-        </ul>
+        </motion.ul>
     )
 }

@@ -44,7 +44,7 @@ export const MenuMobile = () => {
         <>
             <div className='fixed left-0 right-0 top-[0] flex items-center justify-between px-[20px] pt-[20px] pb-[4px] bg-white z-[10000] sm:hidden'>
                 <Link href="/" className="text-[12px] text-primary-dark relative inline-flex items-center">
-                    <span className="relative inline-block overflow-hidden whitespace-nowrap"
+                    <span className="relative inline-block overflow-hidden"
                         style={{ minWidth: 96 }}>
                         <AnimatePresence mode="wait" initial={false}>
                             {open ? (
@@ -85,11 +85,11 @@ export const MenuMobile = () => {
             <AnimatePresence>
                 {open && (
                     <motion.div
-                        initial={{ y: '-100%', opacity: 0, zIndex: 0 }}
-                        animate={{ y: 0, opacity: 1, zIndex: 9998 }}
-                        exit={{ y: '-100%', opacity: 0, zIndex: 0 }}
-                        transition={{ duration: 0.3, ease: [0.4, 0.0, 0.2, 1] }}
-                        className='fixed left-[20px] right-[20px] top-[40px] text-[12px] text-primary-dark z-[9998] sm:hidden bg-white'
+                        initial={{ y: -24 }}
+                        animate={{ y: 0 }}
+                        exit={{ y: -24 }}
+                        transition={{ type: 'spring', stiffness: 420, damping: 36, mass: 0.25 }}
+                        className='fixed left-[20px] right-[20px] top-[40px] text-[12px] text-primary-dark z-[9998] sm:hidden bg-white will-change-transform'
                     >
                         <div className='flex items-center justify-between relative'>
                             <Link
@@ -116,10 +116,10 @@ export const MenuMobile = () => {
             <AnimatePresence>
                 {informationOpen && (
                     <motion.div
-                        initial={{ y: '-100%', opacity: 0, zIndex: 0 }}
-                        animate={{ y: 0, opacity: 1, zIndex: 9998 }}
-                        exit={{ y: '-100%', opacity: 0, zIndex: 0 }}
-                        transition={{ duration: 0.3, ease: [0.4, 0.0, 0.2, 1] }}>
+                        initial={{ y: -24 }}
+                        animate={{ y: 0 }}
+                        exit={{ y: -24 }}
+                        transition={{ type: 'spring', stiffness: 420, damping: 36, mass: 0.25 }}>
                         <InformationMobile
                             isOpen={informationOpen}
                         />

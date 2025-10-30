@@ -184,10 +184,9 @@ export const ProjectMobile: React.FC<Props> = ({
                 </AnimatePresence>
             </div>
 
-            {/* ІНДИКАТОР */}
             {showIndicator && totalImages > 0 && (
                 <div className="pointer-events-none fixed bottom-[24px] left-1/2 -translate-x-1/2 z-[40]">
-                    <div ref={digitsRef} className="relative flex gap-[4px] text-[12px] leading-none">
+                    <div ref={digitsRef} className="relative flex gap-[4px] text-[12px] pb-[2px] leading-none">
                         {Array.from({ length: totalImages }).map((_, i) => {
                             const isActive = i >= beforeCount && i < beforeCount + currentCount
                             return (
