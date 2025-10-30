@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 interface Props {
     onDone?: () => void
@@ -27,12 +27,12 @@ const FRAME_SIZES = [
 ]
 
 export const Preloader = ({
-    // onDone,
-    // durationMs = 3000,
-    // fadeOutMs = 600,
-    // lastHoldMs = 400,
-    // jitterProb = 0.3,
-    // jitterMaxMs = 200,
+    onDone,
+    durationMs = 3000,
+    fadeOutMs = 600,
+    lastHoldMs = 400,
+    jitterProb = 0,
+    jitterMaxMs = 0,
 }: Props) => {
     const images = useMemo(
         () => [
@@ -52,66 +52,48 @@ export const Preloader = ({
 
     const [idx, setIdx] = useState(0)
     const [visible, setVisible] = useState(true)
-    // const [fading, setFading] = useState(false)
-    // const timersRef = useRef<number[]>([])
-
-    // useEffect(() => {
-    //     const total = Math.max(1, durationMs)
-    //     const fadeMs = Math.min(total, Math.max(0, fadeOutMs))
-    //     const holdMs = Math.min(total - fadeMs, Math.max(0, lastHoldMs))
-    //     const transitions = Math.max(1, images.length - 1)
-    //     const playableMs = Math.max(0, total - fadeMs - holdMs)
-    //     const baseFrameMs = Math.max(1, Math.floor(playableMs / transitions))
-
-    //     const setTimer = (fn: () => void, ms: number) => {
-    //         const id = window.setTimeout(fn, ms)
-    //         timersRef.current.push(id)
-    //         return id
-    //     }
-
-    //     let current = 0
-    //     const advance = () => {
-    //         if (current < images.length - 1) {
-
-    //             const jitter = Math.random() < jitterProb ? Math.floor(Math.random() * Math.max(0, jitterMaxMs)) : 0
-    //             setTimer(() => {
-    //                 current += 1
-    //                 setIdx(current)
-    //                 advance()
-    //             }, baseFrameMs + jitter)
-    //         } else {
-
-    //             setTimer(() => {
-    //                 setFading(true)
-    //             }, holdMs)
-    //             setTimer(() => {
-    //                 setVisible(false)
-    //                 onDone?.()
-    //             }, holdMs + fadeMs)
-    //         }
-    //     }
-
-    //     setIdx(0)
-    //     advance()
-
-    //     return () => {
-    //         timersRef.current.forEach((id) => clearTimeout(id))
-    //         timersRef.current = []
-    //     }
-    // }, [durationMs, fadeOutMs, lastHoldMs, jitterProb, jitterMaxMs, images.length, onDone])
+    const [fading, setFading] = useState(false)
+    const timersRef = useRef<number[]>([])
 
     useEffect(() => {
-        const timer = setInterval(() => {
-            if (idx === images.length - 1) {
-                setVisible(false)
-                clearInterval(timer)
-                return
-            }
+        const total = Math.max(1, durationMs)
+        const fadeMs = Math.min(total, Math.max(0, fadeOutMs))
+        const holdMs = Math.min(total - fadeMs, Math.max(0, lastHoldMs))
+        const transitions = Math.max(1, images.length - 1)
+        const playableMs = Math.max(0, total - fadeMs - holdMs)
+        const baseFrameMs = Math.max(1, Math.floor(playableMs / transitions))
 
-            setIdx(idx + 1)
-        }, Math.random() * (350 - 200) + 200)
-        return () => clearTimeout(timer)
-    }, [idx, images.length])
+        const setTimer = (fn: () => void, ms: number) => {
+            const id = window.setTimeout(fn, ms)
+            timersRef.current.push(id)
+            return id
+        }
+
+        let current = 0
+        const advance = () => {
+            if (current < images.length - 1) {
+                const jitter = Math.random() < jitterProb ? Math.floor(Math.random() * Math.max(0, jitterMaxMs)) : 0
+                setTimer(() => {
+                    current += 1
+                    setIdx(current)
+                    advance()
+                }, baseFrameMs + jitter)
+            } else {
+                setTimer(() => { setFading(true) }, holdMs)
+                setTimer(() => { setVisible(false); onDone?.() }, holdMs + fadeMs)
+            }
+        }
+
+        setIdx(0)
+        advance()
+
+        return () => {
+            timersRef.current.forEach((id) => clearTimeout(id))
+            timersRef.current = []
+        }
+    }, [durationMs, fadeOutMs, lastHoldMs, jitterProb, jitterMaxMs, images.length, onDone])
+
+    // Видалено випадковий інтервал — тепер рівномірна послідовність через таймлайни вище
 
     if (!visible) return null
 
@@ -122,7 +104,7 @@ export const Preloader = ({
     return (
         <div
             className="fixed inset-0 bg-white flex items-center justify-center z-[10002]"
-        // style={{ opacity: fading ? 0 : 1, transition: `opacity ${Math.min(durationMs, fadeOutMs)}ms ease-out` }}
+            style={{ opacity: fading ? 0 : 1, transition: `opacity ${Math.min(durationMs, fadeOutMs)}ms ease-out` }}
         >
             <Image
                 src={images[idx]}

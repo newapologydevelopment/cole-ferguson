@@ -201,9 +201,12 @@ export const ProjectMobile: React.FC<Props> = ({
                             )
                         })}
                         {currentCount > 0 && (
-                            <div
+                            <motion.div
                                 className="absolute h-[1px] bg-black"
-                                style={{ bottom: 0, left: underline.left, width: underline.width }}
+                                style={{ bottom: 0 }}
+                                initial={false}
+                                animate={{ left: underline.left, width: underline.width }}
+                                transition={{ type: 'spring', stiffness: 380, damping: 36, mass: 0.2 }}
                             />
                         )}
                     </div>

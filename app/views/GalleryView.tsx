@@ -2,7 +2,8 @@
 
 import { Project as ProjectType } from '@/types';
 import { cn, collectAllImages } from "@/utils";
-import { useState } from "react";
+import { motion } from 'framer-motion';
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { GalleryGridView, GalleryGridViewMobile, GalleryList, GalleryListView, LightBox, Project } from '../components';
 import { useBreakpoint, useScrollToTop } from '../hooks';
 
@@ -64,6 +65,52 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
 
     useScrollToTop()
 
+    // underline (mobile)
+    const mobileTabsWrapRef = useRef<HTMLDivElement | null>(null)
+    const mobileGridRef = useRef<HTMLDivElement | null>(null)
+    const mobileListRef = useRef<HTMLDivElement | null>(null)
+    const [mobileUnderline, setMobileUnderline] = useState({ left: 0, width: 0 })
+    const measureMobile = () => {
+        const wrap = mobileTabsWrapRef.current
+        const active = view === 'grid' ? mobileGridRef.current : mobileListRef.current
+        if (!wrap || !active) return
+        const wr = wrap.getBoundingClientRect()
+        const ar = active.getBoundingClientRect()
+        const left = ar.left - wr.left
+        const width = ar.width
+        setMobileUnderline(prev => (prev.left === left && prev.width === width ? prev : { left, width }))
+    }
+    useLayoutEffect(() => { measureMobile() }, [view])
+    useEffect(() => {
+        const onResize = () => measureMobile()
+        window.addEventListener('resize', onResize)
+        const id = window.requestAnimationFrame(measureMobile)
+        return () => { window.removeEventListener('resize', onResize); window.cancelAnimationFrame(id) }
+    }, [])
+
+    // underline (desktop)
+    const deskTabsWrapRef = useRef<HTMLDivElement | null>(null)
+    const deskGridRef = useRef<HTMLDivElement | null>(null)
+    const deskListRef = useRef<HTMLDivElement | null>(null)
+    const [deskUnderline, setDeskUnderline] = useState({ left: 0, width: 0 })
+    const measureDesk = () => {
+        const wrap = deskTabsWrapRef.current
+        const active = view === 'grid' ? deskGridRef.current : deskListRef.current
+        if (!wrap || !active) return
+        const wr = wrap.getBoundingClientRect()
+        const ar = active.getBoundingClientRect()
+        const left = ar.left - wr.left
+        const width = ar.width
+        setDeskUnderline(prev => (prev.left === left && prev.width === width ? prev : { left, width }))
+    }
+    useLayoutEffect(() => { measureDesk() }, [view])
+    useEffect(() => {
+        const onResize = () => measureDesk()
+        window.addEventListener('resize', onResize)
+        const id = window.requestAnimationFrame(measureDesk)
+        return () => { window.removeEventListener('resize', onResize); window.cancelAnimationFrame(id) }
+    }, [])
+
     const handleLightBoxOpen = (project: ProjectType) => {
         setLightBoxOpen(!lightBoxOpen);
 
@@ -74,19 +121,29 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
 
     if (isMobile) return (
         <div className='sm:hidden h-[100dvh] w-full text-[12px] text-primary-dark px-[20px] pb-[40px]'>
-            <div className="fixed z-[2] top-[50px] flex gap-[15px] left-1/2 -translate-x-1/2">
-                <div className={cn("cursor-pointer", {
-                    'underline underline-offset-[4px] translate-y-[-4px]': view === 'grid'
-                })}
-                    onClick={() => setView('grid')}>
-                    Grid
-                </div>
-                <div
-                    className={cn("cursor-pointer", {
-                        'underline underline-offset-[4px] translate-y-[-4px]': view === 'list'
-                    })}
-                    onClick={() => setView('list')}>
-                    List
+            <div className="fixed z-[2] top-[50px] left-1/2 -translate-x-1/2">
+                <div ref={mobileTabsWrapRef} className="relative flex gap-[15px]">
+                    <div
+                        ref={mobileGridRef}
+                        className={cn("cursor-pointer transition-transform", { 'translate-y-[-4px]': view === 'grid' })}
+                        onClick={() => setView('grid')}
+                    >
+                        Grid
+                    </div>
+                    <div
+                        ref={mobileListRef}
+                        className={cn("cursor-pointer transition-transform", { 'translate-y-[-4px]': view === 'list' })}
+                        onClick={() => setView('list')}
+                    >
+                        List
+                    </div>
+                    <motion.div
+                        className="absolute h-[1px] bg-black"
+                        style={{ bottom: -2 }}
+                        initial={false}
+                        animate={{ left: mobileUnderline.left, width: mobileUnderline.width }}
+                        transition={{ type: 'spring', stiffness: 380, damping: 36, mass: 0.2 }}
+                    />
                 </div>
             </div>
 
@@ -128,19 +185,29 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
 
     return (
         <div className="hidden sm:grid grid-cols-24 w-full h-full text-[12px] text-primary-dark p-[24px] ">
-            <div className="fixed z-[2] top-[50%] translate-y-[-25%] flex gap-[15px] translate-y-[-50%]">
-                <div className={cn("cursor-pointer", {
-                    'underline underline-offset-[4px] translate-y-[-4px]': view === 'grid'
-                })}
-                    onClick={() => setView('grid')}>
-                    Grid
-                </div>
-                <div
-                    className={cn("cursor-pointer", {
-                        'underline underline-offset-[4px] translate-y-[-4px]': view === 'list'
-                    })}
-                    onClick={() => setView('list')}>
-                    List
+            <div className="fixed z-[2] top-[50%] translate-y-[-50%]">
+                <div ref={deskTabsWrapRef} className="relative flex gap-[15px]">
+                    <div
+                        ref={deskGridRef}
+                        className={cn("cursor-pointer transition-transform", { 'translate-y-[-4px]': view === 'grid' })}
+                        onClick={() => setView('grid')}
+                    >
+                        Grid
+                    </div>
+                    <div
+                        ref={deskListRef}
+                        className={cn("cursor-pointer transition-transform", { 'translate-y-[-4px]': view === 'list' })}
+                        onClick={() => setView('list')}
+                    >
+                        List
+                    </div>
+                    <motion.div
+                        className="absolute h-[1px] bg-black"
+                        style={{ bottom: -2 }}
+                        initial={false}
+                        animate={{ left: deskUnderline.left, width: deskUnderline.width }}
+                        transition={{ type: 'spring', stiffness: 380, damping: 36, mass: 0.2 }}
+                    />
                 </div>
             </div>
 

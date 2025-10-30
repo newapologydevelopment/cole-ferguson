@@ -1,6 +1,7 @@
 'use client'
 
 import type { Project as ProjectType, ProjectView } from "@/types/project"
+import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { CursorLabel } from './CursorLabel'
 import { SingleImageView } from './SingleImageView'
@@ -114,9 +115,22 @@ export const Project: React.FC<Props> = ({ project, actualPhoto, showIndicator =
     return (
         <div className="relative h-screen w-screen flex items-center justify-center select-none overflow-x-hidden cursor-none">
             <div className="relative w-full h-full">
-                {renderView(current) ?? (
-                    <div className="flex items-center justify-center h-full">{project.title}</div>
-                )}
+                <AnimatePresence mode="wait" initial={false}>
+                    <motion.div
+                        key={`desktop-${index}`}
+                        className="absolute inset-0 z-0 pointer-events-none will-change-transform"
+                        initial={false}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.22, ease: [0.4, 0.0, 0.2, 1] }}
+                    >
+                        <div className="pointer-events-none">
+                            {renderView(current) ?? (
+                                <div className="flex items-center justify-center h-full">{project.title}</div>
+                            )}
+                        </div>
+                    </motion.div>
+                </AnimatePresence>
             </div>
 
             {showIndicator && totalImages > 0 && (
@@ -135,9 +149,12 @@ export const Project: React.FC<Props> = ({ project, actualPhoto, showIndicator =
                             )
                         })}
                         {currentCount > 0 && (
-                            <div
+                            <motion.div
                                 className="absolute h-[1px] bg-black"
-                                style={{ bottom: 0, left: underline.left, width: underline.width }}
+                                style={{ bottom: 0 }}
+                                initial={false}
+                                animate={{ left: underline.left, width: underline.width }}
+                                transition={{ type: 'spring', stiffness: 380, damping: 36, mass: 0.2 }}
                             />
                         )}
                     </div>
