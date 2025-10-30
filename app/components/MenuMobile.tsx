@@ -43,15 +43,42 @@ export const MenuMobile = () => {
     return (
         <>
             <div className='fixed left-0 right-0 top-[0] flex items-center justify-between px-[20px] pt-[20px] pb-[4px] bg-white z-[10000] sm:hidden'>
-                <Link href="/" className='text-[12px] text-primary-dark' >
-                    {open ? 'CF' : 'Cole Ferguson'}
-                </Link >
+                <Link href="/" className="text-[12px] text-primary-dark relative inline-flex items-center">
+                    <span className="relative inline-block overflow-hidden whitespace-nowrap"
+                        style={{ minWidth: 96 }}>
+                        <AnimatePresence mode="wait" initial={false}>
+                            {open ? (
+                                <motion.span
+                                    key="cf"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.22, ease: [0.4, 0.0, 0.2, 1] }}
+                                    className="absolute left-0 top-0"
+                                >
+                                    CF
+                                </motion.span>
+                            ) : (
+                                <motion.span
+                                    key="full"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.22, ease: [0.4, 0.0, 0.2, 1] }}
+                                    className="absolute left-0 top-0"
+                                >
+                                    Cole Ferguson
+                                </motion.span>
+                            )}
+                        </AnimatePresence>
+                        <span className="invisible">Cole Ferguson</span>
+                    </span>
+                </Link>
                 <div
                     onClick={() => setOpen(!open)}
                     className=' text-[12px] text-primary-dark sm:hidden bg-white z-[1] relative'>
                     {!open ? 'Menu' : 'Close'}
                 </div>
-
             </div >
             <div className='fixed left-0 right-0 top-0 h-[64px] bg-white' />
 
