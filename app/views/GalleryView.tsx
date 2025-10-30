@@ -4,7 +4,7 @@ import { Project as ProjectType } from '@/types';
 import { cn, collectAllImages } from "@/utils";
 import { motion } from 'framer-motion';
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { GalleryGridView, GalleryGridViewMobile, GalleryList, GalleryListView, LightBox, Project } from '../components';
+import { GalleryGridView, GalleryGridViewMobile, GalleryList, GalleryListView, LightBox, Project, ProjectMobile } from '../components';
 import { useBreakpoint, useScrollToTop } from '../hooks';
 
 // export const projectsMock: { title: string, images: number }[] = [
@@ -166,20 +166,18 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
                 />
             }
 
-            {lightBoxOpen &&
-                // <LightBox
-                //     close={() => setLightBoxOpen(false)}
-                //     title={listViewSelectedProject?.title || ''}
-                // >
-                //     <Project
-                //         actualPhoto={actualPhoto}
-                //         project={listViewSelectedProject as unknown as ProjectType}
-                //     />
-                // </LightBox>
-                <div
-                    onClick={() => setLightBoxOpen(false)}
-                    className='w-full h-full absolute top-0 left-0 bg-red-500 flex items-center justify-center'>hello</div>
-            }
+            {lightBoxOpen && (
+                <LightBox
+                    close={() => setLightBoxOpen(false)}
+                    title={listViewSelectedProject?.title || ''}
+                >
+                    <ProjectMobile
+                        actualPhoto={actualPhoto}
+                        project={listViewSelectedProject as unknown as ProjectType}
+                        showIndicator={true}
+                    />
+                </LightBox>
+            )}
         </div>
     )
 

@@ -58,7 +58,7 @@ export const LightBox: React.FC<Props> = ({ close, children, title }) => {
             <button
                 type="button"
                 onClick={close}
-                className="absolute top-6 right-6 z-[102] cursor-pointer"
+                className="absolute right-6 top-[82px] sm:top-6 z-[102] cursor-pointer"
                 aria-label="Close lightbox"
                 data-hide-cursor="true"
             >
