@@ -108,64 +108,92 @@ export const ArchiveProject: React.FC<Props> = ({ archiveProject, onPrev, onNext
     }
 
     return (
-        <section className="relative w-full min-h-screen items-center sm:flex hidden">
-            <div className="px-[24px] grid grid-cols-24 w-full items-center content-center gap-y-[55px]">
-                {/* Контейнер з фіксованим на час свопа аспектом active */}
-                <div className={`relative flex items-center justify-center ${wrap} ${aspect}`}>
-                    {/* ACTIVE layer */}
+        <>
+            {/* Mobile layout */}
+            <section className="sm:hidden relative w-screen h-screen flex flex-col justify-center items-center text-primary-dark text-[12px] px-[20px]">
+                <div className={`relative w-full ${aspect}`}>
                     {activeSrc && (
                         <Image
-                            key={activeImage?.asset?._ref ?? 'active'}
+                            key={activeImage?.asset?._ref ?? 'active-m'}
                             src={activeSrc}
                             alt={activeImage?.alt || archiveProject.title}
                             fill
-                            sizes="(min-width:1280px) 60vw, (min-width:768px) 80vw, 100vw"
+                            sizes="(max-width:768px) 100vw, 0px"
                             placeholder={activeImage?.blurDataURL ? 'blur' : 'empty'}
                             blurDataURL={activeImage?.blurDataURL}
                             className={`object-cover transition-opacity duration-200 ${isFading ? 'opacity-0' : 'opacity-100'}`}
                             priority
                         />
                     )}
+                </div>
+                <div className="mt-[12px] text-center">
+                    {archiveProject.title}
+                </div>
+                {/* tap zones */}
+                <button type="button" aria-label="Previous" onClick={onPrev} className="absolute left-0 top-0 h-full w-1/2 focus:outline-none" style={{ background: 'transparent' }} />
+                <button type="button" aria-label="Next" onClick={onNext} className="absolute right-0 top-0 h-full w-1/2 focus:outline-none" style={{ background: 'transparent' }} />
+            </section>
 
-                    {/* PENDING layer — невидимий, поки не завантажиться */}
-                    {pendingSrc && (
-                        <Image
-                            key={pendingImage?.asset?._ref ?? 'pending'}
-                            src={pendingSrc}
-                            alt={pendingImage?.alt || archiveProject.title}
-                            fill
-                            sizes="(min-width:1280px) 60vw, (min-width:768px) 80vw, 100vw"
-                            // hint браузеру підвантажити швидше
-                            fetchPriority="high"
-                            decoding="async"
-                            // як тільки pending завантажився — свопимо active + аспект
-                            onLoadingComplete={commitSwap}
-                            className="object-cover opacity-0 pointer-events-none"
-                        />
-                    )}
+            {/* Desktop layout */}
+            <section className="relative w-full min-h-screen items-center sm:flex hidden">
+                <div className="px-[24px] grid grid-cols-24 w-full items-center content-center gap-y-[55px]">
+                    {/* Контейнер з фіксованим на час свопа аспектом active */}
+                    <div className={`relative flex items-center justify-center ${wrap} ${aspect}`}>
+                        {/* ACTIVE layer */}
+                        {activeSrc && (
+                            <Image
+                                key={activeImage?.asset?._ref ?? 'active'}
+                                src={activeSrc}
+                                alt={activeImage?.alt || archiveProject.title}
+                                fill
+                                sizes="(min-width:1280px) 60vw, (min-width:768px) 80vw, 100vw"
+                                placeholder={activeImage?.blurDataURL ? 'blur' : 'empty'}
+                                blurDataURL={activeImage?.blurDataURL}
+                                className={`object-cover transition-opacity duration-200 ${isFading ? 'opacity-0' : 'opacity-100'}`}
+                                priority
+                            />
+                        )}
+
+                        {/* PENDING layer — невидимий, поки не завантажиться */}
+                        {pendingSrc && (
+                            <Image
+                                key={pendingImage?.asset?._ref ?? 'pending'}
+                                src={pendingSrc}
+                                alt={pendingImage?.alt || archiveProject.title}
+                                fill
+                                sizes="(min-width:1280px) 60vw, (min-width:768px) 80vw, 100vw"
+                                // hint браузеру підвантажити швидше
+                                fetchPriority="high"
+                                decoding="async"
+                                // як тільки pending завантажився — свопимо active + аспект
+                                onLoadingComplete={commitSwap}
+                                className="object-cover opacity-0 pointer-events-none"
+                            />
+                        )}
+                    </div>
+
+                    <div className="col-span-24 flex justify-center">
+                        <h1 className="text-center">{archiveProject.title}</h1>
+                    </div>
                 </div>
 
-                <div className="col-span-24 flex justify-center">
-                    <h1 className="text-center">{archiveProject.title}</h1>
-                </div>
-            </div>
-
-            {/* Click areas */}
-            <button
-                type="button"
-                aria-label="Previous"
-                onClick={onPrev}
-                className="absolute left-0 top-0 h-full w-1/2 cursor-none focus:outline-none"
-                style={{ background: 'transparent' }}
-            />
-            <button
-                type="button"
-                aria-label="Next"
-                onClick={onNext}
-                className="absolute right-0 top-0 h-full w-1/2 cursor-none focus:outline-none"
-                style={{ background: 'transparent' }}
-            />
-            <CursorLabel />
-        </section>
+                {/* Click areas */}
+                <button
+                    type="button"
+                    aria-label="Previous"
+                    onClick={onPrev}
+                    className="absolute left-0 top-0 h-full w-1/2 cursor-none focus:outline-none"
+                    style={{ background: 'transparent' }}
+                />
+                <button
+                    type="button"
+                    aria-label="Next"
+                    onClick={onNext}
+                    className="absolute right-0 top-0 h-full w-1/2 cursor-none focus:outline-none"
+                    style={{ background: 'transparent' }}
+                />
+                <CursorLabel />
+            </section>
+        </>
     )
 }

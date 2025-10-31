@@ -77,7 +77,7 @@ export const ArchiveView = ({ archiveProjects }: Props) => {
                             ref={(el) => { colBtnRefs.current[n as 1 | 2 | 4] = el }}
                             type="button"
                             onClick={() => setGridMode(n as 1 | 2 | 4)}
-                            className={cn("relative inline-flex px-[2px] leading-none pb-[5px] transition-transform", {
+                            className={cn("relative inline-flex px-[2px] leading-none pb-[2px] transition-transform", {
                                 "-translate-y-[6px]": gridMode === (n as 1 | 2 | 4)
                             })}
                             aria-selected={gridMode === (n as 1 | 2 | 4)}
