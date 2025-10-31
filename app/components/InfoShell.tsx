@@ -152,22 +152,22 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                                     {info.title}
                                 </h1>
 
-                                <div className="grid grid-cols-8 gap-x-[32px]">
-                                    <div className="col-span-2 flex flex-col gap-[12px] self-end">
+                                <div className="grid grid-cols-20 gap-x-[32px]">
+                                    <div className="col-start-1 col-span-5 flex flex-col gap-[12px] self-end">
                                         <h3>Clients</h3>
                                         <p className="text-[16px] whitespace-pre-line">
                                             {info.clients}
                                         </p>
                                     </div>
 
-                                    <div className="col-span-2 col-start-3 flex flex-col gap-[12px] self-end">
+                                    <div className="col-span-5 col-start-7 flex flex-col gap-[12px] self-end">
                                         <h3>Publications</h3>
                                         <p className="text-[16px] whitespace-pre-line">
                                             {info.publications}
                                         </p>
                                     </div>
 
-                                    <div className="col-span-2 col-start-5 flex flex-col justify-between self-end">
+                                    <div className="col-span-3 col-start-13 flex flex-col justify-between self-end min-h-[124px]">
                                         <h3>Contact</h3>
                                         <p className="text-[16px] whitespace-pre-line">
                                             {info.contact}
@@ -176,7 +176,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
 
                                     <button
                                         type='button'
-                                        className='col-span-3 col-start-8 bg-blue-500 h-[145px] relative z-[60] pointer-events-auto'
+                                        className='col-span-3 col-start-18 bg-blue-500 h-[145px] relative z-[60] pointer-events-auto'
                                         onClick={() => setShowVideo(true)}
                                     >
                                         <Image src="/video-mock.png" alt="Cole Ferguson Studio" fill className='object-cover' />
@@ -190,7 +190,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
             {showVideo && info.videoUrl && (
                 <LightBox close={() => setShowVideo(false)} title="">
                     <div className='flex items-center justify-center w-full'>
-                        <div style={{ width: '46vw', aspectRatio: '4 / 3', position: 'relative' }}>
+                        <div style={{ width: '46vw', aspectRatio: '4 / 3', position: 'relative', }}>
                             <video
                                 src={info.videoUrl}
                                 autoPlay

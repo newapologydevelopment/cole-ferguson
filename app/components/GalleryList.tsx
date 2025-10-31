@@ -3,6 +3,7 @@
 import { Project } from "@/types";
 import { cn } from "@/utils";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useBreakpoint, useScrollToTop } from "../hooks";
 
 export type GalleryListItem = { title: string; images: number }
@@ -22,6 +23,7 @@ export const GalleryList: React.FC<Props> = ({
     onHoverProject,
     onClick }) => {
     const { isMobile } = useBreakpoint();
+    const router = useRouter();
     useScrollToTop();
 
     const allProjects = items.map(project => {
@@ -53,8 +55,14 @@ export const GalleryList: React.FC<Props> = ({
                 </div>
 
                 <div className="pointer-events-none absolute inset-x-0 bottom-[46px] h-[47px] bg-gradient-to-t from-white to-transparent z-[10001]" />
-                <div className="flex items-center justify-between mt-[20px] shrink-0">
-                    <Link href="/archive">Archive</Link>
+                <div className="relative z-[10002] flex items-center justify-between mt-[20px] shrink-0">
+                    <button
+                        type="button"
+                        className="cursor-pointer"
+                        onClick={() => router.push('/archive')}
+                    >
+                        Archive
+                    </button>
                     <div>{archiveCount}</div>
                 </div>
             </div >

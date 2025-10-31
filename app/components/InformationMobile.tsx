@@ -90,7 +90,7 @@ export const InformationMobile: React.FC<Props> = ({ isOpen, onClose }) => {
                     <div className="grid grid-cols-8">
                         <div
                             className={cn(
-                                'col-start-3 col-span-6 relative h-[195px] w-full overflow-hidden mb-[20px] transition-opacity duration-500',
+                                'col-start-3 col-span-6 relative h-[195px] w-full overflow-hidden transition-opacity duration-500',
                                 isOpen ? 'opacity-100' : 'opacity-0'
                             )}
                             style={{ transitionDelay: isOpen ? '280ms' : '0ms' }}
