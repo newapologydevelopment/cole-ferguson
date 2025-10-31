@@ -73,12 +73,12 @@ export const LightBox: React.FC<Props> = ({ close, children, title }) => {
     return (
         <div
             ref={boxRef}
-            className="light-box fixed inset-0 z-[100] flex items-center justify-center bg-white/95 backdrop-blur-md text-primary-dark text-[12px]"
+            className="light-box fixed inset-0 z-[10050] flex items-center justify-center bg-white text-primary-dark text-[12px]"
         >
             <button
                 type="button"
                 onClick={close}
-                className="absolute right-6 top-[52px] sm:top-6 z-[102] cursor-pointer"
+                className="absolute right-[20px] top-[20px] sm:right-6 sm:top-6 z-[102] cursor-pointer"
                 aria-label="Close lightbox"
                 data-hide-cursor="true"
             >

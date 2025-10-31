@@ -42,7 +42,7 @@ export const MenuMobile = () => {
 
     return (
         <>
-            <div className='fixed left-0 right-0 top-[0] flex items-center justify-between px-[20px] pt-[20px] pb-[4px] bg-white z-[10000] sm:hidden'>
+            <div className='fixed left-0 right-0 top-[0] flex items-center justify-between px-[20px] pt-[20px] pb-[4px] bg-white z-[10040] sm:hidden'>
                 <Link href="/" className="text-[12px] text-primary-dark relative inline-flex items-center">
                     <span className="relative inline-block overflow-hidden"
                         style={{ minWidth: 96 }}>
@@ -104,28 +104,19 @@ export const MenuMobile = () => {
                                 onClick={() => { setInformationOpen(false); }}>
                                 Archive
                             </Link>
-                            <div
+                            <button
+                                type='button'
                                 className='z-[2]'
-                                onClick={() => setInformationOpen(!informationOpen)}>
+                                onClick={() => { setOpen(false); setInformationOpen(true) }}>
                                 Information
-                            </div>
+                            </button>
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
-            <AnimatePresence>
-                {informationOpen && (
-                    <motion.div
-                        initial={{ y: -24 }}
-                        animate={{ y: 0 }}
-                        exit={{ y: -24 }}
-                        transition={{ type: 'spring', stiffness: 420, damping: 36, mass: 0.25 }}>
-                        <InformationMobile
-                            isOpen={informationOpen}
-                        />
-                    </motion.div>
-                )}
-            </AnimatePresence>
+
+            {/* Завжди змонтований оверлей, показ/приховування через CSS-транзішени всередині */}
+            <InformationMobile isOpen={informationOpen} onClose={() => setInformationOpen(false)} />
         </>
     )
 }
