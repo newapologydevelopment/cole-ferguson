@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
 import { ArchiveProject as ArchiveProjectType } from "@/sanity/lib/client"
