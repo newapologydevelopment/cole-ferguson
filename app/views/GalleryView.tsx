@@ -121,8 +121,12 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
 
     if (isMobile) return (
         <div className='sm:hidden h-[100dvh] w-full text-[12px] text-primary-dark px-[20px] pb-[40px]'>
-            <div className="fixed z-[2] top-[50px] left-1/2 -translate-x-1/2">
-                <div ref={mobileTabsWrapRef} className="relative flex gap-[15px]">
+            {/* MOBILE VIEW SWITCH — full-width white bar tight under mobile menu */}
+            <div className="fixed z-[2] top-[40px] left-0 right-0 bg-white">
+                <div
+                    ref={mobileTabsWrapRef}
+                    className="relative flex justify-center gap-[15px] py-[10px]"
+                >
                     <div
                         ref={mobileGridRef}
                         className={cn("cursor-pointer transition-transform", { 'translate-y-[-4px]': view === 'grid' })}
@@ -139,7 +143,7 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
                     </div>
                     <motion.div
                         className="absolute h-[1px] bg-black"
-                        style={{ bottom: -2 }}
+                        style={{ bottom: 8 }}
                         initial={false}
                         animate={{ left: mobileUnderline.left, width: mobileUnderline.width }}
                         transition={{ type: 'spring', stiffness: 380, damping: 36, mass: 0.2 }}
@@ -156,7 +160,7 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
                 />
             )}
 
-            {view === 'grid' &&
+            {view === 'grid' && (
                 <GalleryGridViewMobile
                     items={allImages}
                     projects={projects}
@@ -164,7 +168,7 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
                     onClick={handleLightBoxOpen}
                     selectActualPhoto={setActualPhoto}
                 />
-            }
+            )}
 
             {lightBoxOpen && (
                 <LightBox
