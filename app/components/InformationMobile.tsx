@@ -1,4 +1,5 @@
 "use client"
+import { client } from "@/sanity/lib/client"
 import { cn } from "@/utils"
 import Image from "next/image"
 import { useEffect, useState } from "react"
@@ -11,7 +12,26 @@ interface Props {
 
 export const InformationMobile: React.FC<Props> = ({ isOpen, onClose }) => {
     const [mounted, setMounted] = useState(false)
+    const [title, setTitle] = useState<string>("Cole is a photographer and director living in Los Angeles, California.")
+    const [clients, setClients] = useState<string>("")
+    const [publications, setPublications] = useState<string>("")
+    const [contact, setContact] = useState<string>("")
+    const [videoUrl, setVideoUrl] = useState<string>("")
     useEffect(() => { setMounted(true) }, [])
+    useEffect(() => {
+        // fetch information from Sanity (client-side)
+        client.fetch<{ title?: string; clients?: string; publications?: string; contact?: string; video?: string; videoFileUrl?: string }>(
+            `*[_type=="information"][0]{ title, clients, publications, contact, video, "videoFileUrl": videoFile.asset->url }`
+        ).then((doc) => {
+            if (!doc) return
+            if (doc.title) setTitle(doc.title)
+            if (typeof doc.clients === 'string') setClients(doc.clients)
+            if (typeof doc.publications === 'string') setPublications(doc.publications)
+            if (typeof doc.contact === 'string') setContact(doc.contact)
+            const v = (doc.video && doc.video.trim()) || (doc.videoFileUrl && doc.videoFileUrl.trim()) || ""
+            if (v) setVideoUrl(v)
+        }).catch(() => { })
+    }, [])
     if (!mounted) return null
 
     return createPortal(
@@ -42,7 +62,7 @@ export const InformationMobile: React.FC<Props> = ({ isOpen, onClose }) => {
                     )}
                     style={{ transitionDelay: isOpen ? '120ms' : '0ms' }}
                 >
-                    Cole is a photographer and director living in Los Angeles, California.
+                    {title}
                 </h1>
 
                 <div
@@ -54,35 +74,41 @@ export const InformationMobile: React.FC<Props> = ({ isOpen, onClose }) => {
                 >
                     <div className="grid grid-cols-8">
                         <h3 className="col-span-2">Clients</h3>
-                        <p className="col-start-3 col-span-full">
-                            Nike, Louis Vuitton, Dior, VEVO, Disney, Island Records, Hollywood Records,
-                            Red Bull, Vuori, LifeStraw, Olipop, Whitespace, Guayaki Yerba Mate
-                        </p>
+                        <p className="col-start-3 col-span-full whitespace-pre-line">{clients}</p>
                     </div>
 
                     <div className="grid grid-cols-8">
                         <h3 className="col-span-2">Publications</h3>
-                        <p className="col-start-3 col-span-full">
-                            Vanity Fair, Vogue Greece, HYPEBEAST, Men’s Health, Vman, People Magazine,
-                            US Weekly, E News, Surfing Magazine, Complex, RAP
-                        </p>
+                        <p className="col-start-3 col-span-full whitespace-pre-line">{publications}</p>
                     </div>
 
                     <div className="grid grid-cols-8">
                         <h3 className="col-span-2">Contact</h3>
-                        <p className="col-start-3 col-span-full">
-                            studio@coleferguson.com <br /> @coleferguson
-                        </p>
+                        <p className="col-start-3 col-span-full whitespace-pre-line">{contact}</p>
                     </div>
 
-                    <div
-                        className={cn(
-                            'grid grid-cols-8 h-[195px] relative transition-opacity duration-500',
-                            isOpen ? 'opacity-100' : 'opacity-0'
-                        )}
-                        style={{ transitionDelay: isOpen ? '280ms' : '0ms' }}
-                    >
-                        <Image src="/video-mock.png" alt="Cole Ferguson Studio" fill className='object-cover col-start-3 col-span-full' />
+                    <div className="grid grid-cols-8">
+                        <div
+                            className={cn(
+                                'col-start-3 col-span-6 relative h-[195px] w-full overflow-hidden mb-[20px] transition-opacity duration-500',
+                                isOpen ? 'opacity-100' : 'opacity-0'
+                            )}
+                            style={{ transitionDelay: isOpen ? '280ms' : '0ms' }}
+                        >
+                            {videoUrl ? (
+                                <video
+                                    src={videoUrl}
+                                    className='absolute inset-0 w-full h-full object-cover'
+                                    autoPlay
+                                    loop
+                                    muted
+                                    playsInline
+                                    controls={false}
+                                />
+                            ) : (
+                                <Image src="/video-mock.png" alt="Cole Ferguson Studio" fill className='object-cover' />
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

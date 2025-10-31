@@ -166,3 +166,30 @@ export const getProjectBySlugCached = unstable_cache(
   ['sanity-project-by-slug-v1'],
   { revalidate: 60 * 60 }
 )
+
+// Information singleton
+export type InformationDoc = {
+  title?: string
+  clients?: string
+  publications?: string
+  contact?: string
+  video?: string
+}
+
+const informationQuery = `*[_type == "information"][0]{
+  title,
+  clients,
+  publications,
+  contact,
+  video
+}`
+
+export async function getInformation(): Promise<InformationDoc | null> {
+  return client.fetch(informationQuery)
+}
+
+export const getInformationCached = unstable_cache(
+  async () => client.fetch<InformationDoc | null>(informationQuery),
+  ['sanity-information-v1'],
+  { revalidate: 60 * 60 }
+)
