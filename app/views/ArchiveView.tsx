@@ -58,7 +58,6 @@ export const ArchiveView = ({ archiveProjects }: Props) => {
         setSelectedProject(projectIndex);
     }
 
-    // 🧱 утиліти для класів
     const itemSpan =
         gridMode === 1 ? 'col-span-8' :
             gridMode === 2 ? 'col-span-4' :
