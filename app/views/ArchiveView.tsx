@@ -3,8 +3,9 @@
 import { ArchiveProject as ArchiveProjectType } from "@/sanity/lib/client"
 import { urlFor } from "@/sanity/lib/image"
 import { cn } from "@/utils"
+import { motion } from "framer-motion"
 import Image from "next/image"
-import { useCallback, useState } from "react"
+import { useCallback, useLayoutEffect, useRef, useState } from "react"
 import { ArchiveLightBox, ArchiveProject } from "../components"
 import { useBreakpoint, useScrollToTop } from "../hooks"
 
@@ -15,6 +16,23 @@ export const ArchiveView = ({ archiveProjects }: Props) => {
     const [showLightBox, setShowLightBox] = useState(false);
     const [selectedProject, setSelectedProject] = useState<number>(0);
     const [gridMode, setGridMode] = useState<1 | 2 | 4>(1); // 🔁 1 / 2 / 4
+
+    // underline (mobile) for Columns 1/2/4
+    const colsWrapRef = useRef<HTMLDivElement | null>(null)
+    const colBtnRefs = useRef<Record<1 | 2 | 4, HTMLButtonElement | null>>({ 1: null, 2: null, 4: null })
+    const [colsUnderline, setColsUnderline] = useState({ left: 0, width: 0 })
+
+    const measureCols = () => {
+        const wrap = colsWrapRef.current
+        const active = colBtnRefs.current[gridMode]
+        if (!wrap || !active) return
+        const wr = wrap.getBoundingClientRect()
+        const ar = active.getBoundingClientRect()
+        const left = ar.left - wr.left
+        const width = ar.width
+        setColsUnderline(prev => (prev.left === left && prev.width === width ? prev : { left, width }))
+    }
+    useLayoutEffect(() => { if (isMobile) measureCols() }, [gridMode, isMobile])
 
     const total = archiveProjects.length;
     useScrollToTop();
@@ -52,27 +70,29 @@ export const ArchiveView = ({ archiveProjects }: Props) => {
             <div className="fixed top-[48px] left-1/2 -translate-x-1/2 z-[1000] flex items-center gap-[21px] text-[12px] sm:hidden">
                 <span>Columns</span>
 
-                <div className="flex gap-[8px]" role="tablist" aria-label="Columns">
+                <div ref={colsWrapRef} className="relative flex gap-[8px]" role="tablist" aria-label="Columns">
                     {[1, 2, 4].map((n) => (
                         <button
                             key={n}
+                            ref={(el) => { colBtnRefs.current[n as 1 | 2 | 4] = el }}
                             type="button"
                             onClick={() => setGridMode(n as 1 | 2 | 4)}
-                            className="relative inline-flex px-[2px]"
+                            className={cn("relative inline-flex px-[2px] leading-none pb-[5px] transition-transform", {
+                                "-translate-y-[6px]": gridMode === (n as 1 | 2 | 4)
+                            })}
+                            aria-selected={gridMode === (n as 1 | 2 | 4)}
+                            role="tab"
                         >
-                            <span
-                                className={cn(
-                                    "relative inline-block leading-none pb-[5px] transition-transform",
-                                    {
-                                        "after:content-[''] after:absolute after:left-[-2px] after:right-[-2px] after:bottom-0 after:h-[1px] after:bg-primary-dark -translate-y-[6px]":
-                                            gridMode === n,
-                                    }
-                                )}
-                            >
-                                {n}
-                            </span>
+                            {n}
                         </button>
                     ))}
+                    <motion.div
+                        className="absolute h-[1px] bg-black"
+                        style={{ bottom: 0 }}
+                        initial={false}
+                        animate={{ left: colsUnderline.left, width: colsUnderline.width }}
+                        transition={{ type: 'spring', stiffness: 380, damping: 36, mass: 0.2 }}
+                    />
                 </div>
             </div>
 
