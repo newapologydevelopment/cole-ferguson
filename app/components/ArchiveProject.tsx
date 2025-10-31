@@ -125,6 +125,19 @@ export const ArchiveProject: React.FC<Props> = ({ archiveProject, onPrev, onNext
                             priority
                         />
                     )}
+                    {pendingSrc && (
+                        <Image
+                            key={pendingImage?.asset?._ref ?? 'pending-m'}
+                            src={pendingSrc}
+                            alt={pendingImage?.alt || archiveProject.title}
+                            fill
+                            sizes="(max-width:768px) 100vw, 0px"
+                            fetchPriority="high"
+                            decoding="async"
+                            onLoadingComplete={commitSwap}
+                            className="object-cover opacity-0 pointer-events-none"
+                        />
+                    )}
                 </div>
                 <div className="mt-[12px] text-center">
                     {archiveProject.title}
