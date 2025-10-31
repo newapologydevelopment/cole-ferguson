@@ -22,6 +22,17 @@ body {
   font-size: 12px;
 }
 
+/* Hide scrollbars globally but keep scrolling functional */
+html,
+body {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
 .hide-scrollbar {
   overflow-y: scroll;
   scrollbar-width: none;

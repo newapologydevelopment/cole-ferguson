@@ -3,7 +3,7 @@
 import { Project as ProjectType } from '@/types';
 import { cn, collectAllImages } from "@/utils";
 import { motion } from 'framer-motion';
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { GalleryGridView, GalleryGridViewMobile, GalleryList, GalleryListView, LightBox, Project, ProjectMobile } from '../components';
 import { useBreakpoint, useScrollToTop } from '../hooks';
 
@@ -70,7 +70,7 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
     const mobileGridRef = useRef<HTMLDivElement | null>(null)
     const mobileListRef = useRef<HTMLDivElement | null>(null)
     const [mobileUnderline, setMobileUnderline] = useState({ left: 0, width: 0 })
-    const measureMobile = () => {
+    const measureMobile = useCallback(() => {
         const wrap = mobileTabsWrapRef.current
         const active = view === 'grid' ? mobileGridRef.current : mobileListRef.current
         if (!wrap || !active) return
@@ -79,14 +79,27 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
         const left = ar.left - wr.left
         const width = ar.width
         setMobileUnderline(prev => (prev.left === left && prev.width === width ? prev : { left, width }))
-    }
-    useLayoutEffect(() => { measureMobile() }, [view])
+    }, [view])
+    useLayoutEffect(() => { measureMobile() }, [measureMobile])
     useEffect(() => {
         const onResize = () => measureMobile()
         window.addEventListener('resize', onResize)
         const id = window.requestAnimationFrame(measureMobile)
-        return () => { window.removeEventListener('resize', onResize); window.cancelAnimationFrame(id) }
-    }, [])
+        // observe container size/word-wrap changes
+        const ro = mobileTabsWrapRef.current ? new ResizeObserver(() => measureMobile()) : null
+        if (mobileTabsWrapRef.current && ro) ro.observe(mobileTabsWrapRef.current)
+        // after fonts load — recalc
+        // @ts-ignore
+        if (document?.fonts?.ready) {
+            // @ts-ignore
+            document.fonts.ready.then(() => measureMobile()).catch(() => { })
+        }
+        return () => {
+            window.removeEventListener('resize', onResize)
+            window.cancelAnimationFrame(id)
+            if (ro && mobileTabsWrapRef.current) ro.disconnect()
+        }
+    }, [measureMobile])
 
     // underline (desktop)
     const deskTabsWrapRef = useRef<HTMLDivElement | null>(null)

@@ -200,6 +200,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                                 controls
                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             />
+                            <div className='text-[#717171] pt-[6px]'>Video by Samuel Lang</div>
                         </div>
                     </div>
                 </LightBox>
