@@ -158,7 +158,7 @@ export const ProjectMobile: React.FC<Props> = ({
 
     return (
         <div
-            className="sm:hidden relative w-screen h-[100dvh] overflow-hidden select-none"
+            className="relative w-screen h-[100dvh] overflow-hidden select-none"
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}

@@ -13,7 +13,7 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
     const projectTitles = useMemo(() => projects.map((p) => p.title), [projects]);
     const scrollRef = useRef<HTMLDivElement | null>(null)
     const sectionRefs = useRef<(HTMLElement | null)[]>([])
-    const { isMobile } = useBreakpoint()
+    const { isDesktop } = useBreakpoint()
     const [activeIndex, setActiveIndex] = useState(0)
     const [showAll, setShowAll] = useState(false)
 
@@ -42,7 +42,7 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
     return (
         <div className="h-screen overflow-hidden px-[20px] sm:p-[24px] text-[12px] text-primary-dark">
 
-            <div className="fixed z-[2] top-[50%] translate-y-[-25%] mt-[40px] hidden sm:flex flex-col gap-[8px] ">
+            <div className="fixed z-[2] top-[50%] translate-y-[-25%] mt-[40px] hidden xl:flex flex-col gap-[8px] ">
                 <NavigationHomePage
                     titles={projectTitles}
                     activeIndex={activeIndex}
@@ -59,7 +59,7 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
                         ref={(el) => { sectionRefs.current[i] = el }}
                         className={`snap-start h-[100dvh] transition-opacity duration-300 ${i === activeIndex || showAll ? 'opacity-100' : 'opacity-0'}`}
                     >
-                        {isMobile ?
+                        {!isDesktop ?
                             <ProjectMobile project={project} /> :
                             <Project project={project} showIndicator={!showAll && i === activeIndex} />
                         }

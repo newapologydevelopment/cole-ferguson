@@ -3,12 +3,14 @@ import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { useBreakpoint } from '../hooks'
 import { InformationMobile } from './InformationMobile'
 
 export const MenuMobile = () => {
     const [open, setOpen] = useState(false)
     const [informationOpen, setInformationOpen] = useState(false)
     const pathname = usePathname()
+    const { isMobile } = useBreakpoint()
 
     useEffect(() => {
         setOpen(false)
@@ -42,7 +44,7 @@ export const MenuMobile = () => {
 
     return (
         <>
-            <div className='fixed left-0 right-0 top-[0] flex items-center justify-between px-[20px] pt-[20px] pb-[4px] bg-white z-[10040] sm:hidden'>
+            <div className='fixed left-0 right-0 top-[0] flex items-center justify-between px-[20px] sm:px-[24px] pt-[20px] sm:pt-[24px] pb-[4px] sm:pb-[8px] bg-white z-[10040] xl:hidden'>
                 <Link href="/" className="text-[12px] text-primary-dark relative inline-flex items-center">
                     <span className="relative inline-block overflow-hidden"
                         style={{ minWidth: 96 }}>
@@ -76,7 +78,7 @@ export const MenuMobile = () => {
                 </Link>
                 <div
                     onClick={() => setOpen(!open)}
-                    className=' text-[12px] text-primary-dark sm:hidden bg-white z-[1] relative'>
+                    className=' text-[12px] text-primary-dark bg-white z-[1] relative'>
                     {!open ? 'Menu' : 'Close'}
                 </div>
             </div >
@@ -89,7 +91,7 @@ export const MenuMobile = () => {
                         animate={{ y: 0 }}
                         exit={{ y: -24 }}
                         transition={{ type: 'spring', stiffness: 420, damping: 36, mass: 0.25 }}
-                        className='fixed left-[20px] right-[20px] top-[40px] text-[12px] text-primary-dark z-[9998] sm:hidden bg-white will-change-transform'
+                        className='xl:hidden fixed left-[20px] sm:left-[24px] right-[20px] sm:right-[24px] top-[40px] sm:top-[48px] text-[12px] text-primary-dark z-[9998] bg-white will-change-transform'
                     >
                         <div className='flex items-center justify-between relative'>
                             <Link
@@ -107,7 +109,14 @@ export const MenuMobile = () => {
                             <button
                                 type='button'
                                 className='z-[2]'
-                                onClick={() => { setOpen(false); setInformationOpen(true) }}>
+                                onClick={() => {
+                                    setOpen(false)
+                                    if (isMobile) {
+                                        setInformationOpen(true)
+                                    } else {
+                                        window.dispatchEvent(new Event('infoshell:open'))
+                                    }
+                                }}>
                                 Information
                             </button>
                         </div>

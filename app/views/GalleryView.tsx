@@ -135,7 +135,7 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
     }
 
     if (isMobile) return (
-        <div className='sm:hidden h-[100dvh] w-full text-[12px] text-primary-dark px-[20px] pb-[40px]'>
+        <div className='xl:hidden h-[100dvh] w-full text-[12px] text-primary-dark px-[20px] pb-[40px]'>
             {/* MOBILE VIEW SWITCH — full-width white bar tight under mobile menu */}
             <div className="fixed z-[2] top-[40px] left-0 right-0 bg-white">
                 <div
@@ -203,7 +203,7 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
 
     return (
         <div className="hidden sm:grid grid-cols-24 w-full h-full text-[12px] text-primary-dark p-[24px] ">
-            <div className="fixed z-[2] top-[50%] translate-y-[-50%]">
+            <div className="hidden fixed z-[2] sm:block sm:top-[50px] sm:left-1/2 sm:-translate-x-1/2 xl:top-[50%] xl:translate-y-[-50%] xl:left-[24px] xl:translate-x-0">
                 <div ref={deskTabsWrapRef} className="relative flex gap-[15px]">
                     <div
                         ref={deskGridRef}
@@ -250,7 +250,7 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
             }
 
             {view === 'list' &&
-                <div className=" col-start-12 col-span-13 h-full flex items-center justify-center">
+                <div className="col-start-12 col-span-13 h-full xl:flex hidden items-center justify-center">
                     <GalleryListView
                         project={listViewSelectedProject}
                     />

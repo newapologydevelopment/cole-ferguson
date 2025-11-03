@@ -17,7 +17,7 @@ const recitalBook = localFont({
   variable: "--font-recital-book",
 });
 
-const SHOW_GRID = !true;
+const SHOW_GRID = true;
 const SHOW_PRELOADER = true;
 
 export const metadata: Metadata = {
@@ -90,7 +90,7 @@ export default function RootLayout({
         {SHOW_PRELOADER && <Preloader />}
         <Link
           href="/"
-          className="fixed z-[10001] md:top-[24px] top-[20px] md:left-[24px] left-[20px] text-[12px] text-primary-dark cursor-pointer bg-white hidden sm:block"
+          className="fixed z-[10001] md:top-[24px] top-[20px] md:left-[24px] left-[20px] text-[12px] text-primary-dark cursor-pointer bg-white hidden xl:block"
           data-hide-cursor="true"
           data-brand-header
         >
@@ -104,8 +104,8 @@ export default function RootLayout({
             <main className="pt-[83px] sm:pt-[0]">
               {children}
             </main>
-            <div className="fixed z-[3]  md:bottom-[24px] md:left-[24px] bottom-[20px] left-[20px] flex flex-col gap-[8px] text-[12px] text-primary-dark" data-index-container>
-              <Link href="/gallery" className="cursor-pointer sm:block hidden" data-hide-cursor="true">Index</Link>
+            <div className="fixed z-[3] md:bottom-[24px] md:left-[24px] bottom-[20px] left-[20px] flex flex-col gap-[8px] text-[12px] text-primary-dark" data-index-container>
+              <Link href="/gallery" className="cursor-pointer xl:block hidden" data-hide-cursor="true">Index</Link>
               <div className=" realtive invisible w-screen pointer-events-none z-[-1]" >1</div>
             </div>
           </PageTransition>

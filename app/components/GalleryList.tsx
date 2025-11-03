@@ -71,7 +71,7 @@ export const GalleryList: React.FC<Props> = ({
 
     return (
         <>
-            <div className={cn("relative col-span-4 col-start-3 self-center h-[60vh] min-h-0 hidden sm:flex flex-col", className)}>
+            <div className={cn("relative col-span-8 xl:col-span-4 col-start-1 xl:col-start-3 self-center h-[60vh] min-h-0 hidden sm:flex flex-col", className)}>
                 <div className="flex items-center justify-between mb-[30px] shrink-0">
                     <p>All</p>
                     <div>{allProjects.length}</div>

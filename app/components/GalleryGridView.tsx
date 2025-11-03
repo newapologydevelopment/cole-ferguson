@@ -58,9 +58,9 @@ export const GalleryGridView = ({
         selectActualPhoto(project?.image?.asset?._ref || '')
     }
     return (
-        <div className={cn("col-start-7 col-span-full h-full pb-[24px]", className)}>
+        <div className={cn("col-start-1 pt-[68px] xl:pt-0 xl:col-start-7 col-span-full h-full pb-[24px]", className)}>
             <LenisProvider />
-            <div className="w-full h-full grid grid-cols-6 gap-x-[60px] gap-y-[100px] content-start items-start auto-rows-max">
+            <div className="w-full h-full grid grid-cols-6 gap-x-[30px] xl:gap-x-[60px] gap-y-[50px] xl:gap-y-[100px] content-start items-start auto-rows-max">
                 {items.map((it, i) => {
                     const ref = it.image?.asset?._ref
                     if (!ref) return null

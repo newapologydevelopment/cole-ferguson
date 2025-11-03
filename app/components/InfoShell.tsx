@@ -51,6 +51,21 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
         if (open) window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
     }, [open])
 
+    // External control from MenuMobile (tablet): listen custom events
+    useEffect(() => {
+        const openHandler = () => setOpen(true)
+        const closeHandler = () => setOpen(false)
+        const toggleHandler = () => setOpen(o => !o)
+        window.addEventListener('infoshell:open', openHandler as EventListener)
+        window.addEventListener('infoshell:close', closeHandler as EventListener)
+        window.addEventListener('infoshell:toggle', toggleHandler as EventListener)
+        return () => {
+            window.removeEventListener('infoshell:open', openHandler as EventListener)
+            window.removeEventListener('infoshell:close', closeHandler as EventListener)
+            window.removeEventListener('infoshell:toggle', toggleHandler as EventListener)
+        }
+    }, [])
+
     useEffect(() => {
         if (!open) return
         const onWheel = (e: WheelEvent) => { if (e.deltaY !== 0) setOpen(false) }
@@ -143,11 +158,11 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                     role="button"
                     data-hide-cursor="true"
                 >
-                    <div className="h-full overflow-auto px-[24px] bg-white text-left text-[12px] text-primary-dark">
-                        <div className="pt-[-24px] text-btn hidden sm:block" data-hide-cursor="true">Information</div>
+                    <div className="h-full overflow-auto px-[24px] bg-white text-left text-[12px] text-primary-dark hidden sm:block">
+                        <div className="pt-[-24px] text-btn hidden xl:block" data-hide-cursor="true">Information</div>
 
-                        <div className="h-[50vh] absolute left-0 right-0 bottom-[24px]  grid grid-cols-8  px-[24px] text">
-                            <div className="col-start-2 col-end-[-1] flex flex-col justify-between text-info opacity-0">
+                        <div className="h-[50vh] absolute left-0 right-0 bottom-[24px] grid grid-cols-8  px-[24px] text">
+                            <div className="sm:col-start-1 xl:col-start-2 col-end-[-1] flex flex-col justify-between text-info opacity-0">
                                 <h1 className="text-[64px] leading-[115%] whitespace-pre-line">
                                     {info.title}
                                 </h1>
@@ -187,6 +202,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                     </div>
                 </div>
             </div>
+
             {showVideo && info.videoUrl && (
                 <LightBox close={() => setShowVideo(false)} title="">
                     <div className='flex items-center justify-center w-full'>
