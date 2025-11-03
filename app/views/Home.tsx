@@ -13,9 +13,11 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
     const projectTitles = useMemo(() => projects.map((p) => p.title), [projects]);
     const scrollRef = useRef<HTMLDivElement | null>(null)
     const sectionRefs = useRef<(HTMLElement | null)[]>([])
-    const { isDesktop } = useBreakpoint()
+    const { isMobile } = useBreakpoint()
     const [activeIndex, setActiveIndex] = useState(0)
     const [showAll, setShowAll] = useState(false)
+
+    console.log('projects:', projects)
 
     useScrollToTop();
 
@@ -59,10 +61,11 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
                         ref={(el) => { sectionRefs.current[i] = el }}
                         className={`snap-start h-[100dvh] transition-opacity duration-300 ${i === activeIndex || showAll ? 'opacity-100' : 'opacity-0'}`}
                     >
-                        {!isDesktop ?
-                            <ProjectMobile project={project} /> :
+                        {isMobile ? (
+                            <ProjectMobile project={project} />
+                        ) : (
                             <Project project={project} showIndicator={!showAll && i === activeIndex} />
-                        }
+                        )}
                         {/* <Project project={project} showIndicator={!showAll && i === activeIndex} /> */}
                     </section>
                 ))}

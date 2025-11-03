@@ -27,7 +27,6 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
     })
     const [showVideo, setShowVideo] = useState(false)
 
-    console.log('info', info)
     useEffect(() => {
         // fetch once on mount
         client
