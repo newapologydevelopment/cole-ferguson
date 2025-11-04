@@ -9,53 +9,6 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { GalleryGridView, GalleryGridViewMobile, GalleryList, GalleryListView, LightBox, Project, ProjectMobile } from '../components';
 import { useBreakpoint, useScrollToTop } from '../hooks';
 
-// export const projectsMock: { title: string, images: number }[] = [
-//     { title: "Dodgers—ESPN", images: 7 },
-//     { title: "Swell", images: 9 },
-//     { title: "Aiden—Swim", images: 4 },
-//     { title: "Oscars", images: 12 },
-//     { title: "By/ Rosie Jane Fragrances", images: 12 },
-//     { title: "Aiden—Swim", images: 4 },
-//     { title: "Severson boards", images: 5 },
-//     { title: "Oscars", images: 3 },
-//     { title: "Shawn Mendes—Heart Of Gold", images: 4 },
-//     { title: "Dodgers—ESPN", images: 7 },
-//     { title: "Dodgers—ESPN", images: 7 },
-//     { title: "Swell", images: 9 },
-//     { title: "Severson boards", images: 5 },
-//     { title: "Oscars", images: 3 },
-//     { title: "Shawn Mendes—Heart Of Gold", images: 4 },
-//     { title: "Dodgers—ESPN", images: 7 },
-//     { title: "Dodgers—ESPN", images: 7 },
-//     { title: "Aiden—Swim", images: 4 },
-//     { title: "Swell", images: 9 },
-//     { title: "By/ Rosie Jane Fragrances", images: 12 },
-//     { title: "Severson boards", images: 5 },
-//     { title: "Oscars", images: 3 },
-//     { title: "Shawn Mendes—Heart Of Gold", images: 4 },
-//     { title: "Dodgers—ESPN", images: 7 },
-//     { title: "Oscars", images: 3 },
-//     { title: "Shawn Mendes—Heart Of Gold", images: 4 },
-//     { title: "Dodgers—ESPN", images: 7 },
-//     { title: "Dodgers—ESPN", images: 7 },
-//     { title: "Aiden—Swim", images: 4 },
-//     { title: "Swell", images: 9 },
-//     { title: "By/ Rosie Jane Fragrances", images: 12 },
-//     { title: "Severson boards", images: 5 },
-//     { title: "Oscars", images: 3 },
-//     { title: "Shawn Mendes—Heart Of Gold", images: 4 },
-//     { title: "Dodgers—ESPN", images: 7 },
-//     { title: "Dodgers—ESPN", images: 7 },
-//     { title: "Dodgers—ESPN", images: 7 },
-//     { title: "Aiden—Swim", images: 4 },
-//     { title: "Swell", images: 9 },
-//     { title: "By/ Rosie Jane Fragrances", images: 12 },
-//     { title: "Severson boards", images: 5 },
-//     { title: "Oscars", images: 3 },
-//     { title: "Shawn Mendes—Heart Of Gold", images: 4 },
-//     { title: "Dodgers—ESPN", images: 7 },
-// ];
-
 export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectType[]; archiveCount?: number }) => {
     const [view, setView] = useState('grid');
     const { isMobile } = useBreakpoint();
@@ -65,9 +18,10 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
     const [actualPhoto, setActualPhoto] = useState<string | null>(null);
     const allImages = collectAllImages(projects);
 
+    console.log('projects at gallery view:', projects)
+
     useScrollToTop()
 
-    // underline (mobile)
     const mobileTabsWrapRef = useRef<HTMLDivElement | null>(null)
     const mobileGridRef = useRef<HTMLDivElement | null>(null)
     const mobileListRef = useRef<HTMLDivElement | null>(null)
@@ -87,7 +41,6 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
         const onResize = () => measureMobile()
         window.addEventListener('resize', onResize)
         const id = window.requestAnimationFrame(measureMobile)
-        // observe container size/word-wrap changes
         const ro = mobileTabsWrapRef.current ? new ResizeObserver(() => measureMobile()) : null
         if (mobileTabsWrapRef.current && ro) ro.observe(mobileTabsWrapRef.current)
         // after fonts load — recalc

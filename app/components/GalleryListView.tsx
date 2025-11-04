@@ -98,12 +98,14 @@ export const GalleryListView = ({ project }: Props) => {
     }
 
     const landscapes = images.filter(isLandscape);
-    const photos =
-        landscapes.length >= 2
-            ? landscapes.slice(0, 2)
-            : [landscapes[0] ?? first].filter(Boolean) as ProjectImage[];
-
-    if (photos.length === 0) photos.push(first);
+    let photos: ProjectImage[];
+    if (landscapes.length >= 2) {
+        photos = landscapes.slice(0, 2);
+    } else {
+        const firstPortrait = images.find(isPortrait);
+        photos = firstPortrait ? [firstPortrait] : [landscapes[0] ?? first].filter(Boolean) as ProjectImage[];
+        if (photos.length === 0) photos.push(first);
+    }
 
     return (
         <div className="relative flex h-full w-full flex-col gap-[24px]">

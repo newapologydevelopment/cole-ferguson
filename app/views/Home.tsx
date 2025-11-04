@@ -17,7 +17,7 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
     const [activeIndex, setActiveIndex] = useState(0)
     const [showAll, setShowAll] = useState(false)
 
-    console.log('projects:', projects)
+    console.log('projects at home:', projects)
 
     useScrollToTop();
 

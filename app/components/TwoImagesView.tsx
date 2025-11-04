@@ -5,10 +5,10 @@ import { urlFor, sanityLoader } from '@/sanity/lib/image'
 import type { ProjectImage } from '@/types/project'
 import Image from 'next/image'
 
-type Ratio = '3:2' | '4:5' | '5:4'
+type Ratio = '3:2' | '4:5' | '5:4' | '2:3'
 
 const isRatio = (v: unknown): v is Ratio =>
-    v === '3:2' || v === '4:5' || v === '5:4'
+    v === '3:2' || v === '4:5' || v === '5:4' || v === '2:3'
 
 type WithWH = { width?: number | null; height?: number | null }
 const hasWH = (x: unknown): x is WithWH =>
@@ -24,6 +24,7 @@ function detectRatio(w?: number | null, h?: number | null): Ratio | null {
     if (near(r, 3 / 2)) return '3:2'
     if (near(r, 4 / 5)) return '4:5'
     if (near(r, 5 / 4)) return '5:4'
+    if (near(r, 2 / 3)) return '2:3'
     return null
 }
 
@@ -34,11 +35,17 @@ function getImageRatio(img: unknown): Ratio | null {
 }
 
 const LAYOUT = {
-    '3:2|3:2': { a: 'col-span-8 col-start-5', b: 'col-span-8' },
-    '4:5|4:5': { a: 'col-span-7 col-start-6', b: 'col-span-7' },
-    '5:4|5:4': { a: 'col-span-8 col-start-5', b: 'col-span-8' },
+    // Обидва ландшафтні — трохи ширше
+    '3:2|3:2': { a: 'col-span-9 col-start-5', b: 'col-span-9' },
+    '5:4|5:4': { a: 'col-span-9 col-start-5', b: 'col-span-9' },
+    // Обидва портретні — трохи вужче та по центру
+    '4:5|4:5': { a: 'col-span-6 col-start-7', b: 'col-span-6' },
+    '2:3|2:3': { a: 'col-span-6 col-start-7', b: 'col-span-6' },
+    // Мікси: ландшафт отримує більше ширини (9), портрет — менше (6)
     '4:5|5:4': { a: 'col-span-6 col-start-5', b: 'col-span-9' },
     '5:4|4:5': { a: 'col-span-9 col-start-5', b: 'col-span-6' },
+    '2:3|3:2': { a: 'col-span-6 col-start-5', b: 'col-span-9' },
+    '3:2|2:3': { a: 'col-span-9 col-start-5', b: 'col-span-6' },
 } as const
 
 type LayoutKey = keyof typeof LAYOUT
@@ -49,6 +56,7 @@ const ASPECT_BY_RATIO: Record<Ratio, string> = {
     '3:2': 'aspect-[3/2]',
     '4:5': 'aspect-[4/5]',
     '5:4': 'aspect-[5/4]',
+    '2:3': 'aspect-[2/3]',
 }
 
 const PAIR_H = 'h-[clamp(360px,60vh,820px)]'
