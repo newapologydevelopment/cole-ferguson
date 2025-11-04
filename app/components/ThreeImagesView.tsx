@@ -81,6 +81,7 @@ export function ThreeImagesView({ images }: { images: ProjectImage[] }) {
                             <div className={`relative w-full overflow-hidden ${aAspect}`}>
                                 {srcA && (
                                     <Image
+                                        key={a?.asset?._ref || 'three-a'}
                                         src={srcA}
                                         alt={a.alt || ''}
                                         fill
@@ -88,6 +89,9 @@ export function ThreeImagesView({ images }: { images: ProjectImage[] }) {
                                         placeholder={a.blurDataURL ? 'blur' : 'empty'}
                                         blurDataURL={a.blurDataURL}
                                         className="object-cover"
+                                        loading="eager"
+                                        decoding="async"
+                                        fetchPriority="high"
                                     />
                                 )}
                             </div>
@@ -100,6 +104,7 @@ export function ThreeImagesView({ images }: { images: ProjectImage[] }) {
                             <div className={`relative w-full overflow-hidden ${bAspect}`}>
                                 {srcB && (
                                     <Image
+                                        key={b?.asset?._ref || 'three-b'}
                                         src={srcB}
                                         alt={b.alt || ''}
                                         fill
@@ -107,6 +112,9 @@ export function ThreeImagesView({ images }: { images: ProjectImage[] }) {
                                         placeholder={b.blurDataURL ? 'blur' : 'empty'}
                                         blurDataURL={b.blurDataURL}
                                         className="object-cover"
+                                        loading="eager"
+                                        decoding="async"
+                                        fetchPriority="high"
                                     />
                                 )}
                             </div>
@@ -119,6 +127,7 @@ export function ThreeImagesView({ images }: { images: ProjectImage[] }) {
                             <div className={`relative w-full overflow-hidden ${cAspect}`}>
                                 {srcC && (
                                     <Image
+                                        key={c?.asset?._ref || 'three-c'}
                                         src={srcC}
                                         alt={c.alt || ''}
                                         fill
@@ -126,6 +135,9 @@ export function ThreeImagesView({ images }: { images: ProjectImage[] }) {
                                         placeholder={c.blurDataURL ? 'blur' : 'empty'}
                                         blurDataURL={c.blurDataURL}
                                         className="object-cover"
+                                        loading="eager"
+                                        decoding="async"
+                                        fetchPriority="high"
                                     />
                                 )}
                             </div>

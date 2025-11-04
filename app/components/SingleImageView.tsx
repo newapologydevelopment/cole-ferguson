@@ -62,14 +62,18 @@ export function SingleImageView({ image }: { image: ProjectImage }) {
             <div className={`relative flex items-center justify-center ${wrap} ${aspect} translate-x-[30px]`}>
                 {src ? (
                     <Image
+                        key={image?.asset?._ref || 'single'}
                         src={src}
                         alt={image?.alt || ''}
                         fill
-                        sizes="(min-width:1280px) 60vw, (min-width:768px) 80vw, 100vw"
+                        sizes="(min-width:1280px) 60vw, (min-width:768px) 70vw, 100vw"
                         placeholder={image?.blurDataURL ? 'blur' : 'empty'}
                         blurDataURL={image?.blurDataURL}
                         className="object-cover"
                         priority
+                        loading="eager"
+                        decoding="async"
+                        fetchPriority="high"
                     />
                 ) : null}
             </div>

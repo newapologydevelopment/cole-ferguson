@@ -122,7 +122,7 @@ export const Project: React.FC<Props> = ({ project, actualPhoto, showIndicator =
                         initial={false}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: 0.22, ease: [0.4, 0.0, 0.2, 1] }}
+                        transition={{ duration: 0.18, ease: [0.4, 0.0, 0.2, 1] }}
                     >
                         <div className="pointer-events-none">
                             {renderView(current) ?? (

@@ -91,14 +91,18 @@ export function TwoImagesView({ images }: { images: ProjectImage[] }) {
             <div className={`relative min-w-0 ${aCls} ${aAspect} ${aHeight} translate-x-[-30px]`}>
                 {srcA && (
                     <Image
+                        key={a?.asset?._ref || 'two-a'}
                         src={srcA}
                         alt={a?.alt || ''}
                         fill
-                        sizes="(min-width:1280px) 42vw, (min-width:768px) 50vw, 100vw"
+                        sizes="(min-width:1280px) 42vw, (min-width:768px) 48vw, 100vw"
                         placeholder={a?.blurDataURL ? 'blur' : 'empty'}
                         blurDataURL={a?.blurDataURL}
                         className="object-cover"
                         priority
+                        loading="eager"
+                        decoding="async"
+                        fetchPriority="high"
                     />
                 )}
             </div>
@@ -109,13 +113,17 @@ export function TwoImagesView({ images }: { images: ProjectImage[] }) {
             <div className={`relative min-w-0 ${bCls} ${bAspect} ${bHeight} translate-x-[-30px]`}>
                 {srcB && (
                     <Image
+                        key={b?.asset?._ref || 'two-b'}
                         src={srcB}
                         alt={b?.alt || ''}
                         fill
-                        sizes="(min-width:1280px) 42vw, (min-width:768px) 50vw, 100vw"
+                        sizes="(min-width:1280px) 42vw, (min-width:768px) 48vw, 100vw"
                         placeholder={b?.blurDataURL ? 'blur' : 'empty'}
                         blurDataURL={b?.blurDataURL}
                         className="object-cover"
+                        loading="eager"
+                        decoding="async"
+                        fetchPriority="high"
                     />
                 )}
             </div>
