@@ -17,7 +17,7 @@ const recitalBook = localFont({
   variable: "--font-recital-book",
 });
 
-const SHOW_GRID = !true;
+const SHOW_GRID = true;
 const SHOW_PRELOADER = true;
 
 export const metadata: Metadata = {
@@ -83,6 +83,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="" />
+        <link rel="dns-prefetch" href="https://cdn.sanity.io" />
+      </head>
       <body
         className={`${recitalBook.className} antialiased`}
       >

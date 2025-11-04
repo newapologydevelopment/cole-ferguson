@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { urlFor } from '@/sanity/lib/image'
+import { sanityLoader, urlFor } from '@/sanity/lib/image'
 import type { ProjectImage } from '@/types/project'
 import Image from 'next/image'
 
@@ -59,10 +59,11 @@ export function SingleImageView({ image }: { image: ProjectImage }) {
 
     return (
         <div className="px-[24px] grid grid-cols-24 h-screen w-screen content-center items-center auto-rows-max">
-            <div className={`relative flex items-center justify-center ${wrap} ${aspect} translate-x-[30px]`}>
+            <div className={`relative flex items-center justify-center ${wrap} ${aspect}`}>
                 {src ? (
                     <Image
                         key={image?.asset?._ref || 'single'}
+                        loader={sanityLoader}
                         src={src}
                         alt={image?.alt || ''}
                         fill

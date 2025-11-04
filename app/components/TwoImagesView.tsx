@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { urlFor } from '@/sanity/lib/image'
+import { urlFor, sanityLoader } from '@/sanity/lib/image'
 import type { ProjectImage } from '@/types/project'
 import Image from 'next/image'
 
@@ -77,6 +77,13 @@ export function TwoImagesView({ images }: { images: ProjectImage[] }) {
     }
 
     const { a: aCls, b: bCls } = LAYOUT[key]
+    // shift compensation per layout
+    let aShift = 'translate-x-[-30px]'
+    let bShift = 'translate-x-[-30px]'
+    if (key === '4:5|5:4') {
+        aShift = 'translate-x-[30px]'
+        bShift = 'translate-x-[30px]'
+    }
     const isMixed = !!(ra && rb && ra !== rb)
 
     const aAspect = !isMixed && ra ? ASPECT_BY_RATIO[ra] : ''
@@ -88,9 +95,10 @@ export function TwoImagesView({ images }: { images: ProjectImage[] }) {
     return (
         <div className="px-[24px] grid grid-cols-24 w-screen md:min-h-screen content-center items-center">
             {/* A */}
-            <div className={`relative min-w-0 ${aCls} ${aAspect} ${aHeight} translate-x-[-30px]`}>
+            <div className={`relative min-w-0 ${aCls} ${aAspect} ${aHeight} ${aShift}`}>
                 {srcA && (
                     <Image
+                        loader={sanityLoader}
                         key={a?.asset?._ref || 'two-a'}
                         src={srcA}
                         alt={a?.alt || ''}
@@ -110,9 +118,10 @@ export function TwoImagesView({ images }: { images: ProjectImage[] }) {
             <div className="w-[60px]" />
 
             {/* B */}
-            <div className={`relative min-w-0 ${bCls} ${bAspect} ${bHeight} translate-x-[-30px]`}>
+            <div className={`relative min-w-0 ${bCls} ${bAspect} ${bHeight} ${bShift}`}>
                 {srcB && (
                     <Image
+                        loader={sanityLoader}
                         key={b?.asset?._ref || 'two-b'}
                         src={srcB}
                         alt={b?.alt || ''}

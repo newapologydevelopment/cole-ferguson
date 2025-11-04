@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { urlFor } from '@/sanity/lib/image'
+import { urlFor, sanityLoader } from '@/sanity/lib/image'
 import type { ProjectImage } from '@/types/project'
 import Image from 'next/image'
 
@@ -81,6 +81,7 @@ export function ThreeImagesView({ images }: { images: ProjectImage[] }) {
                             <div className={`relative w-full overflow-hidden ${aAspect}`}>
                                 {srcA && (
                                     <Image
+                                        loader={sanityLoader}
                                         key={a?.asset?._ref || 'three-a'}
                                         src={srcA}
                                         alt={a.alt || ''}
@@ -104,6 +105,7 @@ export function ThreeImagesView({ images }: { images: ProjectImage[] }) {
                             <div className={`relative w-full overflow-hidden ${bAspect}`}>
                                 {srcB && (
                                     <Image
+                                        loader={sanityLoader}
                                         key={b?.asset?._ref || 'three-b'}
                                         src={srcB}
                                         alt={b.alt || ''}
@@ -127,6 +129,7 @@ export function ThreeImagesView({ images }: { images: ProjectImage[] }) {
                             <div className={`relative w-full overflow-hidden ${cAspect}`}>
                                 {srcC && (
                                     <Image
+                                        loader={sanityLoader}
                                         key={c?.asset?._ref || 'three-c'}
                                         src={srcC}
                                         alt={c.alt || ''}
