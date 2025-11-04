@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import type { Project as ProjectType, ProjectView } from "@/types/project"
 import { urlFor } from '@/sanity/lib/image'
+import type { Project as ProjectType, ProjectView } from "@/types/project"
 import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { CursorLabel } from './CursorLabel'
@@ -205,7 +205,7 @@ export const Project: React.FC<Props> = ({ project, actualPhoto, showIndicator =
                 </AnimatePresence>
             </div>
 
-        {showIndicator && totalImages > 0 && (
+            {showIndicator && totalImages > 0 && (
                 <div className="pointer-events-none fixed bottom-[24px] left-1/2 -translate-x-1/2 z-[40]" data-hide-cursor="true">
                     <div ref={digitsRef} className="relative flex gap-[4px] text-[12px]">
                         {Array.from({ length: totalImages }).map((_, i) => {
@@ -233,10 +233,10 @@ export const Project: React.FC<Props> = ({ project, actualPhoto, showIndicator =
                 </div>
             )}
 
-        {/* Tablet title (desktop Project used on tablets): show title at the bottom like mobile */}
-        <div className="fixed bottom-[25px] left-0 right-0 p-[20px] text-center z-[10] xl:hidden">
-            {project.title}
-        </div>
+            {/* Tablet title (desktop Project used on tablets): show title at the bottom like mobile */}
+            <div className="fixed bottom-[25px] left-0 right-0 p-[20px] text-center z-[10] xl:hidden">
+                {project.title}
+            </div>
 
             <button
                 type="button"
