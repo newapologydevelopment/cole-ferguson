@@ -219,7 +219,7 @@ export const ProjectMobile: React.FC<Props> = ({
                 type="button"
                 aria-label="Previous"
                 onClick={(e) => { if (isTransitioning) return; e.stopPropagation(); goPrev() }}
-                onTouchStart={(e) => { if (isTransitioning) return; e.stopPropagation(); e.preventDefault(); goPrev(); }}
+                onTouchStart={(e) => { if (isTransitioning) return; e.stopPropagation(); goPrev(); }}
                 className={`absolute left-[6px] top-0 h-full w-[calc(50%-6px)] z-[60] ${isTransitioning ? 'pointer-events-none' : 'pointer-events-auto'} focus:outline-none`}
                 style={{ background: 'transparent' }}
             />
@@ -227,7 +227,7 @@ export const ProjectMobile: React.FC<Props> = ({
                 type="button"
                 aria-label="Next"
                 onClick={(e) => { if (isTransitioning) return; e.stopPropagation(); goNext() }}
-                onTouchStart={(e) => { if (isTransitioning) return; e.stopPropagation(); e.preventDefault(); goNext(); }}
+                onTouchStart={(e) => { if (isTransitioning) return; e.stopPropagation(); goNext(); }}
                 className={`absolute right-0 top-0 h-full w-1/2 z-[60] ${isTransitioning ? 'pointer-events-none' : 'pointer-events-auto'} focus:outline-none`}
                 style={{ background: 'transparent' }}
             />

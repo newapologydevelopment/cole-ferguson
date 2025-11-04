@@ -64,6 +64,7 @@ export function TwoViewMobile({ images, className, disableFade = false }: Props)
 
     // однакова висота контейнерів для уникнення стрибків між різними aspect-ratio
     const PAIR_H = 'h-[clamp(220px,52vh,540px)]'
+    const MIXED_H = 'h-[320px]'
 
     // після першого layout — показуємо блок (якщо fade не вимкнений)
     useEffect(() => {
@@ -72,17 +73,34 @@ export function TwoViewMobile({ images, className, disableFade = false }: Props)
         return () => cancelAnimationFrame(id)
     }, [disableFade])
 
+
+    // 12-колонкова сітка для міксу 4:5 | 5:4 (5/7), інакше 8 колонок (4/4)
+    const isMixed45 = (ra === '4:5' && rb === '5:4') || (ra === '5:4' && rb === '4:5')
+    const gridCols = isMixed45 ? 'grid-cols-12' : 'grid-cols-8'
+    let aCol = isMixed45 ? 'col-span-5' : 'col-span-4'
+    let bCol = isMixed45 ? 'col-span-7' : 'col-span-4'
+    if (isMixed45) {
+        if (ra === '5:4' && rb === '4:5') {
+            aCol = 'col-span-7'
+            bCol = 'col-span-5'
+        }
+    }
+
+    // висота: для міксу — фіксована 320px, для решти — як було (aspect або PAIR_H)
+    const aHCls = isMixed45 ? MIXED_H : (sameRatio && ra ? ASPECT_BY_RATIO[ra] : PAIR_H)
+    const bHCls = isMixed45 ? MIXED_H : (sameRatio && rb ? ASPECT_BY_RATIO[rb] : PAIR_H)
+
     return (
         <section
-            className={`sm:hidden w-screen h-[100dvh] px-[20px] ${disableFade ? 'opacity-100' : 'transition-opacity duration-300 ease-out'} ${ready ? 'opacity-100' : disableFade ? 'opacity-100' : 'opacity-0'
+            className={`sm:hidden w-screen h-[100svh] min-h-[100dvh] px-[20px] overflow-hidden ${disableFade ? 'opacity-100' : 'transition-opacity duration-300 ease-out'} ${ready ? 'opacity-100' : disableFade ? 'opacity-100' : 'opacity-0'
                 } ${className ?? ''}`}
             style={{ contain: 'layout paint' }}
         >
             <div className="h-full flex items-center">
-                <div className="grid grid-cols-8 gap-x-[16px] w-full">
+                <div className={`grid ${gridCols} gap-x-[16px] w-full`}>
                     {/* A */}
-                    <div className="col-span-4">
-                        <div className={`relative w-full overflow-hidden ${sameRatio && ra ? ASPECT_BY_RATIO[ra] : PAIR_H} min-w-0`}>
+                    <div className={aCol}>
+                        <div className={`relative w-full overflow-hidden ${aHCls} min-w-0`}>
                             {srcA && (
                                 <Image
                                     src={srcA}
@@ -99,8 +117,8 @@ export function TwoViewMobile({ images, className, disableFade = false }: Props)
                     </div>
 
                     {/* B */}
-                    <div className="col-span-4">
-                        <div className={`relative w-full overflow-hidden ${sameRatio && rb ? ASPECT_BY_RATIO[rb] : PAIR_H} min-w-0`}>
+                    <div className={bCol}>
+                        <div className={`relative w-full overflow-hidden ${bHCls} min-w-0`}>
                             {srcB && (
                                 <Image
                                     src={srcB}
