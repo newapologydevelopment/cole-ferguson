@@ -15,6 +15,7 @@ import "./globals.css";
 const recitalBook = localFont({
   src: "../assets/Recital-Book.woff2",
   variable: "--font-recital-book",
+  display: 'swap',
 });
 
 const SHOW_GRID = !true;
@@ -84,7 +85,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="" />
+        <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://cdn.sanity.io" />
       </head>
       <body

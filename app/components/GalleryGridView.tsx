@@ -86,7 +86,7 @@ export const GalleryGridView = ({
                     return (
                         <div key={`${it.projectId}-${i}`} className="flex flex-col gap-[5.22px]">
                             <div
-                                className={cn("relative w-full overflow-hidden duration-300 ease-in-out", {
+                                className={cn("relative w-full overflow-hidden duration-300 ease-in-out bg-[#f3f3f3]", {
                                     'opacity-20': selectedProject !== it.projectTitle && selectedProject !== null,
                                     'pointer-events-none': isScrolling,
                                     'pointer-events-auto': !isScrolling,
@@ -101,8 +101,7 @@ export const GalleryGridView = ({
                                     alt={it.image?.alt || ''}
                                     fill
                                     className="object-cover"
-                                    placeholder={it.image?.blurDataURL ? 'blur' : 'empty'}
-                                    blurDataURL={it.image?.blurDataURL}
+                                    placeholder={'empty'}
                                     sizes={`${thumbW}px`}
                                     loading="lazy"
                                     decoding="async"
