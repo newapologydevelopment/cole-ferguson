@@ -40,6 +40,7 @@ export const GalleryGridView = ({
 }: Props) => {
     const seen = new Map<string, number>()
     const [isScrolling, setIsScrolling] = useState(false)
+    const [dpr, setDpr] = useState(1)
 
     useEffect(() => {
         let timeout: NodeJS.Timeout
@@ -50,6 +51,11 @@ export const GalleryGridView = ({
         }
         window.addEventListener("scroll", handleScroll)
         return () => window.removeEventListener("scroll", handleScroll)
+    }, [])
+
+    useEffect(() => {
+        const next = Math.min(3, Math.ceil(window.devicePixelRatio || 1))
+        setDpr(next)
     }, [])
 
 
@@ -68,11 +74,13 @@ export const GalleryGridView = ({
                     const w = it.image?.width || 1
                     const h = it.image?.height || 1
                     const thumbW = thumbWidth
-
+                    const effectiveW = Math.max(1, Math.round(thumbW * dpr))
                     const src = urlFor({ _type: 'image', asset: { _ref: ref } })
-                        .width(thumbW)
+                        .width(effectiveW)
+                        .dpr(dpr)
                         .auto('format')
-                        .quality(70)
+                        .quality(80)
+                        .fit('max')
                         .url()
 
                     return (
