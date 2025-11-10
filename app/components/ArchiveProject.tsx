@@ -99,7 +99,7 @@ export const ArchiveProject: React.FC<Props> = ({ archiveProject, onPrev, onNext
 
     // Після завантаження pending — м’яко підміняємо active і гасимо pending
     const commitSwap = () => {
-        setPendingImage(prevPending => {
+        setPendingImage((prevPending: any) => {
             if (!prevPending) return null
             requestAnimationFrame(() => {
                 setActiveImage(prevPending)
