@@ -65,7 +65,7 @@ export const GalleryGridViewMobile = ({
                 return (
                     <div
                         key={`${it.projectId}-${i}`}
-                        className="col-span-4 flex flex-col gap-[6px] min-w-full"
+                        className="col-span-4 flex flex-col gap-[8px] min-w-full"
                     >
                         <button
                             type="button"

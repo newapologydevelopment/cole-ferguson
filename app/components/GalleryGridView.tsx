@@ -5,7 +5,7 @@ import type { ProjectImage, Project as ProjectType } from "@/types/project"
 import { cn } from "@/utils"
 import Image from "next/image"
 import { useEffect, useState } from "react"
-import { LenisProvider } from "./LenisProvider"
+// import { LenisProvider } from "./LenisProvider"
 
 export type GalleryGridItem = {
     projectId: string
@@ -47,7 +47,7 @@ export const GalleryGridView = ({
         const handleScroll = () => {
             setIsScrolling(true)
             clearTimeout(timeout)
-            timeout = setTimeout(() => setIsScrolling(false), 50) // після 150мс без скролу — знову активується
+            timeout = setTimeout(() => setIsScrolling(false), 50)
         }
         window.addEventListener("scroll", handleScroll)
         return () => window.removeEventListener("scroll", handleScroll)
@@ -65,7 +65,7 @@ export const GalleryGridView = ({
     }
     return (
         <div className={cn("col-start-1 pt-[68px] xl:pt-0 xl:col-start-7 col-span-full h-full pb-[24px]", className)}>
-            <LenisProvider />
+            {/* <LenisProvider /> */}
             <div className="w-full h-full grid grid-cols-6 gap-x-[30px] xl:gap-x-[60px] gap-y-[50px] xl:gap-y-[100px] content-start items-start auto-rows-max">
                 {items.map((it, i) => {
                     const ref = it.image?.asset?._ref
@@ -84,9 +84,9 @@ export const GalleryGridView = ({
                         .url()
 
                     return (
-                        <div key={`${it.projectId}-${i}`} className="flex flex-col gap-[5.22px]">
+                        <div key={`${it.projectId}-${i}`} className="flex flex-col gap-[6px]">
                             <div
-                                className={cn("relative w-full overflow-hidden duration-300 ease-in-out bg-[#f3f3f3]", {
+                                className={cn("relative w-full overflow-hidden duration-300 ease-in-out", {
                                     'opacity-20': selectedProject !== it.projectTitle && selectedProject !== null,
                                     'pointer-events-none': isScrolling,
                                     'pointer-events-auto': !isScrolling,
@@ -100,7 +100,7 @@ export const GalleryGridView = ({
                                     src={src}
                                     alt={it.image?.alt || ''}
                                     fill
-                                    className="object-cover"
+                                    className="object-cover overflow-hidden"
                                     placeholder={'empty'}
                                     sizes={`${thumbW}px`}
                                     loading="lazy"
@@ -108,7 +108,9 @@ export const GalleryGridView = ({
                                 />
 
                             </div>
-                            <p className='text-center text-[10px]'>
+                            <p className={cn('text-center text-[10px] duration-300 ease-in-out', {
+                                'opacity-20': selectedProject !== it.projectTitle && selectedProject !== null,
+                            })}>
                                 {(() => {
                                     const prev = seen.get(it.projectId) ?? -1
                                     const cur = prev + 1

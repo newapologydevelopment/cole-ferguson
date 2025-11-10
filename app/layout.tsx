@@ -109,7 +109,7 @@ export default function RootLayout({
             <main className="pt-[83px] sm:pt-[0]">
               {children}
             </main>
-            <div className="fixed z-[3] md:bottom-[24px] md:left-[24px] bottom-[20px] left-[20px] flex flex-col gap-[8px] text-[12px] text-primary-dark" data-index-container>
+            <div className="fixed z-[3] md:bottom-[24px] md:left-[24px] bottom-[20px] left-[20px] flex flex-col gap-[6px] text-[12px] text-primary-dark" data-index-container>
               <Link href="/gallery" className="cursor-pointer xl:block hidden" data-hide-cursor="true">Index</Link>
               <div className=" realtive invisible w-screen pointer-events-none z-[-1]" >1</div>
             </div>

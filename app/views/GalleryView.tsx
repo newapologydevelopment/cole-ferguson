@@ -18,7 +18,7 @@ export const GalleryView = ({ projects, archiveCount = 0 }: { projects: ProjectT
     const [actualPhoto, setActualPhoto] = useState<string | null>(null);
     const allImages = collectAllImages(projects);
 
-    console.log('projects at gallery view:', projects)
+    // console.log('projects at gallery view:', projects)
 
     useScrollToTop()
 

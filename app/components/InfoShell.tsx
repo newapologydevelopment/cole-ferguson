@@ -67,11 +67,11 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         if (!open) return
-        const onWheel = (e: WheelEvent) => { if (e.deltaY !== 0) setOpen(false) }
+        const onWheel = (e: WheelEvent) => { if (e.deltaY < 0) setOpen(false) }
         const onTouchStart = (e: TouchEvent) => { touchStartY.current = e.touches[0].clientY }
         const onTouchMove = (e: TouchEvent) => {
             const dy = e.touches[0].clientY - touchStartY.current
-            if (Math.abs(dy) > 8) setOpen(false)
+            if (dy > 8) setOpen(false)
         }
         window.addEventListener('wheel', onWheel, { passive: true })
         window.addEventListener('touchstart', onTouchStart, { passive: true })
