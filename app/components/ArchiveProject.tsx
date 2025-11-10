@@ -70,6 +70,7 @@ export const ArchiveProject: React.FC<Props> = ({ archiveProject, onPrev, onNext
     // 2) Те, що підвантажуємо невидимо
     const [pendingImage, setPendingImage] = useState<any | null>(null)
     const [isFading, setIsFading] = useState(false)
+    const [isPendingVisible, setIsPendingVisible] = useState(false)
 
     // Коли прийшов новий проп — починаємо підвантаження як pending
     useEffect(() => {
@@ -78,7 +79,9 @@ export const ArchiveProject: React.FC<Props> = ({ archiveProject, onPrev, onNext
         const incomingRef = archiveProject.image?.asset?._ref
         if (!incomingRef || aRef === incomingRef) return
 
+        setIsFading(true)
         setPendingImage(archiveProject.image)
+        setIsPendingVisible(true)
     }, [archiveProject.image, activeImage])
 
     // Аспект рахуємо від ACTIVE, щоб не було стрибка до моменту свопа
@@ -91,20 +94,19 @@ export const ArchiveProject: React.FC<Props> = ({ archiveProject, onPrev, onNext
     const activeSrc = useMemo(() => urlFor(activeImage).url(), [activeImage])
     const pendingSrc = useMemo(
         () => (pendingImage ? urlFor(pendingImage).url() : null),
-        [pendingImage as any]
         [pendingImage]
     )
 
     // Після завантаження pending — м’яко підміняємо active і гасимо pending
     const commitSwap = () => {
-        if (!pendingImage) return
-        setIsFading(true)            // старт кросфейду
-        // невелика затримка дає CSS встигнути змінити opacity
-        requestAnimationFrame(() => {
-            setActiveImage(pendingImage) // одночасно міняється і аспект (бо від active)
-            setPendingImage(null)
-            // завершення анімації
-            setTimeout(() => setIsFading(false), 250)
+        setPendingImage(prevPending => {
+            if (!prevPending) return null
+            requestAnimationFrame(() => {
+                setActiveImage(prevPending)
+                setIsPendingVisible(false)
+                setTimeout(() => setIsFading(false), 250)
+            })
+            return null
         })
     }
 
@@ -122,7 +124,7 @@ export const ArchiveProject: React.FC<Props> = ({ archiveProject, onPrev, onNext
                             sizes="(max-width:768px) 100vw, 0px"
                             placeholder={activeImage?.blurDataURL ? 'blur' : 'empty'}
                             blurDataURL={activeImage?.blurDataURL}
-                            className={`object-cover transition-opacity duration-200 ${isFading ? 'opacity-0' : 'opacity-100'}`}
+                            className={`object-cover transition-opacity duration-200 ${isPendingVisible || isFading ? 'opacity-0' : 'opacity-100'}`}
                             priority
                         />
                     )}
@@ -136,7 +138,9 @@ export const ArchiveProject: React.FC<Props> = ({ archiveProject, onPrev, onNext
                             fetchPriority="high"
                             decoding="async"
                             onLoadingComplete={commitSwap}
-                            className="object-cover opacity-0 pointer-events-none"
+                            placeholder={pendingImage?.blurDataURL ? 'blur' : 'empty'}
+                            blurDataURL={pendingImage?.blurDataURL}
+                            className={`object-cover transition-opacity duration-200 ${isPendingVisible ? 'opacity-100' : 'opacity-0'} pointer-events-none`}
                         />
                     )}
                 </div>
@@ -163,7 +167,7 @@ export const ArchiveProject: React.FC<Props> = ({ archiveProject, onPrev, onNext
                                 sizes="(min-width:1280px) 60vw, (min-width:768px) 80vw, 100vw"
                                 placeholder={activeImage?.blurDataURL ? 'blur' : 'empty'}
                                 blurDataURL={activeImage?.blurDataURL}
-                                className={`object-cover transition-opacity duration-200 ${isFading ? 'opacity-0' : 'opacity-100'}`}
+                                className={`object-cover transition-opacity duration-200 ${isPendingVisible || isFading ? 'opacity-0' : 'opacity-100'}`}
                                 priority
                             />
                         )}
@@ -181,7 +185,9 @@ export const ArchiveProject: React.FC<Props> = ({ archiveProject, onPrev, onNext
                                 decoding="async"
                                 // як тільки pending завантажився — свопимо active + аспект
                                 onLoadingComplete={commitSwap}
-                                className="object-cover opacity-0 pointer-events-none"
+                                placeholder={pendingImage?.blurDataURL ? 'blur' : 'empty'}
+                                blurDataURL={pendingImage?.blurDataURL}
+                                className={`object-cover transition-opacity duration-200 ${isPendingVisible ? 'opacity-100' : 'opacity-0'} pointer-events-none`}
                             />
                         )}
                     </div>
