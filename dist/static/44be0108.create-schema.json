@@ -34,15 +34,12 @@
             "rules": [
               {
                 "flag": "custom"
-              },
-              {
-                "flag": "presence",
-                "constraint": "required"
               }
             ],
             "level": "error"
           }
         ],
+        "hidden": true,
         "name": "slug",
         "type": "slug"
       },
@@ -78,6 +75,45 @@
                     "options": {
                       "hotspot": true
                     },
+                    "fields": [
+                      {
+                        "options": {
+                          "list": [
+                            {
+                              "title": "16:10",
+                              "value": "16:10"
+                            },
+                            {
+                              "title": "5:4",
+                              "value": "5:4"
+                            },
+                            {
+                              "title": "4:5",
+                              "value": "4:5"
+                            },
+                            {
+                              "title": "3:2",
+                              "value": "3:2"
+                            },
+                            {
+                              "title": "2:3",
+                              "value": "2:3"
+                            },
+                            {
+                              "title": "1:1",
+                              "value": "1:1"
+                            }
+                          ]
+                        },
+                        "name": "ratio",
+                        "type": "string",
+                        "title": "Aspect ratio (optional)"
+                      },
+                      {
+                        "name": "alt",
+                        "type": "string"
+                      }
+                    ],
                     "type": "image"
                   }
                 ],
@@ -119,6 +155,45 @@
                     "options": {
                       "hotspot": true
                     },
+                    "fields": [
+                      {
+                        "options": {
+                          "list": [
+                            {
+                              "title": "16:10",
+                              "value": "16:10"
+                            },
+                            {
+                              "title": "5:4",
+                              "value": "5:4"
+                            },
+                            {
+                              "title": "4:5",
+                              "value": "4:5"
+                            },
+                            {
+                              "title": "3:2",
+                              "value": "3:2"
+                            },
+                            {
+                              "title": "2:3",
+                              "value": "2:3"
+                            },
+                            {
+                              "title": "1:1",
+                              "value": "1:1"
+                            }
+                          ]
+                        },
+                        "name": "ratio",
+                        "type": "string",
+                        "title": "Aspect ratio (optional)"
+                      },
+                      {
+                        "name": "alt",
+                        "type": "string"
+                      }
+                    ],
                     "type": "image"
                   }
                 ],
@@ -160,6 +235,45 @@
                     "options": {
                       "hotspot": true
                     },
+                    "fields": [
+                      {
+                        "options": {
+                          "list": [
+                            {
+                              "title": "16:10",
+                              "value": "16:10"
+                            },
+                            {
+                              "title": "5:4",
+                              "value": "5:4"
+                            },
+                            {
+                              "title": "4:5",
+                              "value": "4:5"
+                            },
+                            {
+                              "title": "3:2",
+                              "value": "3:2"
+                            },
+                            {
+                              "title": "2:3",
+                              "value": "2:3"
+                            },
+                            {
+                              "title": "1:1",
+                              "value": "1:1"
+                            }
+                          ]
+                        },
+                        "name": "ratio",
+                        "type": "string",
+                        "title": "Aspect ratio (optional)"
+                      },
+                      {
+                        "name": "alt",
+                        "type": "string"
+                      }
+                    ],
                     "type": "image"
                   }
                 ],
@@ -249,6 +363,15 @@
         },
         "name": "videoFile",
         "type": "file"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "description": "Cover image shown when video is not available",
+        "name": "cover",
+        "type": "image",
+        "title": "Cover Image"
       }
     ],
     "name": "information",

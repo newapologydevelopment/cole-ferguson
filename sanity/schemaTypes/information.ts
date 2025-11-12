@@ -42,6 +42,15 @@ export const information = defineType({
             type: 'file',
             options: { accept: 'video/*' },
         }),
+        defineField({
+            name: 'cover',
+            title: 'Cover Image',
+            type: 'image',
+            description: 'Cover image shown when video is not available',
+            options: {
+                hotspot: true,
+            },
+        }),
     ],
     preview: {
         select: { title: 'title' },
