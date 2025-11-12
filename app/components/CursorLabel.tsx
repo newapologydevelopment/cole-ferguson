@@ -17,11 +17,18 @@ export const CursorLabel = () => {
         const move = (e: MouseEvent) => {
             const el = document.elementFromPoint(e.clientX, e.clientY)
             const isBlocked = el?.closest('.ui-overlay, [data-hide-cursor="true"]')
+            
+            // Обмежуємо зону дії до центральної частини екрану (приблизно 10% - 80% ширини)
+            const screenWidth = window.innerWidth
+            const leftBoundary = screenWidth * 0.1
+            const rightBoundary = screenWidth * 0.9
+            const isInContentZone = e.clientX >= leftBoundary && e.clientX <= rightBoundary
+            
             setPos({
                 x: e.clientX,
                 y: e.clientY,
                 label: e.clientX < window.innerWidth / 2 ? 'Prev.' : 'Next',
-                visible: !isBlocked,
+                visible: !isBlocked && isInContentZone,
             })
         }
         window.addEventListener('mousemove', move)
