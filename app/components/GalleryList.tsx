@@ -76,8 +76,10 @@ export const GalleryList: React.FC<Props> = ({
                     <p>All</p>
                     <div>{allProjects.length}</div>
                 </div>
+                <div className="pointer-events-none absolute inset-x-0 top-[32px] h-[47px] bg-gradient-to-b from-white to-transparent z-10" />
 
-                <div className="flex-1 min-h-0 overflow-y-auto hide-scrollbar scroll-smooth">
+                <div className="flex-1 min-h-0 overflow-y-auto hide-scrollbar scroll-smooth relative">
+
                     <div className="flex flex-col gap-[7px] pb-[32px]">
                         {allProjects.map((project, i) => (
                             <div
