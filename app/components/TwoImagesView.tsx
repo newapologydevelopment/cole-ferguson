@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { urlFor, sanityLoader } from '@/sanity/lib/image'
+import { sanityLoader, urlFor } from '@/sanity/lib/image'
 import type { ProjectImage } from '@/types/project'
 import Image from 'next/image'
 
@@ -35,18 +35,15 @@ function getImageRatio(img: unknown): Ratio | null {
 }
 
 const LAYOUT = {
-    // Обидва ландшафтні — трохи ширше
-    '3:2|3:2': { a: 'col-span-9 col-start-5', b: 'col-span-9' },
-    '5:4|5:4': { a: 'col-span-9 col-start-5', b: 'col-span-9' },
-    // Обидва портретні — трохи вужче та по центру
-    '4:5|4:5': { a: 'col-span-6 col-start-7', b: 'col-span-6' },
-    '2:3|2:3': { a: 'col-span-6 col-start-7', b: 'col-span-6' },
-    // Мікси: ландшафт отримує більше ширини (9), портрет — менше (6)
-    '4:5|5:4': { a: 'col-span-6 col-start-5', b: 'col-span-9' },
-    '5:4|4:5': { a: 'col-span-9 col-start-5', b: 'col-span-6' },
-    '2:3|3:2': { a: 'col-span-6 col-start-5', b: 'col-span-9' },
-    '3:2|2:3': { a: 'col-span-9 col-start-5', b: 'col-span-6' },
-} as const
+    '3:2|3:2': { a: 'col-span-9 col-start-4', b: 'col-span-9', shift: '-translate-x-[30px]' },
+    '5:4|5:4': { a: 'col-span-9 col-start-4', b: 'col-span-9', shift: '-translate-x-[30px]' },
+    '4:5|4:5': { a: 'col-span-6 col-start-7', b: 'col-span-6', shift: '-translate-x-[30px]' },
+    '2:3|2:3': { a: 'col-span-6 col-start-7', b: 'col-span-6', shift: '-translate-x-[30px]' },
+    '4:5|5:4': { a: 'col-span-6 col-start-5', b: 'col-span-9', shift: 'translate-x-[0px]' },
+    '5:4|4:5': { a: 'col-span-9 col-start-5', b: 'col-span-6', shift: '-translate-x-[0px]' },
+    '2:3|3:2': { a: 'col-span-6 col-start-5', b: 'col-span-9', shift: '-translate-x-[0px]' },
+    '3:2|2:3': { a: 'col-span-9 col-start-5', b: 'col-span-6', shift: '-translate-x-[0px]' },
+};
 
 type LayoutKey = keyof typeof LAYOUT
 const FALLBACK_KEY: LayoutKey = '3:2|3:2'
@@ -62,6 +59,8 @@ const ASPECT_BY_RATIO: Record<Ratio, string> = {
 const PAIR_H = 'h-[clamp(360px,60vh,820px)]'
 
 export function TwoImagesView({ images }: { images: ProjectImage[] }) {
+    const showRatio = !true;
+    
     const [a, b] = images ?? []
 
     const srcA = a?.asset?._ref
@@ -84,14 +83,7 @@ export function TwoImagesView({ images }: { images: ProjectImage[] }) {
         }
     }
 
-    const { a: aCls, b: bCls } = LAYOUT[key]
-    // shift compensation per layout
-    let aShift = 'translate-x-[-30px]'
-    let bShift = 'translate-x-[-30px]'
-    if (key === '4:5|5:4') {
-        aShift = 'translate-x-[30px]'
-        bShift = 'translate-x-[30px]'
-    }
+    const { a: aCls, b: bCls, shift } = LAYOUT[key];
     const isMixed = !!(ra && rb && ra !== rb)
 
     const aAspect = !isMixed && ra ? ASPECT_BY_RATIO[ra] : ''
@@ -103,7 +95,7 @@ export function TwoImagesView({ images }: { images: ProjectImage[] }) {
     return (
         <div className="px-[24px] grid grid-cols-24 w-screen md:min-h-screen content-center items-center">
             {/* A */}
-            <div className={`relative min-w-0 ${aCls} ${aAspect} ${aHeight} ${aShift}`}>
+            <div className={`relative min-w-0 ${aCls} ${aAspect} ${aHeight} ${shift || ''}`}>
                 {srcA && (
                     <Image
                         loader={sanityLoader}
@@ -114,7 +106,7 @@ export function TwoImagesView({ images }: { images: ProjectImage[] }) {
                         sizes="(min-width:1280px) 42vw, (min-width:768px) 48vw, 100vw"
                         placeholder={a?.blurDataURL ? 'blur' : 'empty'}
                         blurDataURL={a?.blurDataURL}
-                        className="object-cover"
+                        className="object-contain"
                         priority
                         loading="eager"
                         decoding="async"
@@ -126,7 +118,7 @@ export function TwoImagesView({ images }: { images: ProjectImage[] }) {
             <div className="w-[60px]" />
 
             {/* B */}
-            <div className={`relative min-w-0 ${bCls} ${bAspect} ${bHeight} ${bShift}`}>
+            <div className={`relative min-w-0 ${bCls} ${bAspect} ${bHeight} ${shift || ''}`}>
                 {srcB && (
                     <Image
                         loader={sanityLoader}
@@ -137,13 +129,14 @@ export function TwoImagesView({ images }: { images: ProjectImage[] }) {
                         sizes="(min-width:1280px) 42vw, (min-width:768px) 48vw, 100vw"
                         placeholder={b?.blurDataURL ? 'blur' : 'empty'}
                         blurDataURL={b?.blurDataURL}
-                        className="object-cover"
+                        className="object-contain"
                         loading="eager"
                         decoding="async"
                         fetchPriority="high"
                     />
                 )}
             </div>
+            {showRatio && <div className='absolute bottom-20 right-20 bg-pink-200 text-[40px]'>{`ra: ${ra}, rb: ${rb}`}</div>}
         </div>
     )
 }

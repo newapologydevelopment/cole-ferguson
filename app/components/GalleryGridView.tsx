@@ -41,6 +41,7 @@ export const GalleryGridView = ({
     const seen = new Map<string, number>()
     const [isScrolling, setIsScrolling] = useState(false)
     const [dpr, setDpr] = useState(1)
+    const [screenWidth, setScreenWidth] = useState(0)
 
     useEffect(() => {
         let timeout: NodeJS.Timeout
@@ -56,6 +57,13 @@ export const GalleryGridView = ({
     useEffect(() => {
         const next = Math.min(3, Math.ceil(window.devicePixelRatio || 1))
         setDpr(next)
+    }, [])
+
+    useEffect(() => {
+        const updateWidth = () => setScreenWidth(window.innerWidth)
+        updateWidth()
+        window.addEventListener('resize', updateWidth)
+        return () => window.removeEventListener('resize', updateWidth)
     }, [])
 
 
@@ -74,12 +82,18 @@ export const GalleryGridView = ({
                     const w = it.image?.width || 1
                     const h = it.image?.height || 1
                     const thumbW = thumbWidth
-                    const effectiveW = Math.max(1, Math.round(thumbW * dpr))
+                    
+                    // Для великих екранів (>1700px) збільшуємо роздільну здатність
+                    const isLargeScreen = screenWidth > 1700
+                    const baseWidth = isLargeScreen ? Math.max(thumbW, 300) : thumbW
+                    const effectiveW = Math.max(1, Math.round(baseWidth * dpr))
+                    const quality = isLargeScreen ? 95 : 80
+                    
                     const src = urlFor({ _type: 'image', asset: { _ref: ref } })
                         .width(effectiveW)
                         .dpr(dpr)
                         .auto('format')
-                        .quality(80)
+                        .quality(quality)
                         .fit('max')
                         .url()
 
@@ -102,7 +116,7 @@ export const GalleryGridView = ({
                                     fill
                                     className="object-cover overflow-hidden"
                                     placeholder={'empty'}
-                                    sizes={`${thumbW}px`}
+                                    sizes={isLargeScreen ? "(min-width: 1700px) 300px, 130px" : `${thumbW}px`}
                                     loading="lazy"
                                     decoding="async"
                                 />

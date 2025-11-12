@@ -39,10 +39,10 @@ function getImageRatio(img: unknown): Ratio | null {
 
 const SINGLE_LAYOUT = {
     '16:10': { wrap: 'col-span-14 col-start-6', aspect: 'aspect-[16/10]' },
-    '5:4': { wrap: 'col-span-12 col-start-7', aspect: 'aspect-[5/4]', shift: 'translate-y-[60px]' },
-    '4:5': { wrap: 'col-span-9 col-start-8', aspect: 'aspect-[4/5]' },
+    '5:4': { wrap: 'col-span-12 col-start-7', aspect: 'aspect-[5/4]' },
+    '4:5': { wrap: 'col-span-9 col-start-8', aspect: 'aspect-[4/5]', shift: 'translate-x-[30px]' },
     '3:2': { wrap: 'col-span-14 col-start-6', aspect: 'aspect-[3/2]' },
-    '2:3': { wrap: 'col-span-6 col-start-10', aspect: 'aspect-[2/3]' },
+    '2:3': { wrap: 'col-span-7 col-start-10', aspect: 'aspect-[2/3]', shift: '-translate-x-[30px]' },
     '1:1': { wrap: 'col-span-10 col-start-8', aspect: 'aspect-[1/1]' },
     '7:6': { wrap: 'col-span-6 col-start-6', aspect: 'aspect-[7/6]', shift: 'translate-y-[60px]' },
 } as const
@@ -60,11 +60,13 @@ export function SingleImageView({ image }: { image: ProjectImage }) {
         : ''
 
     const ratio = getImageRatio(image) ?? FALLBACK
-    const { wrap, aspect } = SINGLE_LAYOUT[ratio]
+    const layout = SINGLE_LAYOUT[ratio]
+    const { wrap, aspect } = layout
+    const shift = 'shift' in layout ? layout.shift : ''
 
     return (
         <div className="px-[24px] grid grid-cols-24 h-screen w-screen content-center items-center auto-rows-max">
-            <div className={`relative flex items-center justify-center ${wrap} ${aspect}`}>
+            <div className={`relative flex items-center justify-center ${wrap} ${aspect} ${shift}`}>
                 {src ? (
                     <Image
                         key={image?.asset?._ref || 'single'}
@@ -83,7 +85,7 @@ export function SingleImageView({ image }: { image: ProjectImage }) {
                     />
                 ) : null}
             </div>
-            {showRatio && <div className='absolute bottom-10 bg-pink-200 text-[40px]'>{ratio}</div>}
+            {showRatio && <div className='absolute bottom-20 right-20 bg-pink-200 text-[40px]'>{ratio}</div>}
         </div>
     )
 }

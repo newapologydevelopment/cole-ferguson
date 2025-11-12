@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { urlFor, sanityLoader } from '@/sanity/lib/image'
+import { sanityLoader, urlFor } from '@/sanity/lib/image'
 import type { ProjectImage } from '@/types/project'
 import Image from 'next/image'
 
@@ -89,7 +89,7 @@ export function ThreeImagesView({ images }: { images: ProjectImage[] }) {
                                         sizes="(min-width:1280px) 28vw, (min-width:768px) 33vw, 100vw"
                                         placeholder={a.blurDataURL ? 'blur' : 'empty'}
                                         blurDataURL={a.blurDataURL}
-                                        className="object-cover"
+                                        className="object-contain"
                                         loading="eager"
                                         decoding="async"
                                         fetchPriority="high"
@@ -113,7 +113,7 @@ export function ThreeImagesView({ images }: { images: ProjectImage[] }) {
                                         sizes="(min-width:1280px) 28vw, (min-width:768px) 33vw, 100vw"
                                         placeholder={b.blurDataURL ? 'blur' : 'empty'}
                                         blurDataURL={b.blurDataURL}
-                                        className="object-cover"
+                                        className="object-contain"
                                         loading="eager"
                                         decoding="async"
                                         fetchPriority="high"
@@ -137,7 +137,7 @@ export function ThreeImagesView({ images }: { images: ProjectImage[] }) {
                                         sizes="(min-width:1280px) 28vw, (min-width:768px) 33vw, 100vw"
                                         placeholder={c.blurDataURL ? 'blur' : 'empty'}
                                         blurDataURL={c.blurDataURL}
-                                        className="object-cover"
+                                        className="object-contain"
                                         loading="eager"
                                         decoding="async"
                                         fetchPriority="high"
