@@ -1,6 +1,7 @@
 'use client'
 
 import { client } from '@/sanity/lib/client'
+import { urlFor } from '@/sanity/lib/image'
 import { cn } from '@/utils'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
@@ -21,26 +22,37 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
         clients:
             'Nike, Louis Vuitton, Dior, VEVO, Disney, Island Records, Hollywood Records, Red Bull, Vuori, LifeStraw, Olipop, Whitespace, Guayaki Yerba Mate',
         publications:
-            'Vanity Fair, Vogue Greece, HYPEBEAST, Men’s Health, Vman, People Magazine, US Weekly, E News, Surfing Magazine, Complex, RAP',
+            "Vanity Fair, Vogue Greece, HYPEBEAST, Men's Health, Vman, People Magazine, US Weekly, E News, Surfing Magazine, Complex, RAP",
         contact: 'studio@coleferguson.com\n@coleferguson',
         videoUrl: '',
+        coverImage: null as string | null,
     })
     const [showVideo, setShowVideo] = useState(false)
 
     useEffect(() => {
         // fetch once on mount
         client
-            .fetch<{ title?: string; clients?: string; publications?: string; contact?: string; video?: string; videoFileUrl?: string }>(
-                `*[_type=="information"][0]{ title, clients, publications, contact, video, "videoFileUrl": videoFile.asset->url }`
+            .fetch<{ title?: string; clients?: string; publications?: string; contact?: string; video?: string; videoFileUrl?: string; cover?: { asset?: { _ref?: string } } }>(
+                `*[_type=="information"][0]{ title, clients, publications, contact, video, "videoFileUrl": videoFile.asset->url, cover }`
             )
             .then((doc) => {
                 if (!doc) return
+                let coverImageUrl: string | null = null
+                if (doc.cover?.asset?._ref) {
+                    coverImageUrl = urlFor({ _type: 'image', asset: { _ref: doc.cover.asset._ref } })
+                        .width(800)
+                        .quality(95)
+                        .auto('format')
+                        .fit('max')
+                        .url()
+                }
                 setInfo((prev) => ({
                     title: typeof doc.title === 'string' && doc.title.trim() ? doc.title : prev.title,
                     clients: typeof doc.clients === 'string' ? doc.clients : prev.clients,
                     publications: typeof doc.publications === 'string' ? doc.publications : prev.publications,
                     contact: typeof doc.contact === 'string' ? doc.contact : prev.contact,
                     videoUrl: (doc.video && doc.video.trim()) || (doc.videoFileUrl && doc.videoFileUrl.trim()) || prev.videoUrl,
+                    coverImage: coverImageUrl || prev.coverImage,
                 }))
             })
             .catch(() => { })
@@ -157,10 +169,10 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                     role="button"
                     data-hide-cursor="true"
                 >
-                    <div className="h-full overflow-auto px-[24px] bg-white text-left text-[12px] text-primary-dark hidden sm:block">
+                    <div className="h-full overflow-auto px-[24px] bg-white text-left text-[12px] text-primary-dark hidden sm:block bg-yellow-200 z-[-1]">
                         <div className="pt-[-24px] text-btn hidden xl:block" data-hide-cursor="true">Information</div>
 
-                        <div className="h-[50vh] absolute left-0 right-0 bottom-[24px] grid grid-cols-8  px-[24px] text">
+                        <div className="h-[50vh] absolute left-0 right-0 bottom-[24px] grid grid-cols-8 px-[24px] text">
                             <div className="sm:col-start-1 xl:col-start-2 col-end-[-1] flex flex-col justify-between text-info opacity-0">
                                 <h1 className="text-[64px] leading-[115%] whitespace-pre-line">
                                     {info.title}
@@ -193,7 +205,11 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                                         className='col-span-3 col-start-18 bg-blue-500 h-[145px] relative z-[60] pointer-events-auto'
                                         onClick={() => setShowVideo(true)}
                                     >
-                                        <Image src="/video-mock.png" alt="Cole Ferguson Studio" fill className='object-cover' />
+                                        {info.coverImage ? (
+                                            <Image src={info.coverImage} alt="Cole Ferguson Studio" fill className='object-cover' />
+                                        ) : (
+                                            <Image src="/video-mock.png" alt="Cole Ferguson Studio" fill className='object-cover' />
+                                        )}
                                     </button>
                                 </div>
                             </div>
