@@ -42,14 +42,19 @@ const SINGLE_LAYOUT = {
     '5:4': { wrap: 'col-span-12 col-start-7', aspect: 'aspect-[5/4]', shift: 'translate-y-[60px]' },
     '4:5': { wrap: 'col-span-9 col-start-8', aspect: 'aspect-[4/5]' },
     '3:2': { wrap: 'col-span-14 col-start-6', aspect: 'aspect-[3/2]' },
-    '2:3': { wrap: 'col-span-8 col-start-9', aspect: 'aspect-[2/3]' },
+    '2:3': { wrap: 'col-span-6 col-start-10', aspect: 'aspect-[2/3]' },
     '1:1': { wrap: 'col-span-10 col-start-8', aspect: 'aspect-[1/1]' },
+    '7:6': { wrap: 'col-span-6 col-start-6', aspect: 'aspect-[7/6]', shift: 'translate-y-[60px]' },
 } as const
 
 type LayoutKey = keyof typeof SINGLE_LAYOUT
 const FALLBACK: LayoutKey = '3:2'
 
 export function SingleImageView({ image }: { image: ProjectImage }) {
+
+    // console.log('single image view', image)
+    const showRatio = !true;
+
     const src = image?.asset?._ref
         ? urlFor({ _type: 'image', asset: { _ref: image.asset._ref } }).url()
         : ''
@@ -70,7 +75,7 @@ export function SingleImageView({ image }: { image: ProjectImage }) {
                         sizes="(min-width:1280px) 60vw, (min-width:768px) 70vw, 100vw"
                         placeholder={image?.blurDataURL ? 'blur' : 'empty'}
                         blurDataURL={image?.blurDataURL}
-                        className="object-cover"
+                        className="object-contain"
                         priority
                         loading="eager"
                         decoding="async"
@@ -78,6 +83,7 @@ export function SingleImageView({ image }: { image: ProjectImage }) {
                     />
                 ) : null}
             </div>
+            {showRatio && <div className='absolute bottom-10 bg-pink-200 text-[40px]'>{ratio}</div>}
         </div>
     )
 }

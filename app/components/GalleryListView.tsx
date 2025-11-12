@@ -44,6 +44,19 @@ const isLandscape = (img?: ProjectImage | null) => {
     return !!(d && d.w >= d.h);
 };
 
+const getAspectRatio = (img?: ProjectImage | null): number | null => {
+    const d = getDims(img);
+    if (!d || d.h === 0) return null;
+    return d.w / d.h;
+};
+
+const hasSameAspectRatio = (img1: ProjectImage, img2: ProjectImage, tolerance: number = 0.05): boolean => {
+    const ratio1 = getAspectRatio(img1);
+    const ratio2 = getAspectRatio(img2);
+    if (ratio1 === null || ratio2 === null) return false;
+    return Math.abs(ratio1 - ratio2) <= tolerance;
+};
+
 
 const gatherImages = (p: Project | null): ProjectImage[] => {
     if (!p) return [];
@@ -99,18 +112,50 @@ export const GalleryListView = ({ project }: Props) => {
 
     const landscapes = images.filter(isLandscape);
     let photos: ProjectImage[];
+    
+    // Якщо є 2+ landscape фото - перевіряємо aspect ratio
     if (landscapes.length >= 2) {
-        photos = landscapes.slice(0, 2);
+        const firstTwo = landscapes.slice(0, 2);
+        // Якщо aspect ratio однакові - показуємо обидва, інакше тільки перше
+        if (hasSameAspectRatio(firstTwo[0], firstTwo[1])) {
+            photos = firstTwo;
+        } else {
+            photos = [firstTwo[0]];
+        }
     } else {
+        // Якщо менше 2 landscape - показуємо тільки одне фото
         const firstPortrait = images.find(isPortrait);
         photos = firstPortrait ? [firstPortrait] : [landscapes[0] ?? first].filter(Boolean) as ProjectImage[];
         if (photos.length === 0) photos.push(first);
     }
 
+    // Якщо одне фото - показуємо на весь простір
+    if (photos.length === 1) {
+        return (
+            <div className="relative w-full h-full overflow-hidden">
+                <Image
+                    fill
+                    src={src(photos[0])}
+                    alt={alt(photos[0])}
+                    sizes="(max-width:768px) 100vw, 33vw"
+                    placeholder={photos[0].blurDataURL ? "blur" : "empty"}
+                    blurDataURL={photos[0].blurDataURL}
+                    className="object-contain object-right"
+                    loading="lazy"
+                />
+            </div>
+        );
+    }
+
+    // Якщо 2 фото - показуємо обидва з однаковою висотою (50% кожне)
     return (
         <div className="relative flex h-full w-full flex-col gap-[24px]">
             {photos.map((img, i) => (
-                <div key={getRef(img) ?? i} className="relative w-full flex-1 overflow-hidden">
+                <div 
+                    key={getRef(img) ?? i} 
+                    className="relative w-full overflow-hidden"
+                    style={{ height: 'calc((100% - 24px) / 2)' }}
+                >
                     <Image
                         fill
                         src={src(img)}
