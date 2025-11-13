@@ -77,6 +77,11 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
         }
     }, [])
 
+    // Диспатчимо подію про стан для InformationButton
+    useEffect(() => {
+        window.dispatchEvent(new CustomEvent('infoshell:state', { detail: { open } }))
+    }, [open])
+
     useEffect(() => {
         if (!open) return
         const onWheel = (e: WheelEvent) => { if (e.deltaY < 0) setOpen(false) }
@@ -163,7 +168,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
 
                 <div
                     className="fixed left-0 right-0 bottom-0 transition-[height] duration-500 cursor-pointer z-[30] hidden sm:block"
-                    style={{ height: open ? '88vh' : '40px' }}
+                    style={{ height: open ? '88vh' : '0' }}
                     onClick={() => setOpen(o => !o)}
                     aria-expanded={open}
                     role="button"
