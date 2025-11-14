@@ -27,7 +27,6 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
     coverImage: null as string | null,
   });
   const [showVideo, setShowVideo] = useState(false);
-  console.log('sHOW VIDEO', showVideo);
   const videoButtonRef = useRef<HTMLButtonElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -197,65 +196,6 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
     }
   }, [open]);
 
-  // useGSAP(() => {
-  //   const viewportHeight = window.innerHeight;
-  //   const viewportWidth = window.innerWidth;
-
-  //   const videoSize = viewportWidth * 0.46;
-
-  //   const transformXDistance = (videoSize + 48) / 2;
-  //   const transformYDistance = viewportHeight - (videoSize - 24);
-
-  //   if (showVideo) {
-  //     gsap.to(videoButtonRef.current, {
-  //       width: '46vw',
-  //       transformOrigin: 'bottom right',
-  //       y: -transformYDistance,
-  //       x: -transformXDistance,
-  //       zIndex: 10052,
-  //       duration: 0.5,
-  //       ease: 'power2.inOut',
-  //     });
-
-  //     gsap.to('.video-bg', {
-  //       opacity: 1,
-  //       duration: 0.5,
-  //       ease: 'power2.inOut',
-  //     });
-
-  //     gsap.to('.video-by-text', {
-  //       display: 'block',
-  //       opacity: 1,
-  //       duration: 0.5,
-  //       delay: 0.2,
-  //       ease: 'power2.inOut',
-  //     });
-  //   }
-
-  //   if (!showVideo) {
-  //     gsap.to(videoRef.current, {
-  //       width: '8vw',
-  //       bottom: '24px',
-  //       right: '24px',
-  //       transformOrigin: 'bottom right',
-  //       duration: 0.5,
-  //       ease: 'power2.inOut',
-  //     });
-
-  //     gsap.to('.video-bg', {
-  //       opacity: 0,
-  //       duration: 0.5,
-  //       ease: 'power2.inOut',
-  //     });
-
-  //     gsap.to('.video-by-text', {
-  //       display: 'none',
-  //       opacity: 0,
-  //       duration: 0.5,
-  //       ease: 'power2.inOut',
-  //     });
-  //   }
-  // }, [showVideo]);
   useGSAP(() => {
     const videoEl = videoButtonRef.current;
     if (!videoEl) return;
@@ -263,10 +203,8 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
     const viewportHeight = window.innerHeight;
     const viewportWidth = window.innerWidth;
 
-    // Поточні розміри/позиція елемента в момент кліку
     const rect = videoEl.getBoundingClientRect();
 
-    // Наприклад, хочеш збільшити і посунути ближче до центру
     const targetSize = viewportWidth * 0.46;
     const scale = targetSize / rect.width;
 
@@ -275,7 +213,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
 
     if (showVideo) {
       document.body.style.overflow = 'hidden';
-      // відкриваємо
+
       gsap.to(videoEl, {
         x: targetX,
         y: targetY,
@@ -306,7 +244,8 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
         });
       }
     } else {
-      // закриваємо — просто повертаємось в нуль
+      document.body.style.overflow = 'auto';
+
       gsap.to(videoEl, {
         x: 0,
         y: 0,
@@ -314,7 +253,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
         transformOrigin: 'center center',
         duration: 0.5,
         ease: 'power2.inOut',
-        clearProps: 'transform,zIndex', // щоб прибрати inline-стилі, якщо треба
+        clearProps: 'transform,zIndex',
       });
 
       gsap.to('.video-bg', {
