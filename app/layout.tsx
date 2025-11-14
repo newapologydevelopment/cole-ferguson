@@ -1,40 +1,39 @@
-import type { Metadata } from "next";
+import type { Metadata } from 'next';
 
-import localFont from "next/font/local";
-import Link from "next/link";
+import localFont from 'next/font/local';
+import Link from 'next/link';
 import {
   GridOverlay,
   MenuMobile,
   PageTransition,
-  Preloader
-} from "./components";
-import { InfoShell } from "./components/InfoShell";
-import { InformationButton } from "./components/InformationButton";
-import "./globals.css";
-
+  Preloader,
+} from './components';
+import { InfoShell } from './components/InfoShell';
+import { InformationButton } from './components/InformationButton';
+import './globals.css';
 
 const recitalBook = localFont({
-  src: "../assets/Recital-Book.woff2",
-  variable: "--font-recital-book",
+  src: '../assets/Recital-Book.woff2',
+  variable: '--font-recital-book',
   display: 'swap',
 });
 
 const SHOW_GRID = !true;
-const SHOW_PRELOADER = true;
+const SHOW_PRELOADER = !true;
 
 export const metadata: Metadata = {
-  title: "Cole Ferguson",
-  description: "...",
+  title: 'Cole Ferguson',
+  description: '...',
   // metadataBase: new URL("https://coleferguson.com"),
   robots: {
     index: true,
     follow: true,
   },
   openGraph: {
-    title: "Cole Ferguson",
-    description: "Made by New Apology.",
+    title: 'Cole Ferguson',
+    description: 'Made by New Apology.',
     // url: "https://coleferguson.com/",
-    siteName: "Cole Ferguson",
+    siteName: 'Cole Ferguson',
     // images: [
     //   {
     //     url: "/share.jpg",
@@ -42,39 +41,38 @@ export const metadata: Metadata = {
     //     height: 1260,
     //   },
     // ],
-    locale: "en_US",
-    type: "website",
+    locale: 'en_US',
+    type: 'website',
   },
   twitter: {
-    card: "summary_large_image",
-    title: "Cole Ferguson",
-    description: "Made by New Apology.",
-    creator: "NAP",
-    images: ["/share.jpg"],
+    card: 'summary_large_image',
+    title: 'Cole Ferguson',
+    description: 'Made by New Apology.',
+    creator: 'NAP',
+    images: ['/share.jpg'],
   },
-  manifest: "/manifest.json",
+  manifest: '/manifest.json',
   icons: {
     icon: [
       // Dark mode favicon
       {
-        url: "/favicon-32x32_light.png",
-        sizes: "32x32",
-        type: "image/png",
-        media: "(prefers-color-scheme: light)",
+        url: '/favicon-32x32_light.png',
+        sizes: '32x32',
+        type: 'image/png',
+        media: '(prefers-color-scheme: light)',
       },
       // Light mode favicon
       {
-        url: "/favicon-32x32_dark.png",
-        sizes: "32x32",
-        type: "image/png",
-        media: "(prefers-color-scheme: dark)",
+        url: '/favicon-32x32_dark.png',
+        sizes: '32x32',
+        type: 'image/png',
+        media: '(prefers-color-scheme: dark)',
       },
     ],
-
   },
   // Canonical URL is automatically generated from metadataBase
   alternates: {
-    canonical: "/",
+    canonical: '/',
   },
 };
 
@@ -86,12 +84,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
+        <link
+          rel="preconnect"
+          href="https://cdn.sanity.io"
+          crossOrigin="anonymous"
+        />
         <link rel="dns-prefetch" href="https://cdn.sanity.io" />
       </head>
-      <body
-        className={`${recitalBook.className} antialiased`}
-      >
+      <body className={`${recitalBook.className} antialiased`}>
         {SHOW_GRID && <GridOverlay />}
         {SHOW_PRELOADER && <Preloader />}
         <Link
@@ -107,11 +107,18 @@ export default function RootLayout({
         <InfoShell>
           <MenuMobile />
           <PageTransition>
-            <main className="pt-[83px] sm:pt-[0]">
-              {children}
-            </main>
-            <div className="fixed z-[3] md:bottom-[24px] md:left-[24px] bottom-[20px] left-[20px] flex flex-col gap-[6px] text-[12px] text-primary-dark" data-index-container>
-              <Link href="/gallery" className="cursor-pointer xl:block hidden" data-hide-cursor="true">Index</Link>
+            <main className="pt-[83px] sm:pt-[0]">{children}</main>
+            <div
+              className="fixed z-[3] md:bottom-[24px] md:left-[24px] bottom-[20px] left-[20px] flex flex-col gap-[6px] text-[12px] text-primary-dark"
+              data-index-container
+            >
+              <Link
+                href="/gallery"
+                className="cursor-pointer xl:block hidden"
+                data-hide-cursor="true"
+              >
+                Index
+              </Link>
               <InformationButton />
               {/* <div className=" realtive invisible w-screen pointer-events-none z-[-1]" >1</div> */}
             </div>

@@ -59,3 +59,22 @@ body::-webkit-scrollbar {
 .next-btn:hover::after {
   opacity: 1;
 }
+
+.video-button::after {
+  content: 'Video by Samuel Lang';
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  color: #717171;
+  font-size: 12px;
+  pointer-events: none;
+  opacity: 0;
+  display: none;
+  transform: scale(var(--after-scale, 1));
+  transform-origin: left bottom;
+}
+
+.video-button.show-text::after {
+  opacity: var(--after-opacity, 0);
+  display: block;
+}
