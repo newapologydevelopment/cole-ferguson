@@ -273,15 +273,33 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
     }
   }, [showVideo]);
 
+  // Fade out the grid container while video is shown
+  useGSAP(() => {
+    const selector = '[data-index-container]';
+    const el = document.querySelector(selector) as HTMLElement | null;
+    if (!el) return;
+    gsap.to(el, {
+      opacity: showVideo ? 0 : 1,
+      duration: 0.3,
+      ease: 'power2.inOut',
+      onStart: () => {
+        if (showVideo) gsap.set(el, { pointerEvents: 'none' });
+      },
+      onComplete: () => {
+        if (!showVideo) gsap.set(el, { pointerEvents: 'auto' });
+      },
+    });
+  }, [showVideo]);
+
   if (isMobile) return <div className="sm:hidden p-20px">{children}</div>;
 
   return (
     <>
       <div className="relative">
-        <div className="absolute top-[24px] left-[24px] w-[200px] h-[40px] bg-white opacity-0 pointer-events-none z-[10059] video-bg" />
+        <div className="fixed top-[24px] left-[24px] w-[200px] h-[40px] bg-white opacity-0 pointer-events-none z-[10059] video-bg" />
         <button
           type="button"
-          className="absolute right-[20px] top-[20px] sm:right-6 sm:top-6 z-[102] opacity-0 cursor-pointer video-bg"
+          className="fixed right-[20px] top-[20px] sm:right-6 sm:top-6 z-[102] opacity-0 cursor-pointer video-bg"
           aria-label="Close lightbox"
           data-hide-cursor="true"
           onClick={() => setShowVideo(false)}
@@ -295,7 +313,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
             'pointer-events-none': open,
           })}
         >
-          <div className="absolute inset-0 bg-white opacity-0 pointer-events-none z-[10059] video-bg" />
+          <div className="fixed inset-0 bg-white opacity-0 pointer-events-none z-[10059] video-bg" />
           {children}
         </div>
 
@@ -343,7 +361,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                     </p>
                   </div>
 
-                  <div className="absolute inset-0 bg-white opacity-0 pointer-events-none z-[60] video-bg" />
+                  <div className="fixed inset-0 bg-white opacity-0 pointer-events-none z-[60] video-bg" />
 
                   <button
                     ref={videoButtonRef}
