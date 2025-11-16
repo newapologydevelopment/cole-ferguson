@@ -85,6 +85,56 @@ const gatherImages = (p: Project | null): ProjectImage[] => {
 
 export const GalleryListView = ({ project }: Props) => {
     const images = gatherImages(project);
+    // Manual selection (Single/Double) has priority if present
+    if (project) {
+        const manualMode = project.galleryListMode as ('single' | 'double' | undefined);
+        const manual = (project.galleryListImages ?? []).filter(Boolean);
+        const alt = (img?: ProjectImage | null) =>
+            img?.alt?.trim() || project?.title || "Project image";
+        const src = (img: ProjectImage) => urlFor(img).width(1600).url();
+
+        if (manualMode === 'single' && manual.length === 1) {
+            const img = manual[0]!;
+            return (
+                <div className="relative w-full h-full overflow-hidden">
+                    <Image
+                        fill
+                        src={src(img)}
+                        alt={alt(img)}
+                        sizes="(max-width:768px) 100vw, 33vw"
+                        placeholder={img.blurDataURL ? "blur" : "empty"}
+                        blurDataURL={img.blurDataURL}
+                        className="object-contain object-right"
+                        loading="lazy"
+                    />
+                </div>
+            );
+        }
+        if (manualMode === 'double' && manual.length === 2) {
+            return (
+                <div className="relative flex h-full w-full flex-col gap-[24px]">
+                    {manual.map((img, i) => (
+                        <div
+                            key={getRef(img) ?? i}
+                            className="relative w-full overflow-hidden"
+                            style={{ height: 'calc((100% - 24px) / 2)' }}
+                        >
+                            <Image
+                                fill
+                                src={src(img)}
+                                alt={alt(img)}
+                                sizes="(max-width:768px) 100vw, 33vw"
+                                placeholder={img.blurDataURL ? "blur" : "empty"}
+                                blurDataURL={img.blurDataURL}
+                                className="object-contain object-right"
+                                loading="lazy"
+                            />
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+    }
     const first = images[0];
     if (!first) return null;
 

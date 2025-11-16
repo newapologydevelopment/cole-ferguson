@@ -288,6 +288,76 @@
         ],
         "name": "views",
         "type": "array"
+      },
+      {
+        "options": {
+          "list": [
+            {
+              "title": "Single (portrait)",
+              "value": "single"
+            },
+            {
+              "title": "Double (two landscape)",
+              "value": "double"
+            }
+          ],
+          "layout": "radio"
+        },
+        "initialValue": "double",
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "valid",
+                "constraint": [
+                  "single",
+                  "double"
+                ]
+              },
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "galleryListMode",
+        "type": "string",
+        "title": "Gallery list layout"
+      },
+      {
+        "options": {
+          "layout": "grid"
+        },
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "custom"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "Виберіть 1 (Single) або 2 (Double) зображення для списку в GalleryListView. Можна обрати з уже завантажених у проєкт (Asset Browser) або додати нові.",
+        "of": [
+          {
+            "options": {
+              "hotspot": true
+            },
+            "fields": [
+              {
+                "name": "alt",
+                "type": "string"
+              }
+            ],
+            "type": "image"
+          }
+        ],
+        "name": "galleryListImages",
+        "type": "array",
+        "title": "Gallery list images"
       }
     ],
     "name": "project",
@@ -479,6 +549,60 @@
       }
     ],
     "name": "highlights",
+    "type": "document"
+  },
+  {
+    "fields": [
+      {
+        "options": {
+          "layout": "grid"
+        },
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "min",
+                "constraint": 0
+              },
+              {
+                "flag": "max",
+                "constraint": 20
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "of": [
+          {
+            "options": {
+              "hotspot": true
+            },
+            "validation": [
+              {
+                "rules": [
+                  {
+                    "flag": "custom"
+                  }
+                ],
+                "level": "error"
+              }
+            ],
+            "fields": [
+              {
+                "name": "alt",
+                "type": "string"
+              }
+            ],
+            "type": "image",
+            "name": "imageItem"
+          }
+        ],
+        "name": "images",
+        "type": "array",
+        "title": "Images (in order)"
+      }
+    ],
+    "name": "preloader",
     "type": "document"
   }
 ]

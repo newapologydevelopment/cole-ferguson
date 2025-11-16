@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { client } from '@/sanity/lib/client'
 
 interface Props {
     onDone?: () => void
@@ -34,7 +35,7 @@ export const Preloader = ({
     jitterProb = 0,
     jitterMaxMs = 0,
 }: Props) => {
-    const images = useMemo(
+    const LOCAL_FALLBACK = useMemo(
         () => [
             '/preloader_images/1.png',
             '/preloader_images/2.png',
@@ -49,6 +50,31 @@ export const Preloader = ({
         ],
         []
     )
+    const [remoteImages, setRemoteImages] = useState<string[] | null>(null)
+    const images = useMemo(() => {
+        if (remoteImages === null) return LOCAL_FALLBACK
+        return remoteImages.length > 0 ? remoteImages : LOCAL_FALLBACK
+    }, [remoteImages, LOCAL_FALLBACK])
+
+    useEffect(() => {
+        let cancelled = false
+        client
+            .fetch<{ images?: { url?: string }[] }>(
+                `*[_type == "preloader"][0]{ images[]{ "url": asset->url } }`
+            )
+            .then((doc) => {
+                if (cancelled) return
+                const urls =
+                    doc?.images?.map((i) => i?.url).filter(Boolean) as string[] | undefined
+                setRemoteImages(urls && urls.length > 0 ? urls : [])
+            })
+            .catch(() => {
+                if (!cancelled) setRemoteImages([])
+            })
+        return () => {
+            cancelled = true
+        }
+    }, [])
 
     const [idx, setIdx] = useState(0)
     const [visible, setVisible] = useState(true)

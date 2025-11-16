@@ -3,7 +3,8 @@ import { archiveProject } from './archive'
 import { highlights } from './highlights'
 import { information } from './information'
 import { project } from './project'
+import { preloader } from './preloader'
 
 export const schema: { types: SchemaTypeDefinition[] } = {
-  types: [project, information, archiveProject, highlights],
+  types: [project, information, archiveProject, highlights, preloader],
 }

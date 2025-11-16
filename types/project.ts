@@ -36,6 +36,9 @@ export type Project = {
     slug?: { current: string }
     images?: ProjectImage[]
     views?: ProjectView[]
+    // Manual gallery list config
+    galleryListMode?: 'single' | 'double'
+    galleryListImages?: ProjectImage[]
 }
 
 export type FlatImage = {
