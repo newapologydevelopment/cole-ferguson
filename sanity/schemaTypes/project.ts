@@ -183,41 +183,53 @@ export const project = defineType({
       title: 'Gallery list images',
       type: 'array',
       of: [
-        {
-          type: 'image',
-          options: { hotspot: true },
+        defineField({
+          name: 'galleryImage',
+          title: 'Image',
+          type: 'object',
           fields: [
+            defineField({
+              name: 'asset',
+              title: 'Image',
+              type: 'reference',
+              to: [{ type: 'sanity.image' as any }, { type: 'sanity.imageAsset' }],
+              options: {
+                // Restrict asset picker to images already referenced by this project (from views or root images)
+                filter: ({document}: any) => {
+                  const ids = new Set<string>()
+                  const addRef = (r?: any) => { if (r && typeof r._ref === 'string') ids.add(r._ref) }
+                  ;(document?.images ?? []).forEach((img: any) => addRef(img?.asset))
+                  ;(document?.views ?? []).forEach((v: any) => {
+                    (v?.images ?? []).forEach((im: any) => addRef(im?.asset))
+                  })
+                  const idList = Array.from(ids)
+                  // If none found, show nothing (forces user to add images to the project first)
+                  return {
+                    filter: idList.length ? '_id in $ids' : '__id == "never-matches"',
+                    params: { ids: idList },
+                  }
+                },
+              },
+            }),
             defineField({ name: 'alt', title: 'Alt', type: 'string' }),
           ],
-          // Optional: enforce max file size ~300KB, enable if needed
-          // validation: (rule) =>
-          //   rule.custom(async (value, ctx) => {
-          //     const ref = value?.asset?._ref
-          //     if (!ref) return true
-          //     const asset = await ctx.getClient({ apiVersion: '2023-10-01' })
-          //       .fetch('*[_id == $id][0]{size}', { id: ref })
-          //     if (asset?.size && asset.size > 307200) return 'Максимальний розмір 300KB'
-          //     return true
-          //   }),
-        },
+          preview: {
+            select: { media: 'asset', title: 'alt' },
+          },
+        }),
       ],
       options: { layout: 'grid' },
-      // Conditional validation: 1 image for single, 2 images for double
       validation: (rule) =>
         rule.custom((images: unknown, ctx) => {
           const arr = (images as unknown[]) ?? []
-          // @ts-ignore - ctx.parent is provided by Sanity runtime
+          // @ts-ignore
           const mode = ctx?.parent?.galleryListMode
-          if (mode === 'single' && arr.length !== 1) {
-            return 'Для режиму Single необхідно обрати рівно 1 зображення'
-          }
-          if (mode === 'double' && arr.length !== 2) {
-            return 'Для режиму Double необхідно обрати рівно 2 зображення'
-          }
+          if (mode === 'single' && arr.length !== 1) return 'Для режиму Single необхідно обрати рівно 1 зображення'
+          if (mode === 'double' && arr.length !== 2) return 'Для режиму Double необхідно обрати рівно 2 зображення'
           return true
         }),
       description:
-        'Виберіть 1 (Single) або 2 (Double) зображення для списку в GalleryListView. Можна обрати з уже завантажених у проєкт (Asset Browser) або додати нові.',
+        'Виберіть 1 (Single) або 2 (Double) зображення для списку. Показуються лише зображення, уже додані до цього проєкту (у полях images або views[].images).',
     }),
   ],
   preview: {

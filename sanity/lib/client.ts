@@ -15,6 +15,15 @@ const projectsQuery = `*[_type == "project"]{
   _id,
   title,
   slug,
+  galleryListMode,
+  galleryListImages[]{
+    // expect object form with asset ref and alt
+    "asset": asset,
+    "alt": coalesce(alt, ""),
+    "blurDataURL": asset->metadata.lqip,
+    "width": asset->metadata.dimensions.width,
+    "height": asset->metadata.dimensions.height
+  },
   // legacy images
   images[]{
     ...,
@@ -138,6 +147,14 @@ const projectBySlugQuery = `*[_type == "project" && slug.current == $slug][0]{
   _id,
   title,
   slug,
+  galleryListMode,
+  galleryListImages[]{
+    "asset": asset,
+    "alt": coalesce(alt, ""),
+    "blurDataURL": asset->metadata.lqip,
+    "width": asset->metadata.dimensions.width,
+    "height": asset->metadata.dimensions.height
+  },
   images[]{
     ...,
     "alt": coalesce(alt, ""),

@@ -278,17 +278,19 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
     const selector = '[data-index-container]';
     const el = document.querySelector(selector) as HTMLElement | null;
     if (!el) return;
-    gsap.to(el, {
-      opacity: showVideo ? 0 : 1,
-      duration: 0.3,
-      ease: 'power2.inOut',
-      onStart: () => {
-        if (showVideo) gsap.set(el, { pointerEvents: 'none' });
-      },
-      onComplete: () => {
-        if (!showVideo) gsap.set(el, { pointerEvents: 'auto' });
-      },
-    });
+    if (showVideo) {
+      gsap.set(el, { pointerEvents: 'none' });
+      gsap.to(el, { opacity: 0, duration: 0.25, ease: 'power2.out' });
+    } else {
+      gsap.to(el, {
+        opacity: 1,
+        duration: 0.25,
+        ease: 'power2.out',
+        onComplete: () => {
+          gsap.set(el, { pointerEvents: 'auto' });
+        },
+      });
+    }
   }, [showVideo]);
 
   if (isMobile) return <div className="sm:hidden p-20px">{children}</div>;
