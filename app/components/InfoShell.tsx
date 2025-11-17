@@ -11,6 +11,7 @@ import { useBreakpoint } from '../hooks';
 export function InfoShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const { isMobile } = useBreakpoint();
+  const [videoHover, setVideoHover] = useState(false);
   // const [showVideo, setShowVideo] = useState(false)
   const touchStartY = useRef(0);
 
@@ -368,12 +369,13 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                   <button
                     ref={videoButtonRef}
                     type="button"
-                    // className="col-span-3 col-start-18 bg-blue-500 h-[145px] relative z-[60] pointer-events-auto video-boom"
                     className="video-button absolute bottom-[0] right-[24px] w-[194px] aspectRatio-[4/3] z-[60] pointer-events-auto"
                     onClick={(e) => {
                       e.stopPropagation();
                       setShowVideo(true);
                     }}
+                    onMouseEnter={() => setVideoHover(true)}
+                    onMouseLeave={() => setVideoHover(false)}
                   >
                     {info.videoUrl && (
                       <video
@@ -384,6 +386,14 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                         muted
                         playsInline
                         controls={false}
+                        className={cn(
+                          'video-button-video relative transition-opacity duration-300',
+                          {
+                            'opacity-30 cursor-pointer':
+                              videoHover && !showVideo,
+                            'is-playing': showVideo,
+                          }
+                        )}
                         style={{
                           width: '100%',
                           height: '100%',
@@ -391,6 +401,16 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                         }}
                       />
                     )}
+                    <div
+                      className={cn(
+                        'w-full h-full absolute inset-0 flex items-center justify-center text-[12px] opacity-0 transition-opacity duration-300',
+                        {
+                          'opacity-100': videoHover && !showVideo,
+                        }
+                      )}
+                    >
+                      Expand
+                    </div>
                   </button>
                 </div>
               </div>
@@ -398,34 +418,6 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </div>
-
-      {/* {showVideo && info.videoUrl && (
-        <LightBox close={() => setShowVideo(false)} title="">
-          <div className="flex items-center justify-center w-full">
-            <div
-              className="video-expanded-container"
-              style={{
-                width: '46vw',
-                aspectRatio: '4 / 3',
-                position: 'relative',
-              }}
-            >
-              <video
-                src={info.videoUrl}
-                autoPlay
-                loop
-                muted
-                playsInline
-                controls={false}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-              <div className="text-[#717171] pt-[6px]">
-                Video by Samuel Lang
-              </div>
-            </div>
-          </div>
-        </LightBox>
-      )} */}
     </>
   );
 }

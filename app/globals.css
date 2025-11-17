@@ -78,3 +78,25 @@ body::-webkit-scrollbar {
   opacity: var(--after-opacity, 0);
   display: block;
 }
+
+/* .video-button-video::before {
+  content: 'Expand';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  opacity: 0;
+  color: #171717;
+  transition: opacity 0.25s ease;
+  text-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+}
+
+.video-button-video:not(.video-button-video--expanded):hover::before {
+  opacity: 1;
+}
+
+.video-button-video--expanded::before {
+  opacity: 0;
+} */
