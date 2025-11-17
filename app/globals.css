@@ -79,6 +79,11 @@ body::-webkit-scrollbar {
   display: block;
 }
 
+.hover-text {
+  color: #717171;
+  transition: color 0.25s ease;
+}
+
 /* .video-button-video::before {
   content: 'Expand';
   position: absolute;

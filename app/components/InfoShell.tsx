@@ -302,7 +302,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
         <div className="fixed top-[24px] left-[24px] w-[200px] h-[40px] bg-white opacity-0 pointer-events-none z-[10059] video-bg" />
         <button
           type="button"
-          className="fixed right-[20px] top-[20px] sm:right-6 sm:top-6 z-[102] opacity-0 cursor-pointer video-bg"
+          className="fixed right-[20px] top-[20px] sm:right-6 sm:top-6 z-[102] opacity-0 cursor-pointer video-bg hover:text-[#717171] transition-colors duration-300"
           aria-label="Close lightbox"
           data-hide-cursor="true"
           onClick={() => setShowVideo(false)}

@@ -96,7 +96,7 @@ export default function RootLayout({
         {SHOW_PRELOADER && <Preloader />}
         <Link
           href="/"
-          className="fixed z-[10001] md:top-[24px] top-[20px] md:left-[24px] left-[20px] text-[12px] text-primary-dark cursor-pointer bg-white hidden xl:block"
+          className="fixed z-[10001] md:top-[24px] top-[20px] md:left-[24px] left-[20px] text-[12px] text-primary-dark cursor-pointer bg-white hidden xl:block hover:text-[#717171] transition-colors duration-300"
           data-hide-cursor="true"
           data-brand-header
         >
@@ -114,7 +114,7 @@ export default function RootLayout({
             >
               <Link
                 href="/gallery"
-                className="cursor-pointer xl:block hidden"
+                className="cursor-pointer xl:block hidden hover:text-[#717171] transition-colors duration-300"
                 data-hide-cursor="true"
               >
                 Index

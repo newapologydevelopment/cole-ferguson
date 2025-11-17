@@ -22,16 +22,13 @@ export const CursorLabel = () => {
     if (!enabled) return;
     const move = (e: MouseEvent) => {
       const el = document.elementFromPoint(e.clientX, e.clientY);
-      const isBlocked = el?.closest('.ui-overlay, [data-hide-cursor="true"]');
-
-      // Перевіряємо, чи курсор над кнопками Prev/Next
-      const isOverPrevNext = el?.closest('.prev-btn, .next-btn');
+      const isBlocked = el?.closest('[data-hide-cursor="true"]');
 
       setPos({
         x: e.clientX,
         y: e.clientY,
         label: e.clientX < window.innerWidth / 2 ? 'Prev.' : 'Next',
-        visible: !isBlocked && !!isOverPrevNext,
+        visible: !isBlocked,
       });
     };
     window.addEventListener('mousemove', move);
