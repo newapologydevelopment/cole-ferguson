@@ -1,6 +1,6 @@
 'use client';
 
-import { urlFor } from '@/sanity/lib/image';
+import { buildOptimizedImageUrl } from '@/sanity/lib/image';
 import type { Project, ProjectImage } from '@/types';
 import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
 import Image from 'next/image';
@@ -9,7 +9,8 @@ import type React from 'react';
 const getRef = (img?: ProjectImage | null) => img?.asset?._ref;
 const toSource = (img: ProjectImage): SanityImageSource =>
   img as unknown as SanityImageSource;
-const src = (img: ProjectImage) => urlFor(toSource(img)).width(1600).url();
+const buildSrc = (img: ProjectImage, width?: number) =>
+  buildOptimizedImageUrl(toSource(img), width);
 
 const alt = (project?: Project | null, img?: ProjectImage | null) =>
   (img?.alt && img.alt.trim()) || project?.title || 'Project image';
@@ -37,13 +38,14 @@ export function GalleryListView({ project }: { project: Project | null }) {
         style={style}
       >
         <Image
-          src={src(img)}
+          src={buildSrc(img, Math.min(width, 1600))}
           alt={alt(project, img)}
           width={width}
           height={height}
-          sizes="(max-width:768px) 100vw, 33vw"
+          sizes="(min-width:1280px) 33vw, (min-width:768px) 33vw, 100vw"
           placeholder={img.blurDataURL ? 'blur' : 'empty'}
           blurDataURL={img.blurDataURL}
+          decoding="async"
           className="h-full w-auto object-contain object-right"
           loading={index === 0 ? 'eager' : 'lazy'}
         />

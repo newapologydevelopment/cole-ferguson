@@ -3,7 +3,7 @@
 'use client';
 
 import type { ArchiveProject as ArchiveProjectType } from '@/sanity/lib/client';
-import { urlFor } from '@/sanity/lib/image';
+import { buildOptimizedImageUrl } from '@/sanity/lib/image';
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 import { CursorLabel } from './CursorLabel';
@@ -103,11 +103,11 @@ export const ArchiveProject: React.FC<Props> = ({
   const { wrap, aspect } = SINGLE_LAYOUT[ratio as LayoutKey];
 
   const activeSrc = useMemo(
-    () => (activeImage ? urlFor(activeImage).url() : ''),
+    () => (activeImage ? buildOptimizedImageUrl(activeImage, 1600) : ''),
     [activeImage]
   );
   const pendingSrc = useMemo(
-    () => (pendingImage ? urlFor(pendingImage).url() : ''),
+    () => (pendingImage ? buildOptimizedImageUrl(pendingImage, 1600) : ''),
     [pendingImage]
   );
 

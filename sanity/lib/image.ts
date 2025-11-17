@@ -11,6 +11,21 @@ export const urlFor = (source: SanityImageSource) => {
   return builder.image(source)
 }
 
+/**
+ * Minimal helper that applies consistent Sanity transforms for static URLs.
+ * Keeps the call sites tiny while ensuring we always request compressed assets.
+ */
+export const buildOptimizedImageUrl = (
+  source: SanityImageSource,
+  width?: number
+) => {
+  let result = urlFor(source).auto('format').fit('max').quality(80)
+  if (typeof width === 'number') {
+    result = result.width(width)
+  }
+  return result.url()
+}
+
 // Next/Image custom loader for Sanity CDN
 // Generates responsive URLs directly from cdn.sanity.io to avoid Next optimizer hop
 export const sanityLoader: ImageLoader = ({ src, width, quality }) => {
