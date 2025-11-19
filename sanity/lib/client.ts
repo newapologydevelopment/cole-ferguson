@@ -11,7 +11,7 @@ export const client = createClient({
   useCdn: true, // Set to false if statically generating pages, using ISR or tag-based revalidation
 })
 
-const projectsQuery = `*[_type == "project"]{
+const projectsQuery = `*[_type == "project"]|order(orderRank asc){
   _id,
   title,
   slug,
@@ -69,7 +69,7 @@ export type ArchiveProject = {
   description: string
 }
 
-const archiveQuery = `*[_type == "archiveProject"]|order(_createdAt desc){
+const archiveQuery = `*[_type == "archiveProject"]|order(orderRank asc){
   _id,
   title,
   image{

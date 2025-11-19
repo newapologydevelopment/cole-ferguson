@@ -1,10 +1,12 @@
-import { getArchiveCountCached, getProjectsCached } from "@/sanity/lib/client";
+import { getArchiveCount, getProjects } from "@/sanity/lib/client";
 
 import { GalleryView } from "../views";
 
 export default async function Gallery() {
-    const projects = await getProjectsCached();
-    const archiveCount = await getArchiveCountCached();
+    const [projects, archiveCount] = await Promise.all([
+        getProjects(),
+        getArchiveCount(),
+    ]);
     return (
         <div className="w-screen h-screen">
             <GalleryView projects={projects} archiveCount={archiveCount} />

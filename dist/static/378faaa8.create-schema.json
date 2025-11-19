@@ -2,6 +2,12 @@
   {
     "fields": [
       {
+        "readOnly": true,
+        "hidden": true,
+        "name": "orderRank",
+        "type": "string"
+      },
+      {
         "validation": [
           {
             "rules": [
@@ -340,7 +346,7 @@
             "level": "error"
           }
         ],
-        "description": "Виберіть 1 (Single) або 2 (Double) зображення для списку в GalleryListView. Можна обрати з уже завантажених у проєкт (Asset Browser) або додати нові.",
+        "description": "Select 1 (Single) or 2 (Double) images for GalleryListView. You can reuse assets already added to this project or upload new ones.",
         "of": [
           {
             "options": {
@@ -449,6 +455,12 @@
   },
   {
     "fields": [
+      {
+        "readOnly": true,
+        "hidden": true,
+        "name": "orderRank",
+        "type": "string"
+      },
       {
         "validation": [
           {

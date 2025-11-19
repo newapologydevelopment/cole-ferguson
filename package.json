@@ -13,6 +13,7 @@
   "dependencies": {
     "@gsap/react": "^2.1.2",
     "@sanity/image-url": "^1.2.0",
+    "@sanity/orderable-document-list": "^1.4.0",
     "@sanity/vision": "^4.10.2",
     "clsx": "^2.1.1",
     "clxx": "^2.1.3",
