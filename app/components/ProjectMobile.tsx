@@ -51,14 +51,8 @@ export const ProjectMobile: React.FC<Props> = ({
   const views = useMemo(() => normalizeViews(project), [project]);
   const [index, setIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const isTransitioningRef = useRef(false);
   const transitionTimerRef = useRef<number | null>(null);
   const TRANSITION_MS = 280;
-
-  // Синхронізуємо ref з state для уникнення stale closures
-  useEffect(() => {
-    isTransitioningRef.current = isTransitioning;
-  }, [isTransitioning]);
 
   // коли змінився проєкт — скидаємо індекс
   useEffect(() => {
@@ -78,30 +72,28 @@ export const ProjectMobile: React.FC<Props> = ({
   }, [actualPhoto, views]);
 
   const goPrev = useCallback(() => {
-    if (views.length === 0 || isTransitioningRef.current) return;
-    isTransitioningRef.current = true;
+    if (views.length === 0 || isTransitioning) return;
     setIsTransitioning(true);
     setIndex((i) => (i - 1 + views.length) % views.length);
     if (transitionTimerRef.current)
       window.clearTimeout(transitionTimerRef.current);
-    transitionTimerRef.current = window.setTimeout(() => {
-      isTransitioningRef.current = false;
-      setIsTransitioning(false);
-    }, TRANSITION_MS);
-  }, [views.length]);
+    transitionTimerRef.current = window.setTimeout(
+      () => setIsTransitioning(false),
+      TRANSITION_MS
+    );
+  }, [views.length, isTransitioning]);
 
   const goNext = useCallback(() => {
-    if (views.length === 0 || isTransitioningRef.current) return;
-    isTransitioningRef.current = true;
+    if (views.length === 0 || isTransitioning) return;
     setIsTransitioning(true);
     setIndex((i) => (i + 1) % views.length);
     if (transitionTimerRef.current)
       window.clearTimeout(transitionTimerRef.current);
-    transitionTimerRef.current = window.setTimeout(() => {
-      isTransitioningRef.current = false;
-      setIsTransitioning(false);
-    }, TRANSITION_MS);
-  }, [views.length]);
+    transitionTimerRef.current = window.setTimeout(
+      () => setIsTransitioning(false),
+      TRANSITION_MS
+    );
+  }, [views.length, isTransitioning]);
 
   // індикатор (логіка ідентична десктопу)
   const imageCounts = views.map((v) => v.images?.length ?? 0);
@@ -149,156 +141,32 @@ export const ProjectMobile: React.FC<Props> = ({
     return () => window.removeEventListener('resize', onResize);
   }, [measure, showIndicator]);
 
-  // свайп-жести з визначенням напрямку та оптимізацією
+  // свайп-жести
   const touchStartX = useRef(0);
-  const touchStartY = useRef(0);
   const touchEndX = useRef(0);
-  const touchEndY = useRef(0);
-  const touchStartTime = useRef(0);
-  const gestureLockRef = useRef<'horizontal' | 'vertical' | null>(null);
-  const debounceTimerRef = useRef<number | null>(null);
-  const rafIdRef = useRef<number | null>(null);
-
-  const DIRECTION_LOCK_THRESHOLD = 10;
-  const HORIZONTAL_THRESHOLD = 48;
-  const MIN_MOVEMENT_THRESHOLD = 10;
-  const DIRECTION_RATIO = 1.5;
-  const DEBOUNCE_MS = 50;
-
-  const resetGestureState = useCallback(() => {
-    gestureLockRef.current = null;
-    touchStartX.current = 0;
-    touchStartY.current = 0;
-    touchEndX.current = 0;
-    touchEndY.current = 0;
-    touchStartTime.current = 0;
-    if (debounceTimerRef.current) {
-      window.clearTimeout(debounceTimerRef.current);
-      debounceTimerRef.current = null;
-    }
-    if (rafIdRef.current) {
-      cancelAnimationFrame(rafIdRef.current);
-      rafIdRef.current = null;
-    }
-  }, []);
-
-  const onTouchStart = useCallback(
-    (e: React.TouchEvent) => {
-      if (isTransitioningRef.current) return;
-      resetGestureState();
-      touchStartX.current = e.touches[0].clientX;
-      touchStartY.current = e.touches[0].clientY;
-      touchStartTime.current = Date.now();
-    },
-    [resetGestureState]
-  );
-
-  const updateTouchCoordinates = useCallback(
-    (clientX: number, clientY: number) => {
-      touchEndX.current = clientX;
-      touchEndY.current = clientY;
-
-      // Визначаємо напрямок жестів після мінімального руху
-      if (gestureLockRef.current === null) {
-        const dx = Math.abs(touchStartX.current - clientX);
-        const dy = Math.abs(touchStartY.current - clientY);
-        const totalMovement = Math.sqrt(dx * dx + dy * dy);
-
-        if (totalMovement > DIRECTION_LOCK_THRESHOLD) {
-          // Блокуємо напрямок жестів
-          if (dx > dy * DIRECTION_RATIO) {
-            gestureLockRef.current = 'horizontal';
-          } else if (dy > dx * DIRECTION_RATIO) {
-            gestureLockRef.current = 'vertical';
-          }
-        }
-      }
-    },
-    []
-  );
-
-  const onTouchMove = useCallback(
-    (e: React.TouchEvent) => {
-      if (isTransitioningRef.current) return;
-
-      // Throttle coordinate updates using requestAnimationFrame
-      if (rafIdRef.current) {
-        cancelAnimationFrame(rafIdRef.current);
-      }
-
-      rafIdRef.current = requestAnimationFrame(() => {
-        updateTouchCoordinates(e.touches[0].clientX, e.touches[0].clientY);
-      });
-    },
-    [updateTouchCoordinates]
-  );
-
-  const handleGestureEnd = useCallback(() => {
-    if (isTransitioningRef.current) return;
-
-    // Використовуємо останні координати з refs
+  const onTouchStart = (e: React.TouchEvent) => {
+    if (isTransitioning) return;
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (isTransitioning) return;
+    touchEndX.current = e.touches[0].clientX;
+  };
+  const onTouchEnd = () => {
+    if (isTransitioning) return;
     const dx = touchStartX.current - touchEndX.current;
-    const dy = touchStartY.current - touchEndY.current;
-    const absDx = Math.abs(dx);
-    const absDy = Math.abs(dy);
+    const threshold = 48;
+    if (dx > threshold) goNext();
+    else if (dx < -threshold) goPrev();
+  };
 
-    // Перевіряємо тільки горизонтальні жести
-    if (gestureLockRef.current === 'horizontal') {
-      const isHorizontalGesture =
-        absDx > absDy * DIRECTION_RATIO &&
-        absDx > HORIZONTAL_THRESHOLD &&
-        absDx > MIN_MOVEMENT_THRESHOLD;
-
-      if (isHorizontalGesture) {
-        if (dx > 0) goNext();
-        else if (dx < 0) goPrev();
-      }
-    }
-
-    resetGestureState();
-  }, [goNext, goPrev, resetGestureState]);
-
-  const onTouchEnd = useCallback(
-    (e: React.TouchEvent) => {
-      if (isTransitioningRef.current) return;
-
-      // Використовуємо changedTouches для більш надійного отримання координат
-      if (e.changedTouches.length > 0) {
-        touchEndX.current = e.changedTouches[0].clientX;
-        touchEndY.current = e.changedTouches[0].clientY;
-      }
-
-      // Debounce gesture detection
-      if (debounceTimerRef.current) {
-        window.clearTimeout(debounceTimerRef.current);
-      }
-
-      debounceTimerRef.current = window.setTimeout(() => {
-        handleGestureEnd();
-      }, DEBOUNCE_MS);
-    },
-    [handleGestureEnd]
-  );
-
-  const onTouchCancel = useCallback(() => {
-    resetGestureState();
-  }, [resetGestureState]);
-
-  // cleanup таймерів та animation frames при анмаунті
+  // cleanup таймера при анмаунті
   useEffect(() => {
     return () => {
-      if (transitionTimerRef.current) {
+      if (transitionTimerRef.current)
         window.clearTimeout(transitionTimerRef.current);
-      }
-      if (debounceTimerRef.current) {
-        window.clearTimeout(debounceTimerRef.current);
-      }
-      if (rafIdRef.current) {
-        cancelAnimationFrame(rafIdRef.current);
-      }
-      resetGestureState();
     };
-  }, [resetGestureState]);
+  }, []);
 
   const renderView = (v?: ProjectView | null) => {
     if (!v || !v.images || v.images.length === 0) return null;
@@ -315,7 +183,6 @@ export const ProjectMobile: React.FC<Props> = ({
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
-      onTouchCancel={onTouchCancel}
       style={{ touchAction: 'pan-y', WebkitTapHighlightColor: 'transparent' }}
     >
       {/* STAGE */}
@@ -384,7 +251,12 @@ export const ProjectMobile: React.FC<Props> = ({
         type="button"
         aria-label="Previous"
         onClick={(e) => {
-          if (isTransitioningRef.current) return;
+          if (isTransitioning) return;
+          e.stopPropagation();
+          goPrev();
+        }}
+        onTouchStart={(e) => {
+          if (isTransitioning) return;
           e.stopPropagation();
           goPrev();
         }}
@@ -395,7 +267,12 @@ export const ProjectMobile: React.FC<Props> = ({
         type="button"
         aria-label="Next"
         onClick={(e) => {
-          if (isTransitioningRef.current) return;
+          if (isTransitioning) return;
+          e.stopPropagation();
+          goNext();
+        }}
+        onTouchStart={(e) => {
+          if (isTransitioning) return;
           e.stopPropagation();
           goNext();
         }}
