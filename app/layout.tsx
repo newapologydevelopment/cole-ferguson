@@ -103,7 +103,6 @@ export default function RootLayout({
           Cole Ferguson
         </Link>
         {/* <div className="fixed right-[20px] top-[20px] text-[12px] text-primary-dark md:hidden">Menu</div> */}
-
         <InfoShell>
           <MenuMobile />
           <PageTransition>

@@ -2,7 +2,9 @@
 'use client';
 
 import type { Project as ProjectType, ProjectView } from '@/types/project';
+import { cn } from '@/utils';
 import { AnimatePresence, motion } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 import {
   useCallback,
   useEffect,
@@ -53,6 +55,8 @@ export const ProjectMobile: React.FC<Props> = ({
   const [isTransitioning, setIsTransitioning] = useState(false);
   const transitionTimerRef = useRef<number | null>(null);
   const TRANSITION_MS = 280;
+  const pathname = usePathname();
+  const isNotHomePage = pathname !== '/';
 
   // коли змінився проєкт — скидаємо індекс
   useEffect(() => {
@@ -123,7 +127,6 @@ export const ProjectMobile: React.FC<Props> = ({
     const eRect = endEl.getBoundingClientRect();
     const left = sRect.left - wrapRect.left;
     const width = eRect.right - sRect.left;
-    // уникнути зайвих setState
     setUnderline((prev) =>
       prev.left === left && prev.width === width ? prev : { left, width }
     );
@@ -141,7 +144,6 @@ export const ProjectMobile: React.FC<Props> = ({
     return () => window.removeEventListener('resize', onResize);
   }, [measure, showIndicator]);
 
-  // свайп-жести
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
   const onTouchStart = (e: React.TouchEvent) => {
@@ -179,7 +181,10 @@ export const ProjectMobile: React.FC<Props> = ({
 
   return (
     <div
-      className="relative w-screen h-[100dvh] overflow-hidden select-none"
+      className={cn('relative w-screen h-full', {
+        'h-[100dvh]': isNotHomePage,
+        'h-full': !isNotHomePage,
+      })}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
@@ -190,13 +195,13 @@ export const ProjectMobile: React.FC<Props> = ({
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={viewKey}
-            className="absolute inset-0 z-0 pointer-events-none will-change-transform"
+            className="absolute inset-0 z-0 pointer-events-none will-change-transform h-full"
             initial={false} // ← щоб не було початкового мерехтіння
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.22, ease: [0.4, 0.0, 0.2, 1] }}
           >
-            <div className="pointer-events-none">
+            <div className="pointer-events-none h-full">
               {renderView(current) ?? (
                 <div className="flex items-center justify-center h-full p-[20px]">
                   {project.title}

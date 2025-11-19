@@ -60,7 +60,7 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
   return (
     <div
       className={cn(
-        'relative h-screen overflow-hidden px-[20px] sm:p-[24px] text-[12px] text-primary-dark'
+        'relative h-[100dvh] overflow-hidden px-[20px] sm:p-[24px] text-[12px] text-primary-dark'
       )}
     >
       <div
@@ -107,7 +107,8 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
                 //     'h-[100dvh] bg-yellow-200 flex items-center justify-center'
                 //   )}
                 // >
-                //   hello
+                //   {project.title}
+                //   {/* тут можеш підставити свій ProjectMobile коли буде готовий */}
                 // </div>
                 <ProjectMobile project={project} />
               ) : (

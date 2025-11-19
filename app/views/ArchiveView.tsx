@@ -76,12 +76,15 @@ export const ArchiveView = ({ archiveProjects }: Props) => {
   if (isMobile)
     return (
       <div className="relative sm:hidden pt-[83px]">
-        <div className="fixed top-[48px] left-1/2 -translate-x-1/2 z-[1000] flex items-center gap-[21px] text-[12px] sm:hidden">
+        <div className="bg-white z-[1000] fixed top-0 left-0 right-0 h-[83px]">
+          dfe
+        </div>
+        <div className="fixed top-[48px] left-1/2 -translate-x-1/2 z-[1000] flex items-center gap-[21px] text-[12px] sm:hidden bg-white">
           <span>Columns</span>
 
           <div
             ref={colsWrapRef}
-            className="relative flex gap-[8px]"
+            className="relative flex gap-[8px] bg-white"
             role="tablist"
             aria-label="Columns"
           >
