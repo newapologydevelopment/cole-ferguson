@@ -141,46 +141,23 @@ export const ProjectMobile: React.FC<Props> = ({
     return () => window.removeEventListener('resize', onResize);
   }, [measure, showIndicator]);
 
-  // свайп-жести з визначенням напрямку
+  // свайп-жести
   const touchStartX = useRef(0);
-  const touchStartY = useRef(0);
   const touchEndX = useRef(0);
-  const touchEndY = useRef(0);
   const onTouchStart = (e: React.TouchEvent) => {
     if (isTransitioning) return;
     touchStartX.current = e.touches[0].clientX;
-    touchStartY.current = e.touches[0].clientY;
   };
   const onTouchMove = (e: React.TouchEvent) => {
     if (isTransitioning) return;
     touchEndX.current = e.touches[0].clientX;
-    touchEndY.current = e.touches[0].clientY;
   };
   const onTouchEnd = () => {
     if (isTransitioning) return;
     const dx = touchStartX.current - touchEndX.current;
-    const dy = touchStartY.current - touchEndY.current;
-    const absDx = Math.abs(dx);
-    const absDy = Math.abs(dy);
-
-    // Визначаємо, чи це горизонтальний жест
-    // Жест вважається горизонтальним, якщо горизонтальний рух більший за вертикальний у 1.5 рази
-    // і перевищує мінімальний поріг
-    const HORIZONTAL_THRESHOLD = 48;
-    const MIN_MOVEMENT_THRESHOLD = 10;
-    const DIRECTION_RATIO = 1.5;
-
-    const isHorizontalGesture =
-      absDx > absDy * DIRECTION_RATIO &&
-      absDx > HORIZONTAL_THRESHOLD &&
-      absDx > MIN_MOVEMENT_THRESHOLD;
-
-    // Тригеримо навігацію тільки для горизонтальних жестів
-    if (isHorizontalGesture) {
-      if (dx > 0) goNext();
-      else if (dx < 0) goPrev();
-    }
-    // Для вертикальних жестів нічого не робимо - дозволяємо скролувати проєкти
+    const threshold = 48;
+    if (dx > threshold) goNext();
+    else if (dx < -threshold) goPrev();
   };
 
   // cleanup таймера при анмаунті
@@ -278,6 +255,11 @@ export const ProjectMobile: React.FC<Props> = ({
           e.stopPropagation();
           goPrev();
         }}
+        onTouchStart={(e) => {
+          if (isTransitioning) return;
+          e.stopPropagation();
+          goPrev();
+        }}
         className={`pointer-events-none sm:pointer-events-auto absolute left-[6px] top-0 h-full w-[calc(50%-6px)] z-[60] ${isTransitioning ? 'pointer-events-none' : 'pointer-events-auto'} focus:outline-none`}
         style={{ background: 'transparent' }}
       />
@@ -285,6 +267,11 @@ export const ProjectMobile: React.FC<Props> = ({
         type="button"
         aria-label="Next"
         onClick={(e) => {
+          if (isTransitioning) return;
+          e.stopPropagation();
+          goNext();
+        }}
+        onTouchStart={(e) => {
           if (isTransitioning) return;
           e.stopPropagation();
           goNext();

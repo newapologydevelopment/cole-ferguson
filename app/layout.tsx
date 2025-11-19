@@ -19,7 +19,7 @@ const recitalBook = localFont({
 });
 
 const SHOW_GRID = !true;
-const SHOW_PRELOADER = true;
+const SHOW_PRELOADER = !true;
 
 export const metadata: Metadata = {
   title: 'Cole Ferguson',
@@ -107,7 +107,7 @@ export default function RootLayout({
         <InfoShell>
           <MenuMobile />
           <PageTransition>
-            <main className="pt-[83px] sm:pt-[0]">{children}</main>
+            <main className="sm:pt-[0]">{children}</main>
             <div
               className="fixed z-[3] md:bottom-[24px] md:left-[24px] bottom-[20px] left-[20px] flex flex-col gap-[6px] text-[12px] text-primary-dark"
               data-index-container

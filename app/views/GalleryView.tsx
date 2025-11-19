@@ -126,7 +126,7 @@ export const GalleryView = ({
 
   if (isMobile)
     return (
-      <div className="xl:hidden h-[100dvh] w-full text-[12px] text-primary-dark px-[20px] pb-[40px]">
+      <div className="pt-[83px] xl:hidden h-[100dvh] w-full text-[12px] text-primary-dark px-[20px] pb-[40px]">
         {/* MOBILE VIEW SWITCH — full-width white bar tight under mobile menu */}
         <div className="fixed z-[2] top-[40px] left-0 right-0 bg-white">
           <div
