@@ -19,7 +19,7 @@ const recitalBook = localFont({
 });
 
 const SHOW_GRID = !true;
-const SHOW_PRELOADER = !true;
+const SHOW_PRELOADER = true;
 
 export const metadata: Metadata = {
   title: 'Cole Ferguson',
