@@ -6,7 +6,13 @@ import { urlFor } from '@/sanity/lib/image';
 import { cn } from '@/utils';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { ArchiveLightBox, ArchiveProject } from '../components';
 import { useBreakpoint, useScrollToTop } from '../hooks';
 
@@ -45,6 +51,56 @@ export const ArchiveView = ({ archiveProjects }: Props) => {
   const total = archiveProjects.length;
   useScrollToTop();
 
+  // Дозволяємо scroll на body для archive сторінки (на мобільних)
+  useEffect(() => {
+    if (!isMobile) return;
+
+    // Зберігаємо оригінальні значення
+    const originalBodyOverflow = document.body.style.overflowY;
+    const originalHtmlOverflow = document.documentElement.style.overflowY;
+    const originalBodyTouchAction = document.body.style.touchAction;
+    const originalHtmlTouchAction = document.documentElement.style.touchAction;
+
+    // Встановлюємо overflow: auto з !important
+    document.body.style.setProperty('overflow-y', 'auto', 'important');
+    document.documentElement.style.setProperty(
+      'overflow-y',
+      'auto',
+      'important'
+    );
+    // Дозволяємо вертикальний pan для scroll
+    document.body.style.setProperty('touch-action', 'pan-y', 'important');
+    document.documentElement.style.setProperty(
+      'touch-action',
+      'pan-y',
+      'important'
+    );
+
+    return () => {
+      // Повертаємо оригінальні значення
+      if (originalBodyOverflow) {
+        document.body.style.overflowY = originalBodyOverflow;
+      } else {
+        document.body.style.removeProperty('overflow-y');
+      }
+      if (originalHtmlOverflow) {
+        document.documentElement.style.overflowY = originalHtmlOverflow;
+      } else {
+        document.documentElement.style.removeProperty('overflow-y');
+      }
+      if (originalBodyTouchAction) {
+        document.body.style.touchAction = originalBodyTouchAction;
+      } else {
+        document.body.style.removeProperty('touch-action');
+      }
+      if (originalHtmlTouchAction) {
+        document.documentElement.style.touchAction = originalHtmlTouchAction;
+      } else {
+        document.documentElement.style.removeProperty('touch-action');
+      }
+    };
+  }, [isMobile]);
+
   const goNext = useCallback(() => {
     setSelectedProject((prev) => {
       const i = typeof prev === 'number' ? prev : 0;
@@ -75,16 +131,16 @@ export const ArchiveView = ({ archiveProjects }: Props) => {
 
   if (isMobile)
     return (
-      <div className="relative sm:hidden pt-[83px]">
+      <div className="relative sm:hidden min-h-screen">
         <div className="bg-white z-[1000] fixed top-0 left-0 right-0 h-[83px]">
-          dfe
+          <div className="pointer-events-auto">dfe</div>
         </div>
-        <div className="fixed top-[48px] left-1/2 -translate-x-1/2 z-[1000] flex items-center gap-[21px] text-[12px] sm:hidden bg-white">
+        <div className="fixed top-[48px] left-1/2 -translate-x-1/2 z-[1000] flex items-center gap-[21px] text-[12px] sm:hidden bg-white pointer-events-none">
           <span>Columns</span>
 
           <div
             ref={colsWrapRef}
-            className="relative flex gap-[8px] bg-white"
+            className="relative flex gap-[8px] bg-white pointer-events-auto"
             role="tablist"
             aria-label="Columns"
           >
@@ -123,8 +179,7 @@ export const ArchiveView = ({ archiveProjects }: Props) => {
           </div>
         </div>
 
-        {/* 📸 Грід на 8 колонок; елементи мають span 8/4/2 */}
-        <div className="grid grid-cols-8 gap-x-[20px] gap-y-[20px] px-[20px] pb-[20px] items-start">
+        <div className="pt-[83px] grid grid-cols-8 gap-x-[20px] gap-y-[20px] px-[20px] pb-[20px] items-start">
           {archiveProjects.map((project, index) => {
             const img = project.image;
             const alt = img?.alt || project.title;
