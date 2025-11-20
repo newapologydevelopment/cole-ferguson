@@ -1,6 +1,6 @@
 'use client';
 
-import { NavigationHomePage, Project, ProjectMobile } from '@/app/components';
+import { NavigationHomePage, Project } from '@/app/components';
 import type { Project as ProjectType } from '@/types';
 import { cn } from '@/utils';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -87,6 +87,25 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
           const isActive = i === activeIndex;
           const isVisible = isActive || showAll;
 
+          if (isMobile) {
+            return (
+              <div
+                key={project._id}
+                className="snap-start h-full transition-opacity duration-300 bg-yellow-400 flex items-center justify-center"
+              >
+                {/* <ProjectMobile project={project} /> */}
+                <div
+                  className={cn(
+                    'h-[100dvh] bg-yellow-200 flex items-center justify-center'
+                  )}
+                >
+                  {project.title}
+                  {/* тут можеш підставити свій ProjectMobile коли буде готовий */}
+                </div>
+              </div>
+            );
+          }
+
           return (
             <section
               key={project._id}
@@ -102,16 +121,16 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
               )}
             >
               {isMobile ? (
-                // <div
-                //   className={cn(
-                //     'h-[100dvh] bg-yellow-200 flex items-center justify-center'
-                //   )}
-                // >
-                //   {project.title}
-                //   {/* тут можеш підставити свій ProjectMobile коли буде готовий */}
-                // </div>
-                <ProjectMobile project={project} />
+                <div
+                  className={cn(
+                    'h-[100dvh] bg-yellow-200 flex items-center justify-center'
+                  )}
+                >
+                  {project.title}
+                  {/* тут можеш підставити свій ProjectMobile коли буде готовий */}
+                </div>
               ) : (
+                // <ProjectMobile project={project} />
                 <Project
                   project={project}
                   showIndicator={!showAll && isActive}
