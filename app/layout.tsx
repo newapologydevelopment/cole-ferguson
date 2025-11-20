@@ -1,7 +1,15 @@
 import type { Metadata } from 'next';
 
 import localFont from 'next/font/local';
-import { MenuMobile } from './components';
+import Link from 'next/link';
+import {
+  GridOverlay,
+  MenuMobile,
+  PageTransition,
+  Preloader,
+} from './components';
+import { InfoShell } from './components/InfoShell';
+import { InformationButton } from './components/InformationButton';
 import './globals.css';
 
 const recitalBook = localFont({
@@ -84,19 +92,37 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://cdn.sanity.io" />
       </head>
       <body className={`${recitalBook.className} antialiased`}>
-        {/* {SHOW_GRID && <GridOverlay />}
-        {SHOW_PRELOADER && <Preloader />} */}
-        {/* <Link
+        {SHOW_GRID && <GridOverlay />}
+        {SHOW_PRELOADER && <Preloader />}
+        <Link
           href="/"
           className="fixed z-[10001] md:top-[24px] top-[20px] md:left-[24px] left-[20px] text-[12px] text-primary-dark cursor-pointer bg-white hidden xl:block hover:text-[#717171] transition-colors duration-300"
           data-hide-cursor="true"
           data-brand-header
         >
           Cole Ferguson
-        </Link> */}
+        </Link>
         {/* <div className="fixed right-[20px] top-[20px] text-[12px] text-primary-dark md:hidden">Menu</div> */}
-        <MenuMobile />
-        <main>{children}</main>
+        <InfoShell>
+          <MenuMobile />
+          <PageTransition>
+            <main className="sm:pt-[0]">{children}</main>
+            <div
+              className="fixed z-[3] md:bottom-[24px] md:left-[24px] bottom-[20px] left-[20px] flex flex-col gap-[6px] text-[12px] text-primary-dark"
+              data-index-container
+            >
+              <Link
+                href="/gallery"
+                className="cursor-pointer xl:block hidden hover:text-[#717171] transition-colors duration-300"
+                data-hide-cursor="true"
+              >
+                Index
+              </Link>
+              <InformationButton />
+              {/* <div className=" realtive invisible w-screen pointer-events-none z-[-1]" >1</div> */}
+            </div>
+          </PageTransition>
+        </InfoShell>
       </body>
     </html>
   );

@@ -110,7 +110,7 @@ export function TwoViewMobile({
 
   return (
     <section
-      className={`sm:hidden w-screen h-full px-[20px] overflow-hidden ${disableFade ? 'opacity-100' : 'transition-opacity duration-300 ease-out'} ${
+      className={`sm:hidden w-full h-full  overflow-hidden ${disableFade ? 'opacity-100' : 'transition-opacity duration-300 ease-out'} ${
         ready ? 'opacity-100' : disableFade ? 'opacity-100' : 'opacity-0'
       } ${className ?? ''}`}
       style={{ contain: 'layout paint' }}

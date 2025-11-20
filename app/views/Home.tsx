@@ -12,7 +12,7 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
 
-  const { isMobile, isReady } = useBreakpoint();
+  const { isMobile } = useBreakpoint();
   const [activeIndex, setActiveIndex] = useState(0);
   const [showAll, setShowAll] = useState(false);
 
@@ -57,14 +57,11 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
     });
   }, []);
 
-  if (!isReady) {
-    return <div className="h-screen w-screen bg-white" />;
-  }
-
   return (
     <div
+      ref={scrollRef}
       className={cn(
-        'relative h-[100dvh] overflow-hidden px-[20px] sm:p-[24px] text-[12px] text-primary-dark'
+        'h-[100dvh] snap-y snap-mandatory overflow-y-auto overflow-x-hidden px-[20px] sm:p-[24px] text-[12px] text-primary-dark'
       )}
     >
       <div
@@ -80,43 +77,29 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
           onSelect={handleSelect}
         />
       </div>
+      {projects.map((project, i) => {
+        const isActive = i === activeIndex;
+        const isVisible = isActive || showAll;
 
-      <div
-        ref={scrollRef}
-        className={cn(
-          'absolute inset-0 overflow-y-auto snap-y snap-mandatory pointer-events-auto'
-        )}
-      >
-        {projects.map((project, i) => {
-          const isActive = i === activeIndex;
-          const isVisible = isActive || showAll;
-
-          return (
-            <section
-              key={project._id}
-              ref={(el) => {
-                sectionRefs.current[i] = el;
-              }}
-              className={cn(
-                'snap-start h-full transition-opacity duration-300',
-                {
-                  'opacity-100': isVisible,
-                  'opacity-0': !isVisible,
-                }
-              )}
-            >
-              {isMobile ? (
-                <ProjectMobile project={project} />
-              ) : (
-                <Project
-                  project={project}
-                  showIndicator={!showAll && isActive}
-                />
-              )}
-            </section>
-          );
-        })}
-      </div>
+        return (
+          <div
+            key={project._id}
+            ref={(el) => {
+              sectionRefs.current[i] = el;
+            }}
+            className={cn('snap-start h-full transition-opacity duration-300', {
+              'opacity-100': isVisible,
+              'opacity-0': !isVisible,
+            })}
+          >
+            {isMobile ? (
+              <ProjectMobile project={project} />
+            ) : (
+              <Project project={project} showIndicator={!showAll && isActive} />
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 };

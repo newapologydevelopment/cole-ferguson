@@ -181,7 +181,7 @@ export const ProjectMobile: React.FC<Props> = ({
 
   return (
     <div
-      className={cn('relative w-screen h-full', {
+      className={cn('relative w-full h-full', {
         'h-[100dvh]': isNotHomePage,
         'h-full': !isNotHomePage,
       })}

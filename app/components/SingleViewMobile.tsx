@@ -54,7 +54,7 @@ export function SingleViewMobile({ image }: { image: ProjectImage }) {
   const cssAspect = ratio.replace(':', ' / ');
 
   return (
-    <div className="px-[20px] grid grid-cols-8 h-full w-screen content-center items-center auto-rows-max overflow-hidden">
+    <div className="grid grid-cols-8 h-full w-full content-center items-center auto-rows-max overflow-hidden">
       <div
         className="relative flex items-center justify-center col-span-full w-full overflow-hidden"
         style={{ aspectRatio: cssAspect }}

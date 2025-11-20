@@ -63,9 +63,7 @@ export function ThreeViewMobile({
   const rc = (getImageRatio(c) ?? '3:2').replace(':', ' / ');
 
   return (
-    <section
-      className={`sm:hidden w-screen h-full px-[20px] ${className ?? ''}`}
-    >
+    <section className={`sm:hidden w-full h-full  ${className ?? ''}`}>
       {/* Центруємо блок по висоті, рядки автоматичні (max-content), а не фіксовані */}
       <div className="grid grid-cols-12 gap-x-[16px] h-full content-center">
         {/* A */}
