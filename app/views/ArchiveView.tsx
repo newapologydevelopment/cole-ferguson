@@ -232,7 +232,6 @@ export const ArchiveView = ({ archiveProjects }: Props) => {
       </div>
     );
 
-  // 🖥️ Десктоп без змін
   return (
     <div className="hidden w-screen h-screen sm:grid sm:grid-cols-24 pt-[108px] xl:pt-[24px] p-[24px]">
       <div className="col-start-1 col-span-full xl:col-start-7 xl:col-span-18">
