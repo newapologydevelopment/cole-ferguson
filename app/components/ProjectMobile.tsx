@@ -195,13 +195,19 @@ export const ProjectMobile: React.FC<Props> = ({
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={viewKey}
-            className="absolute inset-0 z-0 pointer-events-none will-change-transform h-full"
+            className={cn('absolute inset-0 z-0 will-change-transform', {
+              'pointer-events-none': !isNotHomePage,
+              'pointer-events-auto': isNotHomePage,
+            })}
             initial={false} // ← щоб не було початкового мерехтіння
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.22, ease: [0.4, 0.0, 0.2, 1] }}
           >
-            <div className="pointer-events-none h-full">
+            <div className={cn('h-full w-full', {
+              'pointer-events-none': !isNotHomePage,
+              'pointer-events-auto': isNotHomePage,
+            })}>
               {renderView(current) ?? (
                 <div className="flex items-center justify-center h-full p-[20px]">
                   {project.title}

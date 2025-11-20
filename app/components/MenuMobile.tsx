@@ -55,6 +55,7 @@ export const MenuMobile = () => {
           >
             <AnimatePresence mode="wait" initial={false}>
               {open ? (
+                
                 <motion.span
                   key="cf"
                   initial={{ opacity: 0 }}

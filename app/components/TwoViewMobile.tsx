@@ -125,7 +125,7 @@ export function TwoViewMobile({
                   src={srcA}
                   alt={a?.alt || ''}
                   fill
-                  className="object-cover object-center"
+                  className="object-contain object-center"
                   sizes="(max-width: 768px) 50vw, 0px"
                   placeholder={a?.blurDataURL ? 'blur' : 'empty'}
                   blurDataURL={a?.blurDataURL}
@@ -143,7 +143,7 @@ export function TwoViewMobile({
                   src={srcB}
                   alt={b?.alt || ''}
                   fill
-                  className="object-cover object-center"
+                  className="object-contain object-center"
                   sizes="(max-width: 768px) 50vw, 0px"
                   placeholder={b?.blurDataURL ? 'blur' : 'empty'}
                   blurDataURL={b?.blurDataURL}

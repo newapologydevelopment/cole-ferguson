@@ -22,7 +22,7 @@ export const ArchiveView = ({ archiveProjects }: Props) => {
   const { isMobile } = useBreakpoint();
   const [showLightBox, setShowLightBox] = useState(false);
   const [selectedProject, setSelectedProject] = useState<number>(0);
-  const [gridMode, setGridMode] = useState<1 | 2 | 4>(1); // 🔁 1 / 2 / 4
+  const [gridMode, setGridMode] = useState<1 | 2 | 4>(4);
 
   const colsWrapRef = useRef<HTMLDivElement | null>(null);
   const colBtnRefs = useRef<Record<1 | 2 | 4, HTMLButtonElement | null>>({

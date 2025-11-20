@@ -99,7 +99,10 @@ export const LightBox: React.FC<Props> = ({ close, children, title }) => {
         {title}
       </p>
 
-      <div ref={contentRef} className="light-box-content">
+      <div
+        ref={contentRef}
+        className="light-box-content w-full h-full flex items-center justify-center p-[20px]"
+      >
         {children}
       </div>
     </div>

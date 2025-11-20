@@ -44,7 +44,7 @@ type Props = {
 /** 3 фото в один ряд (по 4 з 12 колонок), кожне з власним aspect-ratio */
 export function ThreeViewMobile({
   images,
-  objectFit = 'cover',
+  objectFit = 'contain',
   className,
 }: Props) {
   const [a, b, c] = images ?? [];

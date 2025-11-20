@@ -67,7 +67,7 @@ export function SingleViewMobile({ image }: { image: ProjectImage }) {
             sizes="(min-width:1280px) 60vw, (min-width:768px) 80vw, 100vw"
             placeholder={image?.blurDataURL ? 'blur' : 'empty'}
             blurDataURL={image?.blurDataURL}
-            className="object-cover"
+            className="object-contain"
             priority
           />
         ) : null}
