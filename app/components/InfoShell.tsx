@@ -294,7 +294,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
     }
   }, [showVideo]);
 
-  if (isMobile) return <div className="sm:hidden p-20px">{children}</div>;
+  if (isMobile) return <>{children}</>;
 
   return (
     <>
