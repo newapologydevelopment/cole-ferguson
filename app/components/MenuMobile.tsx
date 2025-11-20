@@ -44,10 +44,10 @@ export const MenuMobile = () => {
 
   return (
     <>
-      <div className="fixed left-0 right-0 top-[0] flex items-center justify-between px-[20px] sm:px-[24px] pt-[20px] sm:pt-[24px] pb-[4px] sm:pb-[8px] bg-white z-[10040] xl:hidden">
+      <div className="fixed left-0 right-0 top-[0] flex items-center justify-between px-[20px] sm:px-[24px] pt-[20px] sm:pt-[24px] pb-[4px] sm:pb-[8px] bg-white z-[10040] xl:hidden pointer-events-none">
         <Link
           href="/"
-          className="text-[12px] text-primary-dark relative inline-flex items-center"
+          className="text-[12px] text-primary-dark relative inline-flex items-center pointer-events-auto"
         >
           <span
             className="relative inline-block overflow-hidden"
@@ -84,12 +84,12 @@ export const MenuMobile = () => {
         </Link>
         <div
           onClick={() => setOpen(!open)}
-          className=" text-[12px] text-primary-dark bg-white z-[1] relative"
+          className=" text-[12px] text-primary-dark bg-white z-[1] relative pointer-events-auto"
         >
           {!open ? 'Menu' : 'Close'}
         </div>
       </div>
-      <div className="fixed left-0 right-0 top-0 h-[64px] bg-white md:hidden" />
+      <div className="fixed left-0 right-0 top-0 h-[64px] bg-white md:hidden pointer-events-none" />
 
       <AnimatePresence>
         {open && (
@@ -103,7 +103,7 @@ export const MenuMobile = () => {
               damping: 36,
               mass: 0.25,
             }}
-            className="xl:hidden fixed left-[20px] sm:left-[24px] right-[20px] sm:right-[24px] top-[40px] sm:top-[48px] text-[12px] text-primary-dark z-[9998] bg-white will-change-transform"
+            className="xl:hidden fixed left-[20px] sm:left-[24px] right-[20px] sm:right-[24px] top-[40px] sm:top-[48px] text-[12px] text-primary-dark z-[9998] bg-white will-change-transform pointer-events-auto"
           >
             <div className="flex items-center justify-between relative">
               <Link

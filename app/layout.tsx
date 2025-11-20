@@ -108,17 +108,19 @@ export default function RootLayout({
           <PageTransition>
             <main>{children}</main>
             <div
-              className="fixed z-[3] md:bottom-[24px] md:left-[24px] bottom-[20px] left-[20px] flex flex-col gap-[6px] text-[12px] text-primary-dark"
+              className="fixed z-[3] md:bottom-[24px] md:left-[24px] bottom-[20px] left-[20px] flex flex-col gap-[6px] text-[12px] text-primary-dark pointer-events-none"
               data-index-container
             >
               <Link
                 href="/gallery"
-                className="cursor-pointer xl:block hidden hover:text-[#717171] transition-colors duration-300"
+                className="cursor-pointer xl:block hidden hover:text-[#717171] transition-colors duration-300 pointer-events-auto"
                 data-hide-cursor="true"
               >
                 Index
               </Link>
-              <InformationButton />
+              <div className="pointer-events-auto">
+                <InformationButton />
+              </div>
               {/* <div className=" realtive invisible w-screen pointer-events-none z-[-1]" >1</div> */}
             </div>
           </PageTransition>

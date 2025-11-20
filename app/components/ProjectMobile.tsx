@@ -293,7 +293,7 @@ export const ProjectMobile: React.FC<Props> = ({
 
       {/* титул */}
       {showBottomTitle && (
-        <div className="fixed bottom-[25px] left-0 right-0 p-[20px] text-center z-[10]">
+        <div className="fixed bottom-[25px] left-0 right-0 p-[20px] text-center z-[10] pointer-events-none">
           {project.title}
         </div>
       )}
