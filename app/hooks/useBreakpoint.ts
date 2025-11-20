@@ -6,14 +6,18 @@ type BreakpointState = {
     isMobile: boolean
     isTablet: boolean
     isDesktop: boolean
+    isReady: boolean
+}
+
+const initialState: BreakpointState = {
+    isMobile: false,
+    isTablet: false,
+    isDesktop: false,
+    isReady: false,
 }
 
 export function useBreakpoint(): BreakpointState {
-    const [breakpoint, setBreakpoint] = useState<BreakpointState>({
-        isMobile: false,
-        isTablet: false,
-        isDesktop: false,
-    })
+    const [breakpoint, setBreakpoint] = useState<BreakpointState>(initialState)
 
     useEffect(() => {
         const check = () => {
@@ -22,6 +26,7 @@ export function useBreakpoint(): BreakpointState {
                 isMobile: w < 640,
                 isTablet: w >= 640 && w < 1024,
                 isDesktop: w >= 1024,
+                isReady: true,
             })
         }
 
