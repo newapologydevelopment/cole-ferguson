@@ -4,7 +4,7 @@ import { NavigationHomePage, Project, ProjectMobile } from '@/app/components';
 import type { Project as ProjectType } from '@/types';
 import { cn } from '@/utils';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useBreakpoint, useScrollToTop } from '../hooks';
+import { useBreakpoint } from '../hooks';
 
 export const Home = ({ projects }: { projects: ProjectType[] }) => {
   const projectTitles = useMemo(() => projects.map((p) => p.title), [projects]);
@@ -16,7 +16,7 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [showAll, setShowAll] = useState(false);
 
-  useScrollToTop();
+  // useScrollToTop();
 
   useEffect(() => {
     const el = scrollRef.current;

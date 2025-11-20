@@ -28,7 +28,6 @@ body {
   font-size: 12px;
 }
 
-/* Hide scrollbars globally but keep scrolling functional */
 html,
 body {
   /* scrollbars hidden, scrolling буде на внутрішніх контейнерах */
@@ -45,6 +44,7 @@ body::-webkit-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
+
 .hide-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari */
 }
