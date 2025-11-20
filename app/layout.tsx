@@ -2,14 +2,7 @@ import type { Metadata } from 'next';
 
 import localFont from 'next/font/local';
 import Link from 'next/link';
-import {
-  GridOverlay,
-  MenuMobile,
-  PageTransition,
-  Preloader,
-} from './components';
-import { InfoShell } from './components/InfoShell';
-import { InformationButton } from './components/InformationButton';
+import { GridOverlay, MenuMobile, Preloader } from './components';
 import './globals.css';
 
 const recitalBook = localFont({
@@ -103,26 +96,8 @@ export default function RootLayout({
           Cole Ferguson
         </Link>
         {/* <div className="fixed right-[20px] top-[20px] text-[12px] text-primary-dark md:hidden">Menu</div> */}
-        <InfoShell>
-          <MenuMobile />
-          <PageTransition>
-            <main className="sm:pt-[0]">{children}</main>
-            <div
-              className="fixed z-[3] md:bottom-[24px] md:left-[24px] bottom-[20px] left-[20px] flex flex-col gap-[6px] text-[12px] text-primary-dark"
-              data-index-container
-            >
-              <Link
-                href="/gallery"
-                className="cursor-pointer xl:block hidden hover:text-[#717171] transition-colors duration-300"
-                data-hide-cursor="true"
-              >
-                Index
-              </Link>
-              <InformationButton />
-              {/* <div className=" realtive invisible w-screen pointer-events-none z-[-1]" >1</div> */}
-            </div>
-          </PageTransition>
-        </InfoShell>
+        <MenuMobile />
+        <main>{children}</main>
       </body>
     </html>
   );
