@@ -448,6 +448,11 @@
         "name": "cover",
         "type": "image",
         "title": "Cover Image"
+      },
+      {
+        "description": "Text displayed below the video (e.g., \"Video by Samuel Lang\"). Leave empty to hide.",
+        "name": "videoCredit",
+        "type": "string"
       }
     ],
     "name": "information",

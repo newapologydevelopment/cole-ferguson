@@ -69,7 +69,7 @@ body::-webkit-scrollbar {
 }
 
 .video-button::after {
-  content: 'Video by Samuel Lang';
+  content: attr(data-video-credit);
   position: absolute;
   left: 0;
   bottom: -6px;
@@ -82,7 +82,7 @@ body::-webkit-scrollbar {
   transform-origin: left bottom;
 }
 
-.video-button.show-text::after {
+.video-button:not([data-video-credit=""]).show-text::after {
   opacity: var(--after-opacity, 0);
   display: block;
 }

@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'Cole Ferguson',
-    description: 'Made by New Apology.',
+    description: 'Photographer based in California',
     // url: "https://coleferguson.com/",
     siteName: 'Cole Ferguson',
     // images: [

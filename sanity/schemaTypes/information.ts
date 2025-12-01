@@ -51,6 +51,12 @@ export const information = defineType({
                 hotspot: true,
             },
         }),
+        defineField({
+            name: 'videoCredit',
+            title: 'Video Credit',
+            type: 'string',
+            description: 'Text displayed below the video (e.g., "Video by Samuel Lang"). Leave empty to hide.',
+        }),
     ],
     preview: {
         select: { title: 'title' },

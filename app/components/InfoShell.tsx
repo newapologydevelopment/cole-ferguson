@@ -26,6 +26,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
     contact: 'studio@coleferguson.com\n@coleferguson',
     videoUrl: '',
     coverImage: null as string | null,
+    videoCredit: '',
   });
   const [showVideo, setShowVideo] = useState(false);
   const videoButtonRef = useRef<HTMLButtonElement>(null);
@@ -42,8 +43,9 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
         video?: string;
         videoFileUrl?: string;
         cover?: { asset?: { _ref?: string } };
+        videoCredit?: string;
       }>(
-        `*[_type=="information"][0]{ title, clients, publications, contact, video, "videoFileUrl": videoFile.asset->url, cover }`
+        `*[_type=="information"][0]{ title, clients, publications, contact, video, "videoFileUrl": videoFile.asset->url, cover, videoCredit }`
       )
       .then((doc) => {
         if (!doc) return;
@@ -75,6 +77,10 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
             (doc.videoFileUrl && doc.videoFileUrl.trim()) ||
             prev.videoUrl,
           coverImage: coverImageUrl || prev.coverImage,
+          videoCredit:
+            typeof doc.videoCredit === 'string' && doc.videoCredit.trim()
+              ? doc.videoCredit
+              : '',
         }));
       })
       .catch(() => {});
@@ -376,6 +382,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                     }}
                     onMouseEnter={() => setVideoHover(true)}
                     onMouseLeave={() => setVideoHover(false)}
+                    data-video-credit={info.videoCredit}
                   >
                     {info.videoUrl && (
                       <video
