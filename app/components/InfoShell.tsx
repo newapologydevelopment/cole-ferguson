@@ -305,7 +305,16 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
   return (
     <>
       <div className="relative">
-        <div className="fixed top-[24px] left-[24px] w-[200px] h-[40px] bg-white opacity-0 pointer-events-none z-[10059] video-bg" />
+        <div
+          className={cn(
+            'fixed top-[24px] left-[24px] w-[200px] h-[40px] bg-white opacity-0 z-[10059] video-bg',
+            {
+              'pointer-events-auto cursor-default': showVideo,
+              'pointer-events-none': !showVideo,
+            }
+          )}
+          onClick={(e) => e.stopPropagation()}
+        />
         <button
           type="button"
           className="fixed right-[20px] top-[20px] sm:right-6 sm:top-6 z-[102] opacity-0 cursor-pointer video-bg hover:text-[#717171] transition-colors duration-300"
@@ -322,12 +331,26 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
             'pointer-events-none': open,
           })}
         >
-          <div className="fixed inset-0 bg-white opacity-0 pointer-events-none z-[10059] video-bg" />
+          <div
+            className={cn(
+              'fixed inset-0 bg-white opacity-0 z-[10059] video-bg',
+              {
+                'pointer-events-auto cursor-default': showVideo,
+                'pointer-events-none': !showVideo,
+              }
+            )}
+            onClick={(e) => e.stopPropagation()}
+          />
           {children}
         </div>
 
         <div
-          className="fixed left-0 right-0 bottom-0 transition-[height] duration-500 cursor-pointer z-[30] hidden sm:block"
+          className={cn(
+            'fixed left-0 right-0 bottom-0 transition-[height] duration-500 cursor-pointer z-[30] hidden sm:block',
+            {
+              'pointer-events-none': showVideo,
+            }
+          )}
           style={{ height: open ? '88vh' : '0' }}
           onClick={() => setOpen((o) => !o)}
           aria-expanded={open}
@@ -370,7 +393,16 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                     </p>
                   </div>
 
-                  <div className="fixed inset-0 bg-white opacity-0 pointer-events-none z-[60] video-bg" />
+                  <div
+                    className={cn(
+                      'fixed inset-0 bg-white opacity-0 z-[60] video-bg',
+                      {
+                        'pointer-events-auto cursor-default': showVideo,
+                        'pointer-events-none': !showVideo,
+                      }
+                    )}
+                    onClick={(e) => e.stopPropagation()}
+                  />
 
                   <button
                     ref={videoButtonRef}
