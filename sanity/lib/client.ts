@@ -52,7 +52,7 @@ export async function getProjects(): Promise<Project[]> {
 export const getProjectsCached = unstable_cache(
   async () => client.fetch<Project[]>(projectsQuery),
   ['sanity-projects-v1'],
-  { revalidate: 60 * 60 }
+  { revalidate: 60 }
 );
 
 // Archive projects
@@ -89,7 +89,7 @@ export async function getArchive(): Promise<ArchiveProject[]> {
 export const getArchiveCached = unstable_cache(
   async () => client.fetch<ArchiveProject[]>(archiveQuery),
   ['sanity-archive-v1'],
-  { revalidate: 60 * 60 }
+  { revalidate: 60 }
 );
 
 // Archive count (scalar)
@@ -102,7 +102,7 @@ export async function getArchiveCount(): Promise<number> {
 export const getArchiveCountCached = unstable_cache(
   async () => client.fetch<number>(archiveCountQuery),
   ['sanity-archive-count-v1'],
-  { revalidate: 60 * 60 }
+  { revalidate: 60 }
 );
 
 // Highlights (up to 10 project references)
@@ -182,7 +182,7 @@ export const getProjectBySlugCached = unstable_cache(
   async (slug: string) =>
     client.fetch<Project | null>(projectBySlugQuery, { slug }),
   ['sanity-project-by-slug-v1'],
-  { revalidate: 60 * 60 }
+  { revalidate: 60 }
 );
 
 // Information singleton
@@ -209,5 +209,5 @@ export async function getInformation(): Promise<InformationDoc | null> {
 export const getInformationCached = unstable_cache(
   async () => client.fetch<InformationDoc | null>(informationQuery),
   ['sanity-information-v1'],
-  { revalidate: 60 * 60 }
+  { revalidate: 60 }
 );
