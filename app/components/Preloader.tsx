@@ -34,6 +34,8 @@ export const Preloader = ({
     return remoteImages.length > 0 ? remoteImages : LOCAL_FALLBACK;
   }, [remoteImages]);
 
+  
+
   // Завантаження зображень з Sanity (неблокуюче)
   useEffect(() => {
     let cancelled = false;
