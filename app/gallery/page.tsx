@@ -2,6 +2,8 @@ import { getArchiveCount, getProjects } from "@/sanity/lib/client";
 
 import { GalleryView } from "../views";
 
+export const dynamic = 'force-dynamic';
+
 export default async function Gallery() {
     const [projects, archiveCount] = await Promise.all([
         getProjects(),
