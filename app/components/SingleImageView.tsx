@@ -52,7 +52,6 @@ const FALLBACK: LayoutKey = '3:2'
 
 export function SingleImageView({ image }: { image: ProjectImage }) {
 
-    // console.log('single image view', image)
     const showRatio = !true;
 
     const src = image?.asset?._ref

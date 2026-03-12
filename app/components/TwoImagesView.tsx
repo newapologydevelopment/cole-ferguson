@@ -61,8 +61,6 @@ const PAIR_H = 'h-[clamp(360px,60vh,820px)]'
 export function TwoImagesView({ images }: { images: ProjectImage[] }) {
     const showRatio = !true;
 
-    console.log('two images view', images)
-    
     const [a, b] = images ?? []
 
     const srcA = a?.asset?._ref

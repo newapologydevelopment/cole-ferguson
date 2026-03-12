@@ -61,7 +61,6 @@ const FALLBACK_KEY_3: LayoutKey3 = '3:2|3:2|3:2'
 const isLayoutKey3 = (s: string): s is LayoutKey3 => s in LAYOUT3
 
 export function ThreeImagesView({ images }: { images: ProjectImage[] }) {
-    console.log('three images view', images)
     const showRatio = !true;
     const [a, b, c] = images ?? []
 

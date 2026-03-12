@@ -39,8 +39,6 @@ export const GalleryView = ({
   const [actualPhoto, setActualPhoto] = useState<string | null>(null);
   const allImages = collectAllImages(projects);
 
-  // console.log('projects at gallery view:', projects)
-
   useScrollToTop();
 
   const mobileTabsWrapRef = useRef<HTMLDivElement | null>(null);
@@ -75,7 +73,7 @@ export const GalleryView = ({
     // @ts-ignore
     if (document?.fonts?.ready) {
       // @ts-ignore
-      document.fonts.ready.then(() => measureMobile()).catch(() => {});
+      document.fonts.ready.then(() => measureMobile()).catch(() => { });
     }
     return () => {
       window.removeEventListener('resize', onResize);

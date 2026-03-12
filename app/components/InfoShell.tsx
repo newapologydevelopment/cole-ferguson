@@ -5,6 +5,7 @@ import { urlFor } from '@/sanity/lib/image';
 import { cn } from '@/utils';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
+import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useBreakpoint } from '../hooks';
 
@@ -12,10 +13,14 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const { isMobile } = useBreakpoint();
   const [videoHover, setVideoHover] = useState(false);
-  // const [showVideo, setShowVideo] = useState(false)
   const touchStartY = useRef(0);
+  const pathname = usePathname();
 
-  // Sanity information (desktop content)
+  useEffect(() => {
+    setOpen(false);
+    setShowVideo(false);
+  }, [pathname]);
+
   const [info, setInfo] = useState({
     title:
       'Cole is a photographer and director living in Los Angeles, California.',
@@ -83,7 +88,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
               : '',
         }));
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   useEffect(() => {
@@ -346,20 +351,22 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
 
         <div
           className={cn(
-            'fixed left-0 right-0 bottom-0 transition-[height] duration-500 cursor-pointer z-[30] hidden sm:block',
+            'fixed left-0 right-0 bottom-0 transition-[height] duration-500 z-[30] hidden sm:block',
             {
               'pointer-events-none': showVideo,
             }
           )}
           style={{ height: open ? '88vh' : '0' }}
-          onClick={() => setOpen((o) => !o)}
+          onClick={() => {
+            if (open) setOpen(false);
+          }}
           aria-expanded={open}
           role="button"
           data-hide-cursor="true"
         >
-          <div className="h-full overflow-auto px-[24px] bg-white text-left text-[12px] text-primary-dark hidden sm:block">
+          <div className="h-full overflow-auto px-[24px] bg-white text-left text-[12px] text-primary-dark hidden sm:block ">
             <div
-              className="pt-[-24px] text-btn hidden xl:block"
+              className="pt-[-24px] text-btn hidden xl:block cursor-pointer"
               data-hide-cursor="true"
             >
               Information
@@ -442,7 +449,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                     )}
                     <div
                       className={cn(
-                        'w-full h-full absolute inset-0 flex items-center justify-center text-[12px] opacity-0 transition-opacity duration-300',
+                        'w-full h-full absolute inset-0 flex items-center justify-center text-[12px] opacity-0 transition-opacity duration-300 cursor-pointer',
                         {
                           'opacity-100': videoHover && !showVideo,
                         }
