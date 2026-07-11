@@ -86,8 +86,10 @@ export function TwoImagesView({ images, priority = true }: { images: ProjectImag
     const { a: aCls, b: bCls, shift } = LAYOUT[key];
     const isMixed = !!(ra && rb && ra !== rb)
 
-    const aAspect = !isMixed && ra ? ASPECT_BY_RATIO[ra] : ''
-    const bAspect = !isMixed && rb ? ASPECT_BY_RATIO[rb] : ''
+    // `fill` images need a wrapper with a real height. Unknown or custom crops
+    // previously produced a zero-height wrapper and appeared to never load.
+    const aAspect = !isMixed ? ASPECT_BY_RATIO[ra ?? '3:2'] : ''
+    const bAspect = !isMixed ? ASPECT_BY_RATIO[rb ?? '3:2'] : ''
 
     const aHeight = isMixed ? PAIR_H : ''
     const bHeight = isMixed ? PAIR_H : ''
@@ -130,6 +132,7 @@ export function TwoImagesView({ images, priority = true }: { images: ProjectImag
                         placeholder={b?.blurDataURL ? 'blur' : 'empty'}
                         blurDataURL={b?.blurDataURL}
                         className="object-contain"
+                        priority={priority}
                         loading={priority ? 'eager' : 'lazy'}
                         decoding="async"
                         fetchPriority={priority ? 'high' : 'low'}

@@ -179,15 +179,22 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
     ) as HTMLElement | null;
     if (indexContainer && indexLink && informationControl && brandHeader) {
       if (open) {
-        const headerBottom = brandHeader.getBoundingClientRect().bottom;
-        const indexRect = indexLink.getBoundingClientRect();
+        const getTextRect = (element: HTMLElement) => {
+          const range = document.createRange();
+          range.selectNodeContents(element);
+          return range.getBoundingClientRect();
+        };
+        const headerTextRect = getTextRect(brandHeader);
+        const indexTextRect = getTextRect(indexLink);
         const informationRect = informationControl.getBoundingClientRect();
-        const indexTargetTop = headerBottom + 14;
+        const currentIndexY = Number(gsap.getProperty(indexLink, 'y')) || 0;
+        const indexTargetY =
+          currentIndexY + headerTextRect.bottom + 14 - indexTextRect.top;
         const informationTargetTop = window.innerHeight * 0.5 + 6;
 
         gsap.set(indexContainer, { zIndex: 10002 });
         gsap.to(indexLink, {
-          y: indexTargetTop - indexRect.top,
+          y: indexTargetY,
           duration: 0.5,
           ease: 'power2.inOut',
         });

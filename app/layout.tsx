@@ -110,7 +110,7 @@ export default function RootLayout({
           </PageTransition>
         </InfoShell>
         <div
-          className="fixed z-[3] md:bottom-[24px] md:left-[24px] bottom-[20px] left-[20px] flex flex-col gap-[6px] text-[12px] text-primary-dark pointer-events-none"
+          className="fixed z-[3] md:bottom-[24px] md:left-[24px] bottom-[20px] left-[20px] flex flex-col gap-[10.5px] text-[12px] text-primary-dark pointer-events-none"
           data-index-container
         >
           <Link

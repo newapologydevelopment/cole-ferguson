@@ -72,6 +72,20 @@ body::-webkit-scrollbar {
 
 .nav-project-list-viewport {
   scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    black 88px,
+    black calc(100% - 88px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    black 88px,
+    black calc(100% - 88px),
+    transparent 100%
+  );
 }
 
 .nav-project-list-viewport::-webkit-scrollbar {

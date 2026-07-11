@@ -153,6 +153,9 @@ export function TwoViewMobile({
                   sizes="(max-width: 768px) 50vw, 0px"
                   placeholder={b?.blurDataURL ? 'blur' : 'empty'}
                   blurDataURL={b?.blurDataURL}
+                  priority={priority}
+                  loading={priority ? 'eager' : 'lazy'}
+                  fetchPriority={priority ? 'high' : 'low'}
                 />
               )}
             </div>

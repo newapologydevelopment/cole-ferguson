@@ -112,6 +112,9 @@ export function ThreeViewMobile({
                 sizes="(max-width:768px) 33vw, 0px"
                 placeholder={b?.blurDataURL ? 'blur' : 'empty'}
                 blurDataURL={b?.blurDataURL}
+                priority={priority}
+                loading={priority ? 'eager' : 'lazy'}
+                fetchPriority={priority ? 'high' : 'low'}
               />
             )}
           </div>
@@ -135,6 +138,9 @@ export function ThreeViewMobile({
                 sizes="(max-width:768px) 33vw, 0px"
                 placeholder={c?.blurDataURL ? 'blur' : 'empty'}
                 blurDataURL={c?.blurDataURL}
+                priority={priority}
+                loading={priority ? 'eager' : 'lazy'}
+                fetchPriority={priority ? 'high' : 'low'}
               />
             )}
           </div>

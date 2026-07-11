@@ -25,16 +25,41 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
     const el = scrollRef.current;
     if (!el) return;
 
-    const getSectionHeight = () => el.clientHeight || window.innerHeight;
+    const getScrollMetrics = () => {
+      const first = sectionRefs.current[0];
+      const second = sectionRefs.current[1];
+
+      if (!first) {
+        return {
+          start: 0,
+          step: el.clientHeight || window.innerHeight,
+        };
+      }
+
+      return {
+        start: first.offsetTop,
+        step:
+          (second ? second.offsetTop - first.offsetTop : first.offsetHeight) ||
+          el.clientHeight ||
+          window.innerHeight,
+      };
+    };
 
     let frame = 0;
     const update = () => {
       const y = el.scrollTop;
-      const h = getSectionHeight();
+      const { start, step } = getScrollMetrics();
 
-      if (!h) return;
+      if (!step) return;
 
-      const rawIndex = y / h;
+      // The scroll container has responsive padding, so its clientHeight is not
+      // the same as a project's actual snap interval. Using the real section
+      // offsets prevents the active project from drifting one item behind.
+      const maxScroll = Math.max(0, el.scrollHeight - el.clientHeight);
+      const rawIndex =
+        y >= maxScroll - 1
+          ? projects.length - 1
+          : (y - start) / step;
       const idx = Math.round(rawIndex);
       navigationPosition.set(
         Math.max(0, Math.min(projects.length - 1, rawIndex))
@@ -52,10 +77,12 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
     };
 
     el.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
     update();
 
     return () => {
       el.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
       if (frame) window.cancelAnimationFrame(frame);
     };
   }, [navigationPosition, projects.length]);

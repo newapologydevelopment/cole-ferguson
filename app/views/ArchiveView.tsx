@@ -233,7 +233,7 @@ export const ArchiveView = ({ archiveProjects }: Props) => {
     );
 
   return (
-    <div className="hidden w-screen h-screen sm:grid sm:grid-cols-24 pt-[108px] xl:pt-[24px] p-[24px]">
+    <div className="hidden w-screen h-screen overflow-y-auto hide-scrollbar sm:grid sm:grid-cols-24 pt-[108px] xl:pt-[24px] px-[24px] pb-[100px]">
       <div className="col-start-1 col-span-full xl:col-start-7 xl:col-span-18">
         <ul className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-[60px] gap-y-[65px]">
           {archiveProjects.map((project, index) => {

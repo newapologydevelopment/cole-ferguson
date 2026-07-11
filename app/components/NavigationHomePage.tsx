@@ -76,11 +76,16 @@ export const NavigationHomePage = ({
 
   useEffect(() => {
     const update = (value: number) => {
+      const leadingGap = Math.max(
+        0,
+        (itemSpacing || 0) - (itemHeight || 0)
+      );
       const offset =
         (viewportHeight || 0) / 2 -
         contentInset -
         value * (itemSpacing || 0) -
-        (itemHeight || 0) / 2;
+        (itemHeight || 0) / 2 -
+        leadingGap;
       targetY.set(Number.isFinite(offset) ? offset : 0);
     };
 
@@ -98,10 +103,43 @@ export const NavigationHomePage = ({
       remainingItems * (itemSpacing || 0) - (itemHeight || 0) / 2
     );
 
+    // The available range shrinks as a newly selected project moves into
+    // place. Keep the easing target inside that live range so its RAF can
+    // finish instead of chasing a position that clampScroll will never allow.
+    smoothTargetRef.current = Math.max(
+      0,
+      Math.min(finalAlignment, smoothTargetRef.current)
+    );
+
     if (viewport.scrollTop > finalAlignment) {
       viewport.scrollTop = finalAlignment;
     }
   }, [itemHeight, itemSpacing, position, titles.length]);
+
+  const animateToSmoothTarget = useCallback(() => {
+    const viewport = viewportRef.current;
+    if (!viewport || smoothFrameRef.current !== null) return;
+
+    isSmoothingRef.current = true;
+    const tick = () => {
+      const current = viewport.scrollTop;
+      const target = smoothTargetRef.current;
+      const next = current + (target - current) * 0.18;
+
+      viewport.scrollTop = next;
+
+      if (Math.abs(target - next) < 0.5) {
+        viewport.scrollTop = target;
+        smoothFrameRef.current = null;
+        isSmoothingRef.current = false;
+        return;
+      }
+
+      smoothFrameRef.current = window.requestAnimationFrame(tick);
+    };
+
+    smoothFrameRef.current = window.requestAnimationFrame(tick);
+  }, []);
 
   const handleWheel = useCallback(
     (event: React.WheelEvent<HTMLDivElement>) => {
@@ -132,30 +170,16 @@ export const NavigationHomePage = ({
         Math.min(finalAlignment, smoothTargetRef.current + delta)
       );
 
-      if (smoothFrameRef.current !== null) return;
-
-      isSmoothingRef.current = true;
-      const tick = () => {
-        const current = viewport.scrollTop;
-        const target = smoothTargetRef.current;
-        const next = current + (target - current) * 0.18;
-
-        viewport.scrollTop = next;
-
-        if (Math.abs(target - next) < 0.5) {
-          viewport.scrollTop = target;
-          smoothFrameRef.current = null;
-          isSmoothingRef.current = false;
-          return;
-        }
-
-        smoothFrameRef.current = window.requestAnimationFrame(tick);
-      };
-
-      smoothFrameRef.current = window.requestAnimationFrame(tick);
+      animateToSmoothTarget();
     },
-    [itemHeight, itemSpacing, position, titles.length]
+    [animateToSmoothTarget, itemHeight, itemSpacing, position, titles.length]
   );
+
+  const handleMouseLeave = useCallback(() => {
+    onHoverChange(false);
+    smoothTargetRef.current = 0;
+    animateToSmoothTarget();
+  }, [animateToSmoothTarget, onHoverChange]);
 
   useEffect(() => {
     const unsubscribe = position.on('change', clampScroll);
@@ -178,7 +202,7 @@ export const NavigationHomePage = ({
       onScroll={clampScroll}
       onWheel={handleWheel}
       onMouseEnter={() => onHoverChange(true)}
-      onMouseLeave={() => onHoverChange(false)}
+      onMouseLeave={handleMouseLeave}
       data-hide-cursor="true"
     >
       <motion.ul
