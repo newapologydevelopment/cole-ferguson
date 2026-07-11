@@ -1,6 +1,6 @@
 'use client';
 
-import { urlFor } from '@/sanity/lib/image';
+import { sanityLoader, urlFor } from '@/sanity/lib/image';
 import type { ProjectImage } from '@/types/project';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
@@ -9,6 +9,7 @@ type Props = {
   images: ProjectImage[];
   className?: string;
   disableFade?: boolean;
+  priority?: boolean;
 };
 
 // Визначення aspect-ratio (аналогічно десктопній логіці)
@@ -52,6 +53,7 @@ export function TwoViewMobile({
   images,
   className,
   disableFade = false,
+  priority = true,
 }: Props) {
   const [a, b] = images ?? [];
   const [ready, setReady] = useState(disableFade ? true : false);
@@ -122,6 +124,7 @@ export function TwoViewMobile({
             <div className={`relative w-full overflow-hidden ${aHCls} min-w-0`}>
               {srcA && (
                 <Image
+                  loader={sanityLoader}
                   src={srcA}
                   alt={a?.alt || ''}
                   fill
@@ -129,7 +132,9 @@ export function TwoViewMobile({
                   sizes="(max-width: 768px) 50vw, 0px"
                   placeholder={a?.blurDataURL ? 'blur' : 'empty'}
                   blurDataURL={a?.blurDataURL}
-                  priority
+                  priority={priority}
+                  loading={priority ? 'eager' : 'lazy'}
+                  fetchPriority={priority ? 'high' : 'low'}
                 />
               )}
             </div>
@@ -140,6 +145,7 @@ export function TwoViewMobile({
             <div className={`relative w-full overflow-hidden ${bHCls} min-w-0`}>
               {srcB && (
                 <Image
+                  loader={sanityLoader}
                   src={srcB}
                   alt={b?.alt || ''}
                   fill

@@ -1,6 +1,6 @@
 "use client"
 
-import { urlFor } from "@/sanity/lib/image"
+import { sanityLoader, urlFor } from "@/sanity/lib/image"
 import type { ProjectImage, Project as ProjectType } from "@/types/project"
 import Image from "next/image"
 
@@ -57,9 +57,6 @@ export const GalleryGridViewMobile = ({
                 const h = it.image?.height || 1
 
                 const src = urlFor({ _type: "image", asset: { _ref: ref } })
-                    .width(800)
-                    .auto("format")
-                    .quality(70)
                     .url()
 
                 return (
@@ -78,6 +75,7 @@ export const GalleryGridViewMobile = ({
                             onClick={() => handleProjectSelect(it)}
                         >
                             <Image
+                                loader={sanityLoader}
                                 src={src}
                                 alt={it.image?.alt || ""}
                                 fill

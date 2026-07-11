@@ -1,8 +1,7 @@
 'use client';
 
-import { client } from '@/sanity/lib/client';
 import Image from 'next/image';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface Props {
   onDone?: () => void;
@@ -25,38 +24,10 @@ const LOCAL_FALLBACK = [
 
 export const Preloader = ({
   onDone,
-  durationMs = 3000,
-  fadeOutMs = 400,
+  durationMs = 1400,
+  fadeOutMs = 320,
 }: Props) => {
-  const [remoteImages, setRemoteImages] = useState<string[] | null>(null);
-  const images = useMemo(() => {
-    if (remoteImages === null) return LOCAL_FALLBACK;
-    return remoteImages.length > 0 ? remoteImages : LOCAL_FALLBACK;
-  }, [remoteImages]);
-
-  
-
-  // Завантаження зображень з Sanity (неблокуюче)
-  useEffect(() => {
-    let cancelled = false;
-    client
-      .fetch<{ images?: { url?: string }[] }>(
-        `*[_type == "preloader"][0]{ images[]{ "url": asset->url } }`
-      )
-      .then((doc) => {
-        if (cancelled) return;
-        const urls = doc?.images?.map((i) => i?.url).filter(Boolean) as
-          | string[]
-          | undefined;
-        setRemoteImages(urls && urls.length > 0 ? urls : []);
-      })
-      .catch(() => {
-        if (!cancelled) setRemoteImages([]);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const images = LOCAL_FALLBACK;
 
   const [idx, setIdx] = useState(0);
   const [visible, setVisible] = useState(true);
@@ -113,7 +84,8 @@ export const Preloader = ({
       className="fixed inset-0 bg-white flex items-center justify-center z-[2147483647]"
       style={{
         opacity: fading ? 0 : 1,
-        transition: fading ? `opacity ${fadeOutMs}ms ease-out` : 'none',
+        transition: fading ? `opacity ${fadeOutMs}ms cubic-bezier(0.22, 1, 0.36, 1)` : 'none',
+        willChange: fading ? 'opacity' : 'auto',
       }}
     >
       <Image
@@ -121,7 +93,8 @@ export const Preloader = ({
         alt="preloader"
         width={57}
         height={72}
-        priority
+        priority={idx === 0}
+        loading={idx === 0 ? 'eager' : 'lazy'}
         className="object-contain"
         style={{ maxWidth: '57px', height: 'auto' }}
       />

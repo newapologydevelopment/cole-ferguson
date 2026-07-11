@@ -3,6 +3,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @theme inline {
@@ -27,6 +29,24 @@ body {
   scroll-behavior: smooth;
   font-family: var(--font-recital-book);
   font-size: 12px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 480ms;
+  animation-timing-function: var(--ease-premium);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 html,
@@ -48,6 +68,27 @@ body::-webkit-scrollbar {
 
 .hide-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari */
+}
+
+.nav-project-list-viewport {
+  scrollbar-width: none;
+}
+
+.nav-project-list-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.nav-project-list::before,
+.nav-project-list::after {
+  content: '';
+  display: block;
+  flex: 0 0 var(--nav-inset, 0px);
+  height: var(--nav-inset, 0px);
+}
+
+.nav-project-list::after {
+  flex-basis: 0;
+  height: 0;
 }
 
 .prev-btn::after,

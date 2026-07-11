@@ -1,9 +1,9 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export const CursorLabel = () => {
-  const [pos, setPos] = useState({ x: 0, y: 0, label: 'Next', visible: true });
   const [enabled, setEnabled] = useState(false);
+  const cursorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Enable custom cursor only on devices that support hover and fine pointer (desktops)
@@ -20,46 +20,46 @@ export const CursorLabel = () => {
 
   useEffect(() => {
     if (!enabled) return;
+    let frame = 0;
+    let latestEvent: MouseEvent | null = null;
     const move = (e: MouseEvent) => {
-      const el = document.elementFromPoint(e.clientX, e.clientY);
-      const isBlocked = el?.closest('[data-hide-cursor="true"]');
-
-      setPos({
-        x: e.clientX,
-        y: e.clientY,
-        label: e.clientX < window.innerWidth / 2 ? 'Prev.' : 'Next',
-        visible: !isBlocked,
+      latestEvent = e;
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        const event = latestEvent;
+        const cursor = cursorRef.current;
+        if (!event || !cursor) return;
+        const blocked = document.elementFromPoint(event.clientX, event.clientY)
+          ?.closest('[data-hide-cursor="true"]');
+        cursor.textContent = event.clientX < window.innerWidth / 2 ? 'Prev.' : 'Next';
+        cursor.style.transform = `translate3d(${event.clientX}px, ${event.clientY}px, 0) translate(-50%, -50%)`;
+        cursor.style.opacity = blocked ? '0' : '1';
+        document.body.style.cursor = blocked ? '' : 'none';
       });
     };
     window.addEventListener('mousemove', move);
-    return () => window.removeEventListener('mousemove', move);
-  }, [enabled]);
-
-  useEffect(() => {
-    if (!enabled) return undefined;
-    if (pos.visible) {
-      document.body.style.cursor = 'none';
-    } else {
-      document.body.style.cursor = '';
-    }
     return () => {
+      window.removeEventListener('mousemove', move);
+      if (frame) cancelAnimationFrame(frame);
       document.body.style.cursor = '';
     };
-  }, [enabled, pos.visible]);
+  }, [enabled]);
 
   if (!enabled) return null;
 
   return (
     <div
+      ref={cursorRef}
       className="pointer-events-none fixed z-[200] text-[12px] capitalize tracking-wide select-none transition-opacity mix-blend-luminosity"
       style={{
-        left: pos.x,
-        top: pos.y,
-        transform: 'translate(-50%, -50%)',
-        opacity: pos.visible ? 1 : 0,
+        left: 0,
+        top: 0,
+        opacity: 0,
+        willChange: 'transform, opacity',
       }}
     >
-      {pos.label}
+      Next
     </div>
   );
 };

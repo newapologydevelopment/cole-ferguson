@@ -22,6 +22,7 @@ interface Props {
   actualPhoto?: string | null;
   showIndicator?: boolean;
   showBottomTitle?: boolean;
+  priorityImages?: boolean;
 }
 
 const normalizeViews = (project: ProjectType): ProjectView[] => {
@@ -46,6 +47,7 @@ export const ProjectMobile: React.FC<Props> = ({
   actualPhoto,
   showIndicator = true,
   showBottomTitle = true,
+  priorityImages = true,
 }) => {
   // стабільний ключ проєкту
   const projectKey =
@@ -173,10 +175,10 @@ export const ProjectMobile: React.FC<Props> = ({
   const renderView = (v?: ProjectView | null) => {
     if (!v || !v.images || v.images.length === 0) return null;
     if (v._type === 'twoView' && v.images.length === 2)
-      return <TwoViewMobile images={v.images} disableFade />;
+      return <TwoViewMobile images={v.images} disableFade priority={priorityImages} />;
     if (v._type === 'threeView' && v.images.length === 3)
-      return <ThreeViewMobile images={v.images} />;
-    return <SingleViewMobile image={v.images[0]} />;
+      return <ThreeViewMobile images={v.images} priority={priorityImages} />;
+    return <SingleViewMobile image={v.images[0]} priority={priorityImages} />;
   };
 
   return (

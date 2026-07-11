@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { urlFor } from '@/sanity/lib/image';
+import { sanityLoader, urlFor } from '@/sanity/lib/image';
 import type { ProjectImage } from '@/types/project';
 import Image from 'next/image';
 
@@ -44,7 +44,7 @@ function getImageRatio(img: unknown): Ratio | null {
   return null;
 }
 
-export function SingleViewMobile({ image }: { image: ProjectImage }) {
+export function SingleViewMobile({ image, priority = true }: { image: ProjectImage; priority?: boolean }) {
   const src = image?.asset?._ref
     ? urlFor({ _type: 'image', asset: { _ref: image.asset._ref } }).url()
     : '';
@@ -61,6 +61,7 @@ export function SingleViewMobile({ image }: { image: ProjectImage }) {
       >
         {src ? (
           <Image
+            loader={sanityLoader}
             src={src}
             alt={image?.alt || ''}
             fill
@@ -68,7 +69,9 @@ export function SingleViewMobile({ image }: { image: ProjectImage }) {
             placeholder={image?.blurDataURL ? 'blur' : 'empty'}
             blurDataURL={image?.blurDataURL}
             className="object-contain"
-            priority
+            priority={priority}
+            loading={priority ? 'eager' : 'lazy'}
+            fetchPriority={priority ? 'high' : 'low'}
           />
         ) : null}
       </div>

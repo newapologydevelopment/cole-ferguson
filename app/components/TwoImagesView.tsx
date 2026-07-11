@@ -58,7 +58,7 @@ const ASPECT_BY_RATIO: Record<Ratio, string> = {
 
 const PAIR_H = 'h-[clamp(360px,60vh,820px)]'
 
-export function TwoImagesView({ images }: { images: ProjectImage[] }) {
+export function TwoImagesView({ images, priority = true }: { images: ProjectImage[]; priority?: boolean }) {
     const showRatio = !true;
 
     const [a, b] = images ?? []
@@ -107,10 +107,10 @@ export function TwoImagesView({ images }: { images: ProjectImage[] }) {
                         placeholder={a?.blurDataURL ? 'blur' : 'empty'}
                         blurDataURL={a?.blurDataURL}
                         className="object-contain"
-                        priority
-                        loading="eager"
+                        priority={priority}
+                        loading={priority ? 'eager' : 'lazy'}
                         decoding="async"
-                        fetchPriority="high"
+                        fetchPriority={priority ? 'high' : 'low'}
                     />
                 )}
             </div>
@@ -130,9 +130,9 @@ export function TwoImagesView({ images }: { images: ProjectImage[] }) {
                         placeholder={b?.blurDataURL ? 'blur' : 'empty'}
                         blurDataURL={b?.blurDataURL}
                         className="object-contain"
-                        loading="eager"
+                        loading={priority ? 'eager' : 'lazy'}
                         decoding="async"
-                        fetchPriority="high"
+                        fetchPriority={priority ? 'high' : 'low'}
                     />
                 )}
             </div>

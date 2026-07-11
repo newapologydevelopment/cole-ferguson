@@ -32,10 +32,10 @@ const DESKTOP_SIZES_ATTRIBUTE =
   '(min-width: 2400px) 420px, (min-width: 2000px) 360px, (min-width: 1700px) 300px, (min-width: 1440px) 240px, (min-width: 1024px) 200px, 160px';
 
 const THUMBNAIL_BREAKPOINTS = [
-  { minViewport: 2400, width: 560, quality: 98 },
-  { minViewport: 2000, width: 460, quality: 95 },
-  { minViewport: 1700, width: 360, quality: 92 },
-  { minViewport: 1440, width: 280, quality: 90 },
+  { minViewport: 2400, width: 560, quality: 82 },
+  { minViewport: 2000, width: 460, quality: 82 },
+  { minViewport: 1700, width: 360, quality: 80 },
+  { minViewport: 1440, width: 280, quality: 80 },
 ] as const;
 
 const resolveThumbnailConfig = (
@@ -46,7 +46,7 @@ const resolveThumbnailConfig = (
     ({ minViewport }) => viewportWidth >= minViewport
   );
   if (!breakpoint) {
-    return { width: fallbackWidth, quality: 86 };
+    return { width: fallbackWidth, quality: 78 };
   }
   return {
     width: Math.max(breakpoint.width, fallbackWidth),
@@ -127,7 +127,7 @@ export const GalleryGridView = ({
           const assetWidth = it.image?.width ?? resolvedThumbWidth;
           const effectiveWidth = Math.max(
             1,
-            Math.round(Math.min(assetWidth, resolvedThumbWidth) * dpr)
+            Math.round(Math.min(assetWidth, resolvedThumbWidth))
           );
 
           const src = urlFor({ _type: 'image', asset: { _ref: ref } })

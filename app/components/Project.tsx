@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { urlFor } from '@/sanity/lib/image';
 import type { Project as ProjectType, ProjectView } from '@/types/project';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -21,6 +19,7 @@ interface Props {
   project: ProjectType;
   actualPhoto?: string | null;
   showIndicator?: boolean;
+  priorityImages?: boolean;
 }
 
 // ——— helpers ———
@@ -46,6 +45,7 @@ export const Project: React.FC<Props> = ({
   project,
   actualPhoto,
   showIndicator = true,
+  priorityImages = true,
 }) => {
   const views = useMemo(() => normalizeViews(project), [project]);
 
@@ -118,94 +118,21 @@ export const Project: React.FC<Props> = ({
     };
   }, [showIndicator, measure, beforeCount, currentCount, totalImages]);
 
-  // ——— Прелоад найближчих кадрів (позакулісно) ———
-  const preloadedUrlsRef = useRef<Set<string>>(new Set());
-
-  const getFirstAssetRef = (v?: ProjectView | null): string | null => {
-    const img = v?.images && v.images[0];
-    const ref = img?.asset?._ref;
-    return typeof ref === 'string' ? ref : null;
-  };
-
-  const getWidthFactor = (v?: ProjectView | null): number => {
-    if (!v) return 0.6;
-    if (v._type === 'threeView') return 0.28;
-    if (v._type === 'twoView') return 0.42;
-    return 0.6;
-  };
-
-  const buildCdnUrl = (assetRef: string, factor: number): string | null => {
-    if (typeof window === 'undefined') return null;
-    const w = Math.max(640, Math.round(window.innerWidth * factor));
-    try {
-      return urlFor({ _type: 'image', asset: { _ref: assetRef } })
-        .width(w)
-        .fit('max')
-        .auto('format')
-        .quality(75)
-        .url();
-    } catch {
-      return null;
-    }
-  };
-
-  const preloadView = useCallback(
-    (vi: number) => {
-      const v = views[vi];
-      const ref = getFirstAssetRef(v);
-      if (!ref) return;
-      const url = buildCdnUrl(ref, getWidthFactor(v));
-      if (!url) return;
-      if (preloadedUrlsRef.current.has(url)) return;
-      preloadedUrlsRef.current.add(url);
-      const img = new Image();
-      if (typeof (img as any).fetchPriority !== 'undefined') {
-        (img as any).fetchPriority = 'low';
-      }
-      img.decoding = 'async';
-      img.src = url;
-    },
-    [views]
-  );
-
-  // На старті: крім першого, одразу підтягуємо другий і останній
-  useEffect(() => {
-    if (views.length === 0) return;
-    const preloadInitial = () => {
-      if (views.length >= 2) preloadView(1);
-      if (views.length >= 1) preloadView(views.length - 1);
-    };
-    if (typeof window.requestIdleCallback === 'function') {
-      window.requestIdleCallback(preloadInitial);
-    } else {
-      setTimeout(preloadInitial, 0);
-    }
-  }, [views, preloadView]);
-
-  // На кожному кроці: підвантажити попередній і наступний
-  useEffect(() => {
-    if (views.length === 0) return;
-    const next = (index + 1) % views.length;
-    const prev = (index - 1 + views.length) % views.length;
-    preloadView(next);
-    preloadView(prev);
-  }, [index, views.length, preloadView]);
-
   // ——— єдина точка рендеру view без дубляжу single ———
   const renderView = (v?: ProjectView | null) => {
     if (!v || !v.images || v.images.length === 0) return null;
     if (v._type === 'twoView' && v.images.length === 2) {
-      return <TwoImagesView images={v.images} />;
+      return <TwoImagesView images={v.images} priority={priorityImages} />;
     }
     if (v._type === 'threeView' && v.images.length === 3) {
-      return <ThreeImagesView images={v.images} />;
+      return <ThreeImagesView images={v.images} priority={priorityImages} />;
     }
     // усе, що має 1 фото — завжди один шлях:
     if (v.images.length === 1) {
-      return <SingleImageView image={v.images[0]} />;
+      return <SingleImageView image={v.images[0]} priority={priorityImages} />;
     }
     // (неочікуваний кейс)  — на всяк випадок покажемо перше як single
-    return <SingleImageView image={v.images[0]} />;
+    return <SingleImageView image={v.images[0]} priority={priorityImages} />;
   };
 
   return (
@@ -271,14 +198,17 @@ export const Project: React.FC<Props> = ({
       )}
 
       {/* Tablet title (desktop Project used on tablets): show title at the bottom like mobile */}
-      <div className="fixed bottom-[25px] left-0 right-0 p-[20px] text-center z-[10] xl:hidden">
-        {project.title}
-      </div>
+      {showIndicator && (
+        <div className="fixed bottom-[25px] left-0 right-0 p-[20px] text-center z-[10] xl:hidden">
+          {project.title}
+        </div>
+      )}
 
       <button
         type="button"
         aria-label="Previous"
         onClick={goPrev}
+        disabled={!showIndicator}
         className="absolute left-0 top-0 h-full w-1/2 cursor-none focus:outline-none prev-btn"
         style={{ background: 'transparent' }}
       />
@@ -286,10 +216,11 @@ export const Project: React.FC<Props> = ({
         type="button"
         aria-label="Next"
         onClick={goNext}
+        disabled={!showIndicator}
         className="absolute right-0 top-0 h-full w-1/2 cursor-none focus:outline-none next-btn"
         style={{ background: 'transparent' }}
       />
-      <CursorLabel />
+      {showIndicator && <CursorLabel />}
     </div>
   );
 };

@@ -55,6 +55,36 @@ export const getProjectsCached = unstable_cache(
   { revalidate: 60 * 60 }
 )
 
+// Homepage-only projection: avoid transferring gallery-list thumbnails that
+// are not rendered on the full-screen portfolio experience.
+const homepageProjectsQuery = `*[_type == "project"]|order(orderRank asc){
+  _id,
+  title,
+  images[]{
+    ...,
+    "alt": coalesce(alt, ""),
+    "blurDataURL": asset->metadata.lqip,
+    "width": asset->metadata.dimensions.width,
+    "height": asset->metadata.dimensions.height
+  },
+  views[]{
+    _type,
+    images[]{
+      ...,
+      "alt": coalesce(alt, ""),
+      "blurDataURL": asset->metadata.lqip,
+      "width": asset->metadata.dimensions.width,
+      "height": asset->metadata.dimensions.height
+    }
+  }
+}`
+
+export const getHomepageProjectsCached = unstable_cache(
+  async () => client.fetch<Project[]>(homepageProjectsQuery),
+  ['sanity-homepage-projects-v1'],
+  { revalidate: 60 * 60 }
+)
+
 // Archive projects
 export type ArchiveProject = {
   _id: string

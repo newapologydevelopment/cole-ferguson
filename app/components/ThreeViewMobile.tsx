@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { urlFor } from '@/sanity/lib/image';
+import { sanityLoader, urlFor } from '@/sanity/lib/image';
 import type { ProjectImage } from '@/types/project';
 import Image from 'next/image';
 
@@ -39,6 +39,7 @@ type Props = {
   /** 'cover' (кропить, але без спотворень) або 'contain' (без кропу з полями) */
   objectFit?: 'cover' | 'contain';
   className?: string;
+  priority?: boolean;
 };
 
 /** 3 фото в один ряд (по 4 з 12 колонок), кожне з власним aspect-ratio */
@@ -46,6 +47,7 @@ export function ThreeViewMobile({
   images,
   objectFit = 'contain',
   className,
+  priority = true,
 }: Props) {
   const [a, b, c] = images ?? [];
   const srcA = a?.asset?._ref
@@ -74,6 +76,7 @@ export function ThreeViewMobile({
           >
             {srcA && (
               <Image
+                loader={sanityLoader}
                 src={srcA}
                 alt={a?.alt || ''}
                 fill
@@ -83,7 +86,9 @@ export function ThreeViewMobile({
                 sizes="(max-width:768px) 33vw, 0px"
                 placeholder={a?.blurDataURL ? 'blur' : 'empty'}
                 blurDataURL={a?.blurDataURL}
-                priority
+                priority={priority}
+                loading={priority ? 'eager' : 'lazy'}
+                fetchPriority={priority ? 'high' : 'low'}
               />
             )}
           </div>
@@ -97,6 +102,7 @@ export function ThreeViewMobile({
           >
             {srcB && (
               <Image
+                loader={sanityLoader}
                 src={srcB}
                 alt={b?.alt || ''}
                 fill
@@ -119,6 +125,7 @@ export function ThreeViewMobile({
           >
             {srcC && (
               <Image
+                loader={sanityLoader}
                 src={srcC}
                 alt={c?.alt || ''}
                 fill

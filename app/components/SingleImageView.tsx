@@ -50,7 +50,7 @@ const SINGLE_LAYOUT = {
 type LayoutKey = keyof typeof SINGLE_LAYOUT
 const FALLBACK: LayoutKey = '3:2'
 
-export function SingleImageView({ image }: { image: ProjectImage }) {
+export function SingleImageView({ image, priority = true }: { image: ProjectImage; priority?: boolean }) {
 
     const showRatio = !true;
 
@@ -77,10 +77,10 @@ export function SingleImageView({ image }: { image: ProjectImage }) {
                         placeholder={image?.blurDataURL ? 'blur' : 'empty'}
                         blurDataURL={image?.blurDataURL}
                         className="object-contain"
-                        priority
-                        loading="eager"
+                        priority={priority}
+                        loading={priority ? 'eager' : 'lazy'}
                         decoding="async"
-                        fetchPriority="high"
+                        fetchPriority={priority ? 'high' : 'low'}
                     />
                 ) : null}
             </div>

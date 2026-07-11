@@ -150,6 +150,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
       '.text',
       {
         height: open ? '48vh' : '0',
+        duration: 0.5,
         ease: 'power2.inOut',
       },
       '<'
@@ -162,41 +163,41 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
           ease: 'power2.inOut',
         },
         '<'
-      )
-      .to(
-        '.text-btn',
-        {
-          paddingTop: open ? '38vh' : '0',
-          duration: 0.5,
-          ease: 'power2.inOut',
-        },
-        '<'
       );
 
     const indexContainer = document.querySelector(
       '[data-index-container]'
     ) as HTMLElement | null;
+    const indexLink = document.querySelector(
+      '[data-index-link]'
+    ) as HTMLElement | null;
+    const informationControl = document.querySelector(
+      '[data-information-control]'
+    ) as HTMLElement | null;
     const brandHeader = document.querySelector(
       '[data-brand-header]'
     ) as HTMLElement | null;
-    if (indexContainer && brandHeader) {
+    if (indexContainer && indexLink && informationControl && brandHeader) {
       if (open) {
         const headerBottom = brandHeader.getBoundingClientRect().bottom;
-        const indexRect = indexContainer.getBoundingClientRect();
-        const wrapperDelta = -0.8 * window.innerHeight;
-        const gap = 8;
-        const targetTop = headerBottom + gap;
-        const finalWithoutExtra = indexRect.top + wrapperDelta;
-        const extraDelta = targetTop - finalWithoutExtra;
+        const indexRect = indexLink.getBoundingClientRect();
+        const informationRect = informationControl.getBoundingClientRect();
+        const indexTargetTop = headerBottom + 14;
+        const informationTargetTop = window.innerHeight * 0.5 + 6;
 
-        gsap.set(indexContainer, { zIndex: 40 });
-        gsap.to(indexContainer, {
-          y: extraDelta,
+        gsap.set(indexContainer, { zIndex: 10002 });
+        gsap.to(indexLink, {
+          y: indexTargetTop - indexRect.top,
+          duration: 0.5,
+          ease: 'power2.inOut',
+        });
+        gsap.to(informationControl, {
+          y: informationTargetTop - informationRect.top,
           duration: 0.5,
           ease: 'power2.inOut',
         });
       } else {
-        gsap.to(indexContainer, {
+        gsap.to([indexLink, informationControl], {
           y: 0,
           duration: 0.5,
           ease: 'power2.inOut',
@@ -356,7 +357,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
               'pointer-events-none': showVideo,
             }
           )}
-          style={{ height: open ? '88vh' : '0' }}
+          style={{ height: open ? '100vh' : '0' }}
           onClick={() => {
             if (open) setOpen(false);
           }}
@@ -365,13 +366,6 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
           data-hide-cursor="true"
         >
           <div className="h-full overflow-auto px-[24px] bg-white text-left text-[12px] text-primary-dark hidden sm:block ">
-            <div
-              className="pt-[-24px] text-btn hidden xl:block cursor-pointer"
-              data-hide-cursor="true"
-            >
-              Information
-            </div>
-
             <div className="h-[50vh] absolute left-0 right-0 bottom-[24px] grid grid-cols-8 px-[24px] text">
               <div className="sm:col-start-1 xl:col-start-2 col-end-[-1] flex flex-col justify-between text-info opacity-0">
                 <h1 className="text-[64px] leading-[115%] whitespace-pre-line">

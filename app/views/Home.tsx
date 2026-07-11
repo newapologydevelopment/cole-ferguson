@@ -3,6 +3,7 @@
 import { NavigationHomePage, Project, ProjectMobile } from '@/app/components';
 import type { Project as ProjectType } from '@/types';
 import { cn } from '@/utils';
+import { useMotionValue } from 'framer-motion';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useBreakpoint } from '../hooks';
 
@@ -12,9 +13,11 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
 
-  const { isMobile } = useBreakpoint();
+  const { isMobile, isReady } = useBreakpoint();
   const [activeIndex, setActiveIndex] = useState(0);
   const [showAll, setShowAll] = useState(false);
+  const [selectionTarget, setSelectionTarget] = useState<number | null>(null);
+  const navigationPosition = useMotionValue(0);
 
   // useScrollToTop();
 
@@ -24,7 +27,8 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
 
     const getSectionHeight = () => el.clientHeight || window.innerHeight;
 
-    const onScroll = () => {
+    let frame = 0;
+    const update = () => {
       const y = el.scrollTop;
       const h = getSectionHeight();
 
@@ -32,30 +36,47 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
 
       const rawIndex = y / h;
       const idx = Math.round(rawIndex);
+      navigationPosition.set(
+        Math.max(0, Math.min(projects.length - 1, rawIndex))
+      );
 
       const clampedIdx = Math.max(0, Math.min(projects.length - 1, idx));
-      setActiveIndex(clampedIdx);
+      setActiveIndex((current) => current === clampedIdx ? current : clampedIdx);
+    };
+    const onScroll = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        update();
+      });
     };
 
     el.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
+    update();
 
     return () => {
       el.removeEventListener('scroll', onScroll);
+      if (frame) window.cancelAnimationFrame(frame);
     };
-  }, [projects.length]);
+  }, [navigationPosition, projects.length]);
 
   const handleSelect = useCallback((idx: number) => {
     const el = scrollRef.current;
-    if (!el) return;
+    const section = sectionRefs.current[idx];
+    if (!el || !section) return;
 
-    const h = el.clientHeight || window.innerHeight;
+    setSelectionTarget(idx);
 
     el.scrollTo({
-      top: idx * h,
+      top: section.offsetTop,
       behavior: 'smooth',
     });
   }, []);
+
+  useEffect(() => {
+    if (selectionTarget === null || activeIndex !== selectionTarget) return;
+    setSelectionTarget(null);
+  }, [activeIndex, selectionTarget]);
 
   return (
     <div
@@ -66,20 +87,32 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
     >
       <div
         className={cn(
-          'fixed z-[2] top-[50%] translate-y-[-25%] mt-[40px] hidden xl:flex flex-col gap-[8px]'
+          'fixed z-[2] top-1/2 -translate-y-1/2 hidden xl:flex flex-col gap-[8px]'
         )}
       >
         <NavigationHomePage
           titles={projectTitles}
-          activeIndex={activeIndex}
+          activeIndex={selectionTarget ?? activeIndex}
+          position={navigationPosition}
           showAll={showAll}
           onHoverChange={setShowAll}
           onSelect={handleSelect}
         />
       </div>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed left-0 top-0 z-[3] hidden h-[104px] w-[260px] bg-gradient-to-b from-white from-55% to-transparent xl:block"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed bottom-0 left-0 z-[3] hidden h-[128px] w-[260px] bg-gradient-to-t from-white from-45% to-transparent xl:block"
+      />
       {projects.map((project, i) => {
         const isActive = i === activeIndex;
         const isVisible = isActive || showAll;
+        const isSelectionTarget = i === selectionTarget;
+        const shouldRender =
+          isReady && (Math.abs(i - activeIndex) <= 1 || isSelectionTarget);
 
         return (
           <div
@@ -92,11 +125,20 @@ export const Home = ({ projects }: { projects: ProjectType[] }) => {
               'opacity-0': !isVisible,
             })}
           >
-            {isMobile ? (
-              <ProjectMobile project={project} />
+            {shouldRender && (isMobile ? (
+              <ProjectMobile
+                project={project}
+                showIndicator={isActive}
+                showBottomTitle={isActive}
+                priorityImages={isActive || isSelectionTarget}
+              />
             ) : (
-              <Project project={project} showIndicator={!showAll && isActive} />
-            )}
+              <Project
+                project={project}
+                showIndicator={!showAll && isActive}
+                priorityImages={isActive || isSelectionTarget}
+              />
+            ))}
           </div>
         );
       })}

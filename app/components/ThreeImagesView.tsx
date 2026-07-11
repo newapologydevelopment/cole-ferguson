@@ -60,7 +60,7 @@ type LayoutKey3 = keyof typeof LAYOUT3
 const FALLBACK_KEY_3: LayoutKey3 = '3:2|3:2|3:2'
 const isLayoutKey3 = (s: string): s is LayoutKey3 => s in LAYOUT3
 
-export function ThreeImagesView({ images }: { images: ProjectImage[] }) {
+export function ThreeImagesView({ images, priority = true }: { images: ProjectImage[]; priority?: boolean }) {
     const showRatio = !true;
     const [a, b, c] = images ?? []
 
@@ -101,9 +101,9 @@ export function ThreeImagesView({ images }: { images: ProjectImage[] }) {
                                         placeholder={a.blurDataURL ? 'blur' : 'empty'}
                                         blurDataURL={a.blurDataURL}
                                         className="object-contain"
-                                        loading="eager"
+                                        loading={priority ? 'eager' : 'lazy'}
                                         decoding="async"
-                                        fetchPriority="high"
+                                        fetchPriority={priority ? 'high' : 'low'}
                                     />
                                 )}
                             </div>
@@ -125,9 +125,9 @@ export function ThreeImagesView({ images }: { images: ProjectImage[] }) {
                                         placeholder={b.blurDataURL ? 'blur' : 'empty'}
                                         blurDataURL={b.blurDataURL}
                                         className="object-contain"
-                                        loading="eager"
+                                        loading={priority ? 'eager' : 'lazy'}
                                         decoding="async"
-                                        fetchPriority="high"
+                                        fetchPriority={priority ? 'high' : 'low'}
                                     />
                                 )}
                             </div>
@@ -149,9 +149,9 @@ export function ThreeImagesView({ images }: { images: ProjectImage[] }) {
                                         placeholder={c.blurDataURL ? 'blur' : 'empty'}
                                         blurDataURL={c.blurDataURL}
                                         className="object-contain"
-                                        loading="eager"
+                                        loading={priority ? 'eager' : 'lazy'}
                                         decoding="async"
-                                        fetchPriority="high"
+                                        fetchPriority={priority ? 'high' : 'low'}
                                     />
                                 )}
                             </div>
