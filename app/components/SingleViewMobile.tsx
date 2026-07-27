@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { sanityLoader, urlFor } from '@/sanity/lib/image';
+import { PORTFOLIO_SIZES, urlFor } from '@/sanity/lib/image';
+import { getPortfolioImageLoadProps } from '@/app/lib/portfolioImageLoad';
 import type { ProjectImage } from '@/types/project';
-import Image from 'next/image';
+import { PortfolioSanityImage } from './PortfolioSanityImage';
 
 type Ratio = '16:10' | '5:4' | '4:5' | '3:2' | '2:3' | '1:1';
 
@@ -52,6 +53,7 @@ export function SingleViewMobile({ image, priority = true }: { image: ProjectIma
   const ratio = getImageRatio(image) ?? '3:2';
   // перетворюємо '3:2' -> '3 / 2' для CSS aspect-ratio
   const cssAspect = ratio.replace(':', ' / ');
+  const loadProps = getPortfolioImageLoadProps(true, priority);
 
   return (
     <div className="grid grid-cols-8 h-full w-full content-center items-center auto-rows-max overflow-hidden">
@@ -60,20 +62,20 @@ export function SingleViewMobile({ image, priority = true }: { image: ProjectIma
         style={{ aspectRatio: cssAspect }}
       >
         {src ? (
-          <Image
-            loader={sanityLoader}
+          <PortfolioSanityImage
             src={src}
             alt={image?.alt || ''}
             fill
-            sizes="(min-width:1280px) 60vw, (min-width:768px) 80vw, 100vw"
+            sizes={PORTFOLIO_SIZES.singleMobile}
             placeholder={image?.blurDataURL ? 'blur' : 'empty'}
             blurDataURL={image?.blurDataURL}
             className="object-contain"
-            priority={priority}
-            loading={priority ? 'eager' : 'lazy'}
-            fetchPriority={priority ? 'high' : 'low'}
+            sourceWidth={image?.width}
+            {...loadProps}
           />
-        ) : null}
+        ) : (
+          <div aria-hidden className="absolute inset-0 bg-[#f3f3f3]" />
+        )}
       </div>
     </div>
   );

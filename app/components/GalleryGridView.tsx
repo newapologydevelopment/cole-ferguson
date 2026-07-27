@@ -3,8 +3,9 @@
 import { urlFor } from '@/sanity/lib/image';
 import type { ProjectImage, Project as ProjectType } from '@/types/project';
 import { cn } from '@/utils';
-import Image from 'next/image';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { GridRevealImage } from './GridRevealImage';
+import { usePreloaderDone } from './PreloaderGate';
 // import { LenisProvider } from "./LenisProvider"
 
 export type GalleryGridItem = {
@@ -66,8 +67,10 @@ export const GalleryGridView = ({
 }: Props) => {
   const seen = new Map<string, number>();
   const [isScrolling, setIsScrolling] = useState(false);
+  const gridRef = useRef<HTMLDivElement>(null);
   const [dpr, setDpr] = useState(1);
   const [screenWidth, setScreenWidth] = useState(0);
+  const preloaderDone = usePreloaderDone();
 
   const fallbackThumbWidth = useMemo(
     () => Math.max(thumbWidth, 200),
@@ -80,13 +83,18 @@ export const GalleryGridView = ({
 
   useEffect(() => {
     let timeout: NodeJS.Timeout;
+    const scrollTarget =
+      gridRef.current?.closest('[data-gallery-scroll]') ?? window;
     const handleScroll = () => {
       setIsScrolling(true);
       clearTimeout(timeout);
       timeout = setTimeout(() => setIsScrolling(false), 50);
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    scrollTarget.addEventListener('scroll', handleScroll);
+    return () => {
+      scrollTarget.removeEventListener('scroll', handleScroll);
+      clearTimeout(timeout);
+    };
   }, []);
 
   useEffect(() => {
@@ -111,6 +119,7 @@ export const GalleryGridView = ({
   };
   return (
     <div
+      ref={gridRef}
       className={cn(
         'col-start-1 pt-[68px] xl:pt-0 xl:col-start-7 col-span-full h-full pb-[24px]',
         className
@@ -137,15 +146,23 @@ export const GalleryGridView = ({
             .quality(resolvedQuality)
             .fit('max')
             .url();
+          const projectImageIndex = (seen.get(it.projectId) ?? -1) + 1;
+          seen.set(it.projectId, projectImageIndex);
+          const imageLabel =
+            it.label ??
+            (projectImageIndex === 0
+              ? it.projectTitle
+              : String(projectImageIndex + 1));
 
           return (
             <div
               key={`${it.projectId}-${i}`}
               className="flex flex-col gap-[6px]"
             >
-              <div
+              <button
+                type="button"
                 className={cn(
-                  'relative w-full overflow-hidden duration-300 ease-in-out',
+                  'relative block w-full cursor-pointer overflow-hidden duration-300 ease-in-out focus-visible:outline-2 focus-visible:outline-offset-4',
                   {
                     'opacity-20':
                       selectedProject !== it.projectTitle &&
@@ -158,36 +175,38 @@ export const GalleryGridView = ({
                 onMouseEnter={() => onHoverProject?.(it.projectTitle)}
                 onMouseLeave={() => onHoverProject?.(null)}
                 onClick={() => handleProjectSelect(it)}
+                aria-label={`Open ${it.projectTitle}, image ${projectImageIndex + 1}`}
               >
-                <Image
+                <GridRevealImage
+                  index={i}
+                  immediate={i === 0}
                   src={src}
                   alt={it.image?.alt || ''}
                   fill
                   className="object-cover overflow-hidden"
-                  placeholder={'empty'}
+                  placeholder={it.image?.blurDataURL ? 'blur' : 'empty'}
+                  blurDataURL={it.image?.blurDataURL}
                   sizes={DESKTOP_SIZES_ATTRIBUTE}
-                  loading="lazy"
+                  priority={i === 0}
+                  loading={i < 18 ? 'eager' : 'lazy'}
+                  fetchPriority={i === 0 ? 'high' : 'auto'}
                   decoding="async"
                 />
-              </div>
+              </button>
               <p
                 className={cn(
                   'text-center text-[10px] duration-300 ease-in-out',
                   {
+                    invisible: !preloaderDone,
+                    visible: preloaderDone,
                     'opacity-20':
+                      preloaderDone &&
                       selectedProject !== it.projectTitle &&
                       selectedProject !== null,
                   }
                 )}
               >
-                {(() => {
-                  const prev = seen.get(it.projectId) ?? -1;
-                  const cur = prev + 1;
-                  seen.set(it.projectId, cur);
-                  return (
-                    it.label ?? (cur === 0 ? it.projectTitle : String(cur + 1))
-                  );
-                })()}
+                {imageLabel}
               </p>
             </div>
           );

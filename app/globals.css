@@ -105,6 +105,133 @@ body::-webkit-scrollbar {
   height: 0;
 }
 
+html,
+body {
+  cursor: default;
+}
+
+.cursor-label {
+  /* Above mobile chrome (z-10040) and desktop title; pointer-events none */
+  z-index: 10050;
+  display: grid;
+  place-items: center;
+  mix-blend-mode: difference;
+  transition: opacity 220ms var(--ease-premium);
+}
+
+.cursor-label > * {
+  grid-area: 1 / 1;
+}
+
+.cursor-label__text {
+  font-size: 12px;
+  text-transform: capitalize;
+  letter-spacing: 0.025em;
+  color: #fff;
+  transform: scale(0.35);
+  opacity: 0;
+  transition:
+    opacity 280ms var(--ease-premium),
+    transform 280ms var(--ease-premium);
+}
+
+/*
+  1. solid  — 7px filled circle
+  2. outline — ring + 6px center with 1.75px gap (outer = 11.5px, stroke 1px)
+  3/4. prev / next — text label
+*/
+.cursor-label__mark {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  background: #fff;
+  opacity: 1;
+  transform: scale(1);
+  position: relative;
+  transition:
+    opacity 280ms var(--ease-premium),
+    transform 320ms var(--ease-premium),
+    width 280ms var(--ease-premium),
+    height 280ms var(--ease-premium),
+    background-color 280ms var(--ease-premium),
+    border-color 280ms var(--ease-premium),
+    border-width 280ms var(--ease-premium);
+}
+
+.cursor-label__mark::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  transform: translate(-50%, -50%) scale(0.4);
+  opacity: 0;
+  transition:
+    opacity 280ms var(--ease-premium),
+    transform 280ms var(--ease-premium);
+}
+
+.cursor-label[data-mode='solid'] .cursor-label__text,
+.cursor-label[data-mode='outline'] .cursor-label__text {
+  opacity: 0;
+  transform: scale(0.35);
+}
+
+.cursor-label[data-mode='solid'] .cursor-label__mark,
+.cursor-label[data-mode='outline'] .cursor-label__mark {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.cursor-label[data-mode='solid'] .cursor-label__mark {
+  width: 7px;
+  height: 7px;
+  background: #fff;
+  border-width: 1px;
+  border-color: transparent;
+}
+
+.cursor-label[data-mode='solid'] .cursor-label__mark::after {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.4);
+}
+
+/* 6px center + 1.75px gap each side + 1px stroke each side = 11.5px */
+.cursor-label[data-mode='outline'] .cursor-label__mark {
+  width: 11.5px;
+  height: 11.5px;
+  background: transparent;
+  border-width: 1px;
+  border-color: #fff;
+}
+
+.cursor-label[data-mode='outline'] .cursor-label__mark::after {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.cursor-label[data-mode='prev'] .cursor-label__text,
+.cursor-label[data-mode='next'] .cursor-label__text {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.cursor-label[data-mode='prev'] .cursor-label__mark,
+.cursor-label[data-mode='next'] .cursor-label__mark {
+  opacity: 0;
+  transform: scale(0.2);
+}
+
+.cursor-label[data-mode='prev'] .cursor-label__mark::after,
+.cursor-label[data-mode='next'] .cursor-label__mark::after {
+  opacity: 0;
+}
+
 .prev-btn::after,
 .next-btn::after {
   /* content: attr(aria-label); */

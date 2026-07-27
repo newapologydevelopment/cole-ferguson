@@ -49,14 +49,15 @@ export const GalleryList: React.FC<Props> = ({
           <div className="flex-1 min-h-0 overflow-y-auto hide-scrollbar scroll-smooth">
             <div className="flex flex-col gap-[7px]">
               {allProjects.map((project, i) => (
-                <div
+                <button
+                  type="button"
                   key={project.title + i}
-                  className="flex items-center justify-between cursor-pointer"
+                  className="flex w-full items-center justify-between cursor-pointer text-left focus-visible:outline-2 focus-visible:outline-offset-2"
                   onClick={() => onClick?.(project as Project)}
                 >
                   <div>{project.title}</div>
                   <div>{project.imageCount}</div>
-                </div>
+                </button>
               ))}
             </div>
           </div>
@@ -93,15 +94,16 @@ export const GalleryList: React.FC<Props> = ({
         <div className="flex-1 min-h-0 overflow-y-auto hide-scrollbar scroll-smooth relative">
           <div className="flex flex-col gap-[7px] pb-[32px]">
             {allProjects.map((project, i) => (
-              <div
+              <button
+                type="button"
                 key={project.title + i}
-                className="flex items-center justify-between cursor-pointer hover:text-[#717171] transition-colors duration-300"
+                className="flex w-full items-center justify-between cursor-pointer text-left hover:text-[#717171] transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-offset-2"
                 onMouseEnter={() => onHoverProject?.(project as Project)}
                 onClick={() => onClick?.(project as Project)}
               >
                 <div>{project.title}</div>
                 <div>{project.imageCount}</div>
-              </div>
+              </button>
             ))}
           </div>
         </div>

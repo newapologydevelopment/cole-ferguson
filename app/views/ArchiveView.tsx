@@ -1,74 +1,67 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import { ArchiveProject as ArchiveProjectType } from '@/sanity/lib/client';
-import { urlFor } from '@/sanity/lib/image';
-import { cn } from '@/utils';
-import { motion } from 'framer-motion';
-import Image from 'next/image';
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
+import { sanityLoader, urlFor } from '@/sanity/lib/image';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ArchiveLightBox, ArchiveProject } from '../components';
+import { GridRevealImage } from '../components/GridRevealImage';
 import { useBreakpoint, useScrollToTop } from '../hooks';
 
 type Props = { archiveProjects: ArchiveProjectType[] };
 
+const ARCHIVE_BATCH_SIZE = 24;
+
 export const ArchiveView = ({ archiveProjects }: Props) => {
-  const { isMobile } = useBreakpoint();
+  const { isCompact } = useBreakpoint();
   const [showLightBox, setShowLightBox] = useState(false);
   const [selectedProject, setSelectedProject] = useState<number>(0);
-  const [gridMode, setGridMode] = useState<1 | 2 | 4>(4);
+  const [visibleCount, setVisibleCount] = useState(ARCHIVE_BATCH_SIZE);
 
-  const colsWrapRef = useRef<HTMLDivElement | null>(null);
-  const colBtnRefs = useRef<Record<1 | 2 | 4, HTMLButtonElement | null>>({
-    1: null,
-    2: null,
-    4: null,
-  });
-  const [colsUnderline, setColsUnderline] = useState({ left: 0, width: 0 });
-
-  const measureCols = () => {
-    const wrap = colsWrapRef.current;
-    const active = colBtnRefs.current[gridMode];
-    if (!wrap || !active) return;
-    const wr = wrap.getBoundingClientRect();
-    const ar = active.getBoundingClientRect();
-    const left = ar.left - wr.left;
-    const width = ar.width;
-    setColsUnderline((prev) =>
-      prev.left === left && prev.width === width ? prev : { left, width }
-    );
-  };
-  useLayoutEffect(() => {
-    if (isMobile) measureCols();
-  }, [gridMode, isMobile]);
+  const desktopScrollRef = useRef<HTMLDivElement | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   const total = archiveProjects.length;
+  const visibleProjects = archiveProjects.slice(0, visibleCount);
+  const thumbnailSizes =
+    '(min-width:1280px) 16vw, (min-width:640px) 33vw, 50vw';
   useScrollToTop();
 
-  // Дозволяємо scroll на body для archive сторінки (на мобільних)
   useEffect(() => {
-    if (!isMobile) return;
+    const target = loadMoreRef.current;
+    if (!target || visibleCount >= total) return;
 
-    // Зберігаємо оригінальні значення
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        setVisibleCount((current) =>
+          Math.min(current + ARCHIVE_BATCH_SIZE, total)
+        );
+      },
+      {
+        root: isCompact ? null : desktopScrollRef.current,
+        rootMargin: '400px 0px',
+      }
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [isCompact, total, visibleCount]);
+
+  // Keep document scrolling enabled for the compact archive layout.
+  useEffect(() => {
+    if (!isCompact) return;
+
     const originalBodyOverflow = document.body.style.overflowY;
     const originalHtmlOverflow = document.documentElement.style.overflowY;
     const originalBodyTouchAction = document.body.style.touchAction;
     const originalHtmlTouchAction = document.documentElement.style.touchAction;
 
-    // Встановлюємо overflow: auto з !important
     document.body.style.setProperty('overflow-y', 'auto', 'important');
     document.documentElement.style.setProperty(
       'overflow-y',
       'auto',
       'important'
     );
-    // Дозволяємо вертикальний pan для scroll
     document.body.style.setProperty('touch-action', 'pan-y', 'important');
     document.documentElement.style.setProperty(
       'touch-action',
@@ -77,7 +70,6 @@ export const ArchiveView = ({ archiveProjects }: Props) => {
     );
 
     return () => {
-      // Повертаємо оригінальні значення
       if (originalBodyOverflow) {
         document.body.style.overflowY = originalBodyOverflow;
       } else {
@@ -99,7 +91,7 @@ export const ArchiveView = ({ archiveProjects }: Props) => {
         document.documentElement.style.removeProperty('touch-action');
       }
     };
-  }, [isMobile]);
+  }, [isCompact]);
 
   const goNext = useCallback(() => {
     setSelectedProject((prev) => {
@@ -122,68 +114,15 @@ export const ArchiveView = ({ archiveProjects }: Props) => {
     setSelectedProject(projectIndex);
   };
 
-  const itemSpan =
-    gridMode === 1
-      ? 'col-span-8'
-      : gridMode === 2
-        ? 'col-span-4'
-        : 'col-span-2';
-
-  if (isMobile)
+  if (isCompact)
     return (
-      <div className="relative sm:hidden min-h-screen">
-        <div className="bg-white z-[1000] fixed top-0 left-0 right-0 h-[83px]">
-          <div className="pointer-events-auto">dfe</div>
-        </div>
-        <div className="fixed top-[48px] left-1/2 -translate-x-1/2 z-[1000] flex items-center gap-[21px] text-[12px] sm:hidden bg-white pointer-events-none">
-          <span>Columns</span>
-
-          <div
-            ref={colsWrapRef}
-            className="relative flex gap-[8px] bg-white pointer-events-auto"
-            role="tablist"
-            aria-label="Columns"
-          >
-            {[1, 2, 4].map((n) => (
-              <button
-                key={n}
-                ref={(el) => {
-                  colBtnRefs.current[n as 1 | 2 | 4] = el;
-                }}
-                type="button"
-                onClick={() => setGridMode(n as 1 | 2 | 4)}
-                className={cn(
-                  'relative inline-flex px-[2px] leading-none pb-[2px] transition-transform',
-                  {
-                    '-translate-y-[6px]': gridMode === (n as 1 | 2 | 4),
-                  }
-                )}
-                aria-selected={gridMode === (n as 1 | 2 | 4)}
-                role="tab"
-              >
-                {n}
-              </button>
-            ))}
-            <motion.div
-              className="absolute h-[1px] bg-black"
-              style={{ bottom: 0 }}
-              initial={false}
-              animate={{ left: colsUnderline.left, width: colsUnderline.width }}
-              transition={{
-                type: 'spring',
-                stiffness: 380,
-                damping: 36,
-                mass: 0.2,
-              }}
-            />
-          </div>
-        </div>
-
-        <div className="pt-[83px] grid grid-cols-8 gap-x-[20px] gap-y-[20px] px-[20px] pb-[20px] items-start">
-          {archiveProjects.map((project, index) => {
+      <div className="relative xl:hidden min-h-screen">
+        <h1 className="sr-only">Photography archive</h1>
+        <div className="pt-[64px] sm:pt-[80px] grid grid-cols-6 gap-x-[20px] gap-y-[20px] px-[20px] sm:px-[24px] pb-[20px] items-start">
+          {visibleProjects.map((project, index) => {
             const img = project.image;
             const alt = img?.alt || project.title;
-            const src = img ? urlFor(img).width(800).url() : '';
+            const src = img ? urlFor(img).url() : '';
             const aspect =
               img?.width && img?.height
                 ? `${img.width} / ${img.height}`
@@ -194,22 +133,28 @@ export const ArchiveView = ({ archiveProjects }: Props) => {
                 key={project._id}
                 type="button"
                 onClick={() => handleLightBoxOpen(index)}
-                className={`cursor-pointer ${itemSpan}`}
+                className="col-span-3 sm:col-span-2 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4"
+                aria-label={`Open ${project.title}`}
               >
                 <div
                   className="relative w-full overflow-hidden"
                   style={{ aspectRatio: aspect }}
                 >
                   {img && (
-                    <Image
+                    <GridRevealImage
+                      index={index}
+                      immediate={index === 0}
                       src={src}
                       alt={alt}
                       fill
-                      sizes="(max-width:768px) 50vw, (max-width:1280px) 25vw, 20vw"
+                      loader={sanityLoader}
+                      sizes={thumbnailSizes}
                       placeholder={img.blurDataURL ? 'blur' : 'empty'}
                       blurDataURL={img.blurDataURL}
                       className="object-cover"
-                      loading="lazy"
+                      priority={index === 0}
+                      loading={index < 4 ? 'eager' : 'lazy'}
+                      fetchPriority={index < 4 ? 'high' : 'auto'}
                     />
                   )}
                 </div>
@@ -217,6 +162,10 @@ export const ArchiveView = ({ archiveProjects }: Props) => {
             );
           })}
         </div>
+
+        {visibleCount < total && (
+          <div ref={loadMoreRef} aria-hidden="true" className="h-px w-full" />
+        )}
 
         {showLightBox && selectedProject !== null && (
           <ArchiveLightBox close={() => setShowLightBox(false)}>
@@ -233,41 +182,61 @@ export const ArchiveView = ({ archiveProjects }: Props) => {
     );
 
   return (
-    <div className="hidden w-screen h-screen overflow-y-auto hide-scrollbar sm:grid sm:grid-cols-24 pt-[108px] xl:pt-[24px] px-[24px] pb-[100px]">
+    <div
+      ref={desktopScrollRef}
+      className="hidden w-screen h-screen overflow-y-auto hide-scrollbar xl:grid xl:grid-cols-24 pt-[24px] px-[24px] pb-[100px]"
+    >
+      <h1 className="sr-only">Photography archive</h1>
       <div className="col-start-1 col-span-full xl:col-start-7 xl:col-span-18">
-        <ul className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-[60px] gap-y-[65px]">
-          {archiveProjects.map((project, index) => {
+        <ul className="grid grid-cols-4 gap-x-[60px] gap-y-[65px]">
+          {visibleProjects.map((project, index) => {
             const img = project.image;
             const alt = img?.alt || project.title;
-            const src = img ? urlFor(img).width(800).url() : '';
+            const src = img ? urlFor(img).url() : '';
             const aspect =
               img?.width && img?.height
                 ? `${img.width} / ${img.height}`
                 : '4 / 3';
 
             return (
-              <li key={project._id} onClick={() => handleLightBoxOpen(index)}>
-                <div
-                  className="relative w-full overflow-hidden"
-                  style={{ aspectRatio: aspect }}
+              <li key={project._id}>
+                <button
+                  type="button"
+                  onClick={() => handleLightBoxOpen(index)}
+                  className="block w-full focus-visible:outline-2 focus-visible:outline-offset-4"
+                  aria-label={`Open ${project.title}`}
                 >
-                  {img && (
-                    <Image
-                      src={src}
-                      alt={alt}
-                      fill
-                      sizes="(max-width:768px) 50vw, (max-width:1280px) 25vw, 20vw"
-                      placeholder={img.blurDataURL ? 'blur' : 'empty'}
-                      blurDataURL={img.blurDataURL}
-                      className="object-cover"
-                      loading="lazy"
-                    />
-                  )}
-                </div>
+                  <div
+                    className="relative w-full overflow-hidden"
+                    style={{ aspectRatio: aspect }}
+                  >
+                    {img && (
+                      <GridRevealImage
+                        index={index}
+                        immediate={index === 0}
+                        src={src}
+                        alt={alt}
+                        fill
+                        loader={sanityLoader}
+                        sizes={thumbnailSizes}
+                        placeholder={img.blurDataURL ? 'blur' : 'empty'}
+                        blurDataURL={img.blurDataURL}
+                        className="object-cover"
+                        priority={index === 0}
+                        loading={index < 4 ? 'eager' : 'lazy'}
+                        fetchPriority={index < 4 ? 'high' : 'auto'}
+                      />
+                    )}
+                  </div>
+                </button>
               </li>
             );
           })}
         </ul>
+
+        {visibleCount < total && (
+          <div ref={loadMoreRef} aria-hidden="true" className="h-px w-full" />
+        )}
       </div>
 
       {showLightBox && selectedProject !== null && (

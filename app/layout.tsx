@@ -3,13 +3,15 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import Link from 'next/link';
 import {
+  DesktopCursorPolicy,
   GridOverlay,
   MenuMobile,
   PageTransition,
-  Preloader,
 } from './components';
 import { InfoShell } from './components/InfoShell';
+import { IndexLink } from './components/IndexLink';
 import { InformationButton } from './components/InformationButton';
+import { PreloaderGate } from './components/PreloaderGate';
 import './globals.css';
 
 const recitalBook = localFont({
@@ -19,12 +21,12 @@ const recitalBook = localFont({
 });
 
 const SHOW_GRID = !true;
-const SHOW_PRELOADER = true;
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://coleferguson.com'),
   title: 'Cole Ferguson',
-  description: '...',
-  // metadataBase: new URL("https://coleferguson.com"),
+  description:
+    'Cole Ferguson is a photographer and director based in Los Angeles, California.',
   robots: {
     index: true,
     follow: true,
@@ -47,9 +49,9 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Cole Ferguson',
-    description: 'Made by New Apology.',
-    creator: 'NAP',
-    images: ['/share.jpg'],
+    description:
+      'Photographer and director based in Los Angeles, California.',
+    images: ['/preloader_images/1.png'],
   },
   manifest: '/manifest.json',
   icons: {
@@ -70,7 +72,6 @@ export const metadata: Metadata = {
       },
     ],
   },
-  // Canonical URL is automatically generated from metadataBase
   alternates: {
     canonical: '/',
   },
@@ -92,9 +93,16 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://cdn.sanity.io" />
       </head>
       <body className={`${recitalBook.className} antialiased`}>
-        {SHOW_GRID && <GridOverlay />}
-        {SHOW_PRELOADER && <Preloader />}
-        <Link
+        <a
+          href="#main-content"
+          className="sr-only fixed left-[20px] top-[20px] z-[2147483647] bg-white px-3 py-2 focus:not-sr-only focus-visible:outline-2 focus-visible:outline-offset-2"
+        >
+          Skip to content
+        </a>
+        <DesktopCursorPolicy />
+        <PreloaderGate>
+          {SHOW_GRID && <GridOverlay />}
+          <Link
           href="/"
           className="fixed z-[10001] md:top-[24px] top-[20px] md:left-[24px] left-[20px] text-[12px] text-primary-dark cursor-pointer bg-white hidden xl:block hover:text-[#717171] transition-colors duration-300"
           data-hide-cursor="true"
@@ -106,25 +114,19 @@ export default function RootLayout({
         <InfoShell>
           <MenuMobile />
           <PageTransition>
-            <main>{children}</main>
+            <main id="main-content">{children}</main>
           </PageTransition>
         </InfoShell>
         <div
-          className="fixed z-[3] md:bottom-[24px] md:left-[24px] bottom-[20px] left-[20px] flex flex-col gap-[10.5px] text-[12px] text-primary-dark pointer-events-none"
+          className="fixed z-[3] md:bottom-[24px] md:left-[24px] bottom-[20px] left-[20px] flex flex-col gap-[8px] text-[12px] text-primary-dark pointer-events-none"
           data-index-container
         >
-          <Link
-            href="/gallery"
-            className="cursor-pointer xl:block hidden hover:text-[#717171] transition-colors duration-300 pointer-events-auto"
-            data-hide-cursor="true"
-            data-index-link
-          >
-            Index
-          </Link>
+          <IndexLink />
           <div className="pointer-events-auto">
             <InformationButton />
           </div>
         </div>
+        </PreloaderGate>
       </body>
     </html>
   );

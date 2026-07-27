@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { sanityLoader, urlFor } from '@/sanity/lib/image'
+import { PORTFOLIO_SIZES, urlFor } from '@/sanity/lib/image'
+import {
+    getPortfolioImageLoadProps,
+} from '@/app/lib/portfolioImageLoad'
 import type { ProjectImage } from '@/types/project'
-import Image from 'next/image'
+import { PortfolioSanityImage } from './PortfolioSanityImage'
 
 type Ratio = '3:2' | '4:5' | '5:4'
 const isRatio = (v: unknown): v is Ratio => v === '3:2' || v === '4:5' || v === '5:4'
@@ -80,6 +83,8 @@ export function ThreeImagesView({ images, priority = true }: { images: ProjectIm
 
     const { a: aCls, b: bCls, c: cCls, aAspect, bAspect, cAspect } = LAYOUT3[key]
     const gapClass = key === '4:5|4:5|4:5' ? 'gap-x-[60px]' : 'gap-x-[0px]'
+    const primaryLoadProps = getPortfolioImageLoadProps(true, priority)
+    const siblingLoadProps = getPortfolioImageLoadProps(false, priority)
 
     return (
         <section className="w-screen h-screen px-[24px]">
@@ -90,22 +95,22 @@ export function ThreeImagesView({ images, priority = true }: { images: ProjectIm
                     {a && (
                         <div className={aCls}>
                             <div className={`relative w-full overflow-hidden ${aAspect}`}>
-                                {srcA && (
-                                    <Image
-                                        loader={sanityLoader}
+                                {srcA ? (
+                                    <PortfolioSanityImage
                                         key={a?.asset?._ref || 'three-a'}
                                         src={srcA}
                                         alt={a.alt || ''}
                                         fill
-                                        sizes="(min-width:1280px) 28vw, (min-width:768px) 33vw, 100vw"
+                                        sizes={PORTFOLIO_SIZES.threeDesktop}
                                         placeholder={a.blurDataURL ? 'blur' : 'empty'}
                                         blurDataURL={a.blurDataURL}
                                         className="object-contain"
-                                        priority={priority}
-                                        loading={priority ? 'eager' : 'lazy'}
+                                        sourceWidth={a.width}
                                         decoding="async"
-                                        fetchPriority={priority ? 'high' : 'low'}
+                                        {...primaryLoadProps}
                                     />
+                                ) : (
+                                    <div aria-hidden className="absolute inset-0 bg-[#f3f3f3]" />
                                 )}
                             </div>
                         </div>
@@ -115,22 +120,22 @@ export function ThreeImagesView({ images, priority = true }: { images: ProjectIm
                     {b && (
                         <div className={bCls}>
                             <div className={`relative w-full overflow-hidden ${bAspect}`}>
-                                {srcB && (
-                                    <Image
-                                        loader={sanityLoader}
+                                {srcB ? (
+                                    <PortfolioSanityImage
                                         key={b?.asset?._ref || 'three-b'}
                                         src={srcB}
                                         alt={b.alt || ''}
                                         fill
-                                        sizes="(min-width:1280px) 28vw, (min-width:768px) 33vw, 100vw"
+                                        sizes={PORTFOLIO_SIZES.threeDesktop}
                                         placeholder={b.blurDataURL ? 'blur' : 'empty'}
                                         blurDataURL={b.blurDataURL}
                                         className="object-contain"
-                                        priority={priority}
-                                        loading={priority ? 'eager' : 'lazy'}
+                                        sourceWidth={b.width}
                                         decoding="async"
-                                        fetchPriority={priority ? 'high' : 'low'}
+                                        {...siblingLoadProps}
                                     />
+                                ) : (
+                                    <div aria-hidden className="absolute inset-0 bg-[#f3f3f3]" />
                                 )}
                             </div>
                         </div>
@@ -140,22 +145,22 @@ export function ThreeImagesView({ images, priority = true }: { images: ProjectIm
                     {c && (
                         <div className={cCls}>
                             <div className={`relative w-full overflow-hidden ${cAspect}`}>
-                                {srcC && (
-                                    <Image
-                                        loader={sanityLoader}
+                                {srcC ? (
+                                    <PortfolioSanityImage
                                         key={c?.asset?._ref || 'three-c'}
                                         src={srcC}
                                         alt={c.alt || ''}
                                         fill
-                                        sizes="(min-width:1280px) 28vw, (min-width:768px) 33vw, 100vw"
+                                        sizes={PORTFOLIO_SIZES.threeDesktop}
                                         placeholder={c.blurDataURL ? 'blur' : 'empty'}
                                         blurDataURL={c.blurDataURL}
                                         className="object-contain"
-                                        priority={priority}
-                                        loading={priority ? 'eager' : 'lazy'}
+                                        sourceWidth={c.width}
                                         decoding="async"
-                                        fetchPriority={priority ? 'high' : 'low'}
+                                        {...siblingLoadProps}
                                     />
+                                ) : (
+                                    <div aria-hidden className="absolute inset-0 bg-[#f3f3f3]" />
                                 )}
                             </div>
                         </div>

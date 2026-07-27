@@ -1,7 +1,7 @@
 'use client';
 
 import type { Project as ProjectType, ProjectView } from '@/types/project';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
   useCallback,
   useEffect,
@@ -10,7 +10,11 @@ import {
   useRef,
   useState,
 } from 'react';
-import { CursorLabel } from './CursorLabel';
+import { useHydratedProjectViews } from '../hooks';
+import {
+  preloadAdjacentProjectViews,
+  preloadInitialProjectViews,
+} from './prefetchProjectViews';
 import { SingleImageView } from './SingleImageView';
 import { ThreeImagesView } from './ThreeImagesView';
 import { TwoImagesView } from './TwoImagesView';
@@ -21,6 +25,11 @@ interface Props {
   showIndicator?: boolean;
   priorityImages?: boolean;
 }
+
+const VIEW_CROSSFADE = {
+  duration: 0.72,
+  ease: 'linear' as const,
+};
 
 // ——— helpers ———
 const normalizeViews = (project: ProjectType): ProjectView[] => {
@@ -41,13 +50,30 @@ const normalizeViews = (project: ProjectType): ProjectView[] => {
   });
 };
 
+const findViewIndexForImage = (
+  views: ProjectView[],
+  globalImageIndex: number
+): number => {
+  let accumulated = 0;
+
+  for (let viewIndex = 0; viewIndex < views.length; viewIndex++) {
+    const count = views[viewIndex].images?.length ?? 0;
+    if (globalImageIndex < accumulated + count) return viewIndex;
+    accumulated += count;
+  }
+
+  return Math.max(0, views.length - 1);
+};
+
 export const Project: React.FC<Props> = ({
   project,
   actualPhoto,
   showIndicator = true,
   priorityImages = true,
 }) => {
-  const views = useMemo(() => normalizeViews(project), [project]);
+  const hydratedProject = useHydratedProjectViews(project, priorityImages);
+  const views = useMemo(() => normalizeViews(hydratedProject), [hydratedProject]);
+  const reduceMotion = useReducedMotion();
 
   const [index, setIndex] = useState(0);
 
@@ -69,16 +95,31 @@ export const Project: React.FC<Props> = ({
     setIndex((i) => (i + 1) % views.length);
   }, [views.length]);
 
+  const goToImage = useCallback(
+    (globalImageIndex: number) => {
+      if (views.length === 0) return;
+      const nextIndex = findViewIndexForImage(views, globalImageIndex);
+      if (nextIndex === index) return;
+      setIndex(nextIndex);
+    },
+    [index, views]
+  );
+
   const current = views[index];
 
   // Indicator
   const imageCounts = views.map((v) => v.images?.length ?? 0);
-  const totalImages = imageCounts.reduce((a, b) => a + b, 0);
+  const loadedImageTotal = imageCounts.reduce((a, b) => a + b, 0);
+  const expectedViewCount = hydratedProject.viewCount ?? views.length;
+  const hasAllViews = views.length >= expectedViewCount;
+  const totalImages = hasAllViews
+    ? (hydratedProject.imageCount ?? loadedImageTotal)
+    : loadedImageTotal;
   const beforeCount = imageCounts.slice(0, index).reduce((a, b) => a + b, 0);
   const currentCount = current?.images?.length ?? 0;
 
   const digitsRef = useRef<HTMLDivElement | null>(null);
-  const digitRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const digitRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const [underline, setUnderline] = useState({ left: 0, width: 0 });
 
   const measure = useCallback(() => {
@@ -118,6 +159,16 @@ export const Project: React.FC<Props> = ({
     };
   }, [showIndicator, measure, beforeCount, currentCount, totalImages]);
 
+  useEffect(() => {
+    if (!priorityImages || views.length === 0) return;
+    preloadInitialProjectViews(views);
+  }, [priorityImages, views]);
+
+  useEffect(() => {
+    if (!priorityImages || views.length === 0) return;
+    preloadAdjacentProjectViews(views, index);
+  }, [index, priorityImages, views]);
+
   // ——— єдина точка рендеру view без дубляжу single ———
   const renderView = (v?: ProjectView | null) => {
     if (!v || !v.images || v.images.length === 0) return null;
@@ -136,16 +187,20 @@ export const Project: React.FC<Props> = ({
   };
 
   return (
-    <div className="relative h-screen w-screen flex items-center justify-center select-none overflow-x-hidden cursor-none">
+    <div className="relative h-screen w-screen flex items-center justify-center select-none overflow-x-hidden">
       <div className="relative w-full h-full">
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence initial={false} mode="sync">
           <motion.div
             key={`desktop-${index}`}
-            className="absolute inset-0 z-0 pointer-events-none will-change-transform"
-            initial={false}
+            className="absolute inset-0 pointer-events-none"
+            initial={{ opacity: reduceMotion ? 1 : 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.18, ease: [0.4, 0.0, 0.2, 1] }}
+            exit={{ opacity: reduceMotion ? 1 : 0 }}
+            transition={
+              reduceMotion
+                ? { duration: 0 }
+                : VIEW_CROSSFADE
+            }
           >
             <div className="pointer-events-none">
               {renderView(current) ?? (
@@ -160,7 +215,7 @@ export const Project: React.FC<Props> = ({
 
       {showIndicator && totalImages > 0 && (
         <div
-          className="pointer-events-none fixed bottom-[24px] left-1/2 -translate-x-1/2 z-[40]"
+          className="fixed bottom-[24px] left-1/2 -translate-x-1/2 z-[70]"
           data-hide-cursor="true"
         >
           <div ref={digitsRef} className="relative flex gap-[4px] text-[12px]">
@@ -168,15 +223,19 @@ export const Project: React.FC<Props> = ({
               const isActive =
                 i >= beforeCount && i < beforeCount + currentCount;
               return (
-                <span
+                <button
                   key={i}
+                  type="button"
+                  aria-label={`Go to image ${i + 1}`}
+                  aria-current={isActive ? 'true' : undefined}
                   ref={(el) => {
                     digitRefs.current[i] = el;
                   }}
-                  className={`inline-block px-[1px] ${isActive ? '-translate-y-[2px]' : ''}`}
+                  onClick={() => goToImage(i)}
+                  className={`inline-block px-[1px] cursor-pointer transition-[color,transform] duration-200 hover:text-[#717171] ${isActive ? '-translate-y-[2px]' : ''}`}
                 >
                   {i + 1}
-                </span>
+                </button>
               );
             })}
             {currentCount > 0 && (
@@ -209,7 +268,8 @@ export const Project: React.FC<Props> = ({
         aria-label="Previous"
         onClick={goPrev}
         disabled={!showIndicator}
-        className="absolute left-0 top-0 h-full w-1/2 cursor-none focus:outline-none prev-btn"
+        data-cursor="prev"
+        className="absolute left-0 top-0 h-full w-1/2 focus-visible:outline-2 focus-visible:outline-black focus-visible:outline-offset-[-4px] prev-btn"
         style={{ background: 'transparent' }}
       />
       <button
@@ -217,10 +277,10 @@ export const Project: React.FC<Props> = ({
         aria-label="Next"
         onClick={goNext}
         disabled={!showIndicator}
-        className="absolute right-0 top-0 h-full w-1/2 cursor-none focus:outline-none next-btn"
+        data-cursor="next"
+        className="absolute right-0 top-0 h-full w-1/2 focus-visible:outline-2 focus-visible:outline-black focus-visible:outline-offset-[-4px] next-btn"
         style={{ background: 'transparent' }}
       />
-      {showIndicator && <CursorLabel />}
     </div>
   );
 };

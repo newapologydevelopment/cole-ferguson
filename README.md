@@ -34,3 +34,32 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Image performance checks
+
+Run the deterministic homepage image audit after `npm run build && npm run start`:
+
+```bash
+npm run test:images
+```
+
+Against staging:
+
+```bash
+npm run test:images -- --url=https://cole-ferguson-staging.vercel.app
+```
+
+Budgets enforced:
+
+- at most 2 document-level image preloads
+- homepage HTML transfer at or below 105 KB
+- no Sanity candidate above 2000px
+- initial Sanity `<img>` elements include `sizes`
+- no 4xx/5xx for initial image responses
+
+## Sanity upload checklist
+
+- Export in sRGB.
+- Prefer high-quality JPEG or WebP; long edge typically 2400–3200px for new hero work.
+- Avoid TIFF or very large PNG unless transparency is required.
+- Reuse existing Sanity assets when possible instead of uploading duplicates.

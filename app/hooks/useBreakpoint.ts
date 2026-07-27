@@ -6,13 +6,15 @@ type BreakpointState = {
     isMobile: boolean
     isTablet: boolean
     isDesktop: boolean
+    isCompact: boolean
     isReady: boolean
 }
 
 const initialState: BreakpointState = {
-    isMobile: false,
+    isMobile: true,
     isTablet: false,
     isDesktop: false,
+    isCompact: true,
     isReady: false,
 }
 
@@ -26,6 +28,7 @@ export function useBreakpoint(): BreakpointState {
                 isMobile: w < 640,
                 isTablet: w >= 640 && w < 1024,
                 isDesktop: w >= 1024,
+                isCompact: w < 1280,
                 isReady: true,
             })
         }

@@ -1,6 +1,8 @@
 export * from './ArchiveLightBox';
 export * from './ArchiveProject';
 export * from './CursorLabel';
+export * from './CopyableContact';
+export * from './DesktopCursorPolicy';
 export { GalleryGridView, type GalleryGridItem } from './GalleryGridView';
 export { GalleryGridViewMobile, type GalleryGridItem as MobileGalleryGridItem } from './GalleryGridViewMobile';
 export * from './GalleryList';
@@ -15,6 +17,7 @@ export * from './NavigationHomePage';
 export * from './PageTransition';
 export * from './PhotoIndicator';
 export * from './Preloader';
+export * from './PreloaderGate';
 export * from './Project';
 export * from './ProjectMobile';
 export * from './SingleViewMobile';
@@ -22,5 +25,4 @@ export * from './ThreeImagesView';
 export * from './ThreeViewMobile';
 export * from './TwoImagesView';
 export * from './TwoViewMobile';
-
 

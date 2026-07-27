@@ -2,7 +2,9 @@
 
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
+import Link from 'next/link';
 import { useRef } from 'react';
+import { useDialogFocus } from '../hooks';
 
 interface Props {
   title?: string;
@@ -14,6 +16,7 @@ export const LightBox: React.FC<Props> = ({ close, children, title }) => {
   const boxRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLParagraphElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  useDialogFocus(boxRef, close);
 
   useGSAP(() => {
     const prevOverflow = document.body.style.overflow;
@@ -80,6 +83,11 @@ export const LightBox: React.FC<Props> = ({ close, children, title }) => {
   return (
     <div
       ref={boxRef}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={title ? 'gallery-lightbox-title' : undefined}
+      aria-label={title ? undefined : 'Project lightbox'}
+      tabIndex={-1}
       className="light-box fixed inset-0 z-[10050] flex items-center justify-center bg-white text-primary-dark text-[12px]"
     >
       <button
@@ -91,8 +99,16 @@ export const LightBox: React.FC<Props> = ({ close, children, title }) => {
       >
         Close
       </button>
+      <Link
+        href="/"
+        className="absolute left-[20px] top-[20px] sm:left-[24px] sm:top-[24px] z-[102] hover:text-[#717171] transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-offset-2"
+        data-hide-cursor="true"
+      >
+        Cole Ferguson
+      </Link>
 
       <p
+        id="gallery-lightbox-title"
         ref={titleRef}
         className="light-box-title absolute top-[24px] left-1/2 -translate-x-1/2 w-full text-center opacity-0 will-change-transform"
       >

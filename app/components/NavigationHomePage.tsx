@@ -23,9 +23,12 @@ export const NavigationHomePage = ({
 }: Props) => {
   const listRef = useRef<HTMLUListElement | null>(null);
   const viewportRef = useRef<HTMLDivElement | null>(null);
+  const hoverZoneRef = useRef<HTMLDivElement | null>(null);
+  const isHoveringRef = useRef(false);
   const smoothTargetRef = useRef(0);
   const smoothFrameRef = useRef<number | null>(null);
   const isSmoothingRef = useRef(false);
+  const lastClampedFloorRef = useRef<number | null>(null);
   const [itemSpacing, setItemSpacing] = useState<number>(0);
   const [itemHeight, setItemHeight] = useState<number>(0);
   const [viewportHeight, setViewportHeight] = useState(0);
@@ -103,9 +106,6 @@ export const NavigationHomePage = ({
       remainingItems * (itemSpacing || 0) - (itemHeight || 0) / 2
     );
 
-    // The available range shrinks as a newly selected project moves into
-    // place. Keep the easing target inside that live range so its RAF can
-    // finish instead of chasing a position that clampScroll will never allow.
     smoothTargetRef.current = Math.max(
       0,
       Math.min(finalAlignment, smoothTargetRef.current)
@@ -142,9 +142,18 @@ export const NavigationHomePage = ({
   }, []);
 
   const handleWheel = useCallback(
-    (event: React.WheelEvent<HTMLDivElement>) => {
+    (event: WheelEvent) => {
       const viewport = viewportRef.current;
-      if (!viewport || event.deltaY === 0) return;
+      const hoverZone = hoverZoneRef.current;
+      if (!viewport || !hoverZone || event.deltaY === 0) return;
+
+      const rect = hoverZone.getBoundingClientRect();
+      const isInside =
+        event.clientX >= rect.left &&
+        event.clientX <= rect.right &&
+        event.clientY >= rect.top &&
+        event.clientY <= rect.bottom;
+      if (!isInside) return;
 
       event.preventDefault();
 
@@ -176,16 +185,67 @@ export const NavigationHomePage = ({
   );
 
   const handleMouseLeave = useCallback(() => {
+    if (!isHoveringRef.current) return;
+    isHoveringRef.current = false;
     onHoverChange(false);
     smoothTargetRef.current = 0;
     animateToSmoothTarget();
   }, [animateToSmoothTarget, onHoverChange]);
 
   useEffect(() => {
-    const unsubscribe = position.on('change', clampScroll);
+    const hoverZone = hoverZoneRef.current;
+    const canHover = window.matchMedia('(hover: hover) and (pointer: fine)');
+    if (!hoverZone) return;
+
+    const handlePointerMove = (event: PointerEvent) => {
+      if (!canHover.matches) return;
+
+      const rect = hoverZone.getBoundingClientRect();
+      const isInside =
+        event.clientX >= rect.left &&
+        event.clientX <= rect.right &&
+        event.clientY >= rect.top &&
+        event.clientY <= rect.bottom;
+
+      if (isInside === isHoveringRef.current) return;
+      if (isInside) {
+        isHoveringRef.current = true;
+        onHoverChange(true);
+      } else {
+        handleMouseLeave();
+      }
+    };
+
+    window.addEventListener('pointermove', handlePointerMove, { passive: true });
+    window.addEventListener('blur', handleMouseLeave);
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('blur', handleMouseLeave);
+    };
+  }, [handleMouseLeave, onHoverChange]);
+
+  useEffect(() => {
+    const unsubscribe = position.on('change', (value) => {
+      const floor = Math.floor(value);
+      if (lastClampedFloorRef.current === floor) return;
+      lastClampedFloorRef.current = floor;
+      clampScroll();
+    });
     clampScroll();
     return unsubscribe;
   }, [clampScroll, position]);
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => window.removeEventListener('wheel', handleWheel);
+  }, [handleWheel]);
+
+  useEffect(() => {
+    clampScroll();
+  }, [clampScroll, itemHeight, itemSpacing, titles.length, viewportHeight]);
 
   useEffect(() => {
     return () => {
@@ -197,37 +257,48 @@ export const NavigationHomePage = ({
 
   return (
     <div
-      ref={viewportRef}
-      className="nav-project-list-viewport h-[calc(100vh-180px)] w-[260px] overflow-y-auto overscroll-contain"
-      onScroll={clampScroll}
-      onWheel={handleWheel}
-      onMouseEnter={() => onHoverChange(true)}
-      onMouseLeave={handleMouseLeave}
+      ref={hoverZoneRef}
+      className="pointer-events-none flex h-[calc(100vh-48px)] w-[260px] items-center"
       data-hide-cursor="true"
     >
-      <motion.ul
-        ref={listRef}
-        className="nav-project-list flex flex-col gap-[6px] cursor-pointer will-change-transform"
-        initial={false}
-        style={{
-          y,
-          transform: 'translateZ(0)',
-          ['--nav-inset' as string]: `${contentInset}px`,
-        }}
+      <div
+        ref={viewportRef}
+        className="nav-project-list-viewport h-[calc(100vh-180px)] w-full overflow-y-auto overscroll-contain"
+        onScroll={clampScroll}
       >
-        {titles.map((title, idx) => (
-          <li
-            key={title}
-            className={cn(
-              'transition-[opacity,color] duration-[180ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:text-[#717171]',
-              idx === activeIndex || showAll ? 'opacity-100 ' : 'opacity-0'
-            )}
-            onClick={() => onSelect(idx)}
-          >
-            {title}
-          </li>
-        ))}
-      </motion.ul>
+        <motion.ul
+          ref={listRef}
+          className="nav-project-list flex flex-col gap-[6px] cursor-pointer will-change-transform"
+          initial={false}
+          style={{
+            y,
+            transform: 'translateZ(0)',
+            ['--nav-inset' as string]: `${contentInset}px`,
+          }}
+        >
+          {titles.map((title, idx) => (
+            <li
+              key={title}
+              className={cn(
+                'transition-[opacity,color] duration-[180ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:text-[#717171]',
+                idx === activeIndex || showAll
+                  ? 'pointer-events-auto opacity-100'
+                  : 'pointer-events-none opacity-0'
+              )}
+            >
+              <button
+                type="button"
+                onClick={() => onSelect(idx)}
+                aria-current={idx === activeIndex ? 'true' : undefined}
+                tabIndex={idx === activeIndex || showAll ? 0 : -1}
+                className="text-left focus-visible:outline-2 focus-visible:outline-offset-2"
+              >
+                {title}
+              </button>
+            </li>
+          ))}
+        </motion.ul>
+      </div>
     </div>
   );
 };

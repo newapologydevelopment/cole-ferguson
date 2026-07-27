@@ -6,7 +6,6 @@ import type { ArchiveProject as ArchiveProjectType } from '@/sanity/lib/client';
 import { buildOptimizedImageUrl } from '@/sanity/lib/image';
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
-import { CursorLabel } from './CursorLabel';
 
 type Ratio = '16:10' | '5:4' | '4:5' | '3:2' | '2:3' | '1:1';
 
@@ -174,14 +173,14 @@ export const ArchiveProject: React.FC<Props> = ({
           type="button"
           aria-label="Previous"
           onClick={onPrev}
-          className="absolute left-0 top-0 h-full w-1/2 focus:outline-none"
+          className="absolute left-0 top-0 h-full w-1/2 focus-visible:outline-2 focus-visible:outline-black focus-visible:outline-offset-[-4px]"
           style={{ background: 'transparent' }}
         />
         <button
           type="button"
           aria-label="Next"
           onClick={onNext}
-          className="absolute right-0 top-0 h-full w-1/2 focus:outline-none"
+          className="absolute right-0 top-0 h-full w-1/2 focus-visible:outline-2 focus-visible:outline-black focus-visible:outline-offset-[-4px]"
           style={{ background: 'transparent' }}
         />
       </section>
@@ -239,17 +238,18 @@ export const ArchiveProject: React.FC<Props> = ({
           type="button"
           aria-label="Previous"
           onClick={onPrev}
-          className="absolute left-0 top-0 h-full w-1/2 cursor-none focus:outline-none"
+          data-cursor="prev"
+          className="absolute left-0 top-0 h-full w-1/2 focus-visible:outline-2 focus-visible:outline-black focus-visible:outline-offset-[-4px]"
           style={{ background: 'transparent' }}
         />
         <button
           type="button"
           aria-label="Next"
           onClick={onNext}
-          className="absolute right-0 top-0 h-full w-1/2 cursor-none focus:outline-none"
+          data-cursor="next"
+          className="absolute right-0 top-0 h-full w-1/2 focus-visible:outline-2 focus-visible:outline-black focus-visible:outline-offset-[-4px]"
           style={{ background: 'transparent' }}
         />
-        <CursorLabel />
       </section>
     </>
   );

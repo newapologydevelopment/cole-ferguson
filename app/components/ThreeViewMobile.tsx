@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { sanityLoader, urlFor } from '@/sanity/lib/image';
+import { PORTFOLIO_SIZES, urlFor } from '@/sanity/lib/image';
+import {
+  getPortfolioImageLoadProps,
+} from '@/app/lib/portfolioImageLoad';
 import type { ProjectImage } from '@/types/project';
-import Image from 'next/image';
+import { PortfolioSanityImage } from './PortfolioSanityImage';
 
 type Ratio = '3:2' | '4:5' | '5:4';
 const isRatio = (v: unknown): v is Ratio =>
@@ -63,6 +66,8 @@ export function ThreeViewMobile({
   const ra = (getImageRatio(a) ?? '3:2').replace(':', ' / ');
   const rb = (getImageRatio(b) ?? '3:2').replace(':', ' / ');
   const rc = (getImageRatio(c) ?? '3:2').replace(':', ' / ');
+  const primaryLoadProps = getPortfolioImageLoadProps(true, priority);
+  const siblingLoadProps = getPortfolioImageLoadProps(false, priority);
 
   return (
     <section className={`sm:hidden w-full h-full  ${className ?? ''}`}>
@@ -74,22 +79,22 @@ export function ThreeViewMobile({
             className="relative w-full overflow-hidden"
             style={{ aspectRatio: ra }}
           >
-            {srcA && (
-              <Image
-                loader={sanityLoader}
+            {srcA ? (
+              <PortfolioSanityImage
                 src={srcA}
                 alt={a?.alt || ''}
                 fill
                 className={
                   objectFit === 'cover' ? 'object-cover' : 'object-contain'
                 }
-                sizes="(max-width:768px) 33vw, 0px"
+                sizes={PORTFOLIO_SIZES.threeMobile}
                 placeholder={a?.blurDataURL ? 'blur' : 'empty'}
                 blurDataURL={a?.blurDataURL}
-                priority={priority}
-                loading={priority ? 'eager' : 'lazy'}
-                fetchPriority={priority ? 'high' : 'low'}
+                sourceWidth={a?.width}
+                {...primaryLoadProps}
               />
+            ) : (
+              <div aria-hidden className="absolute inset-0 bg-[#f3f3f3]" />
             )}
           </div>
         </div>
@@ -100,22 +105,22 @@ export function ThreeViewMobile({
             className="relative w-full overflow-hidden"
             style={{ aspectRatio: rb }}
           >
-            {srcB && (
-              <Image
-                loader={sanityLoader}
+            {srcB ? (
+              <PortfolioSanityImage
                 src={srcB}
                 alt={b?.alt || ''}
                 fill
                 className={
                   objectFit === 'cover' ? 'object-cover' : 'object-contain'
                 }
-                sizes="(max-width:768px) 33vw, 0px"
+                sizes={PORTFOLIO_SIZES.threeMobile}
                 placeholder={b?.blurDataURL ? 'blur' : 'empty'}
                 blurDataURL={b?.blurDataURL}
-                priority={priority}
-                loading={priority ? 'eager' : 'lazy'}
-                fetchPriority={priority ? 'high' : 'low'}
+                sourceWidth={b?.width}
+                {...siblingLoadProps}
               />
+            ) : (
+              <div aria-hidden className="absolute inset-0 bg-[#f3f3f3]" />
             )}
           </div>
         </div>
@@ -126,22 +131,22 @@ export function ThreeViewMobile({
             className="relative w-full overflow-hidden"
             style={{ aspectRatio: rc }}
           >
-            {srcC && (
-              <Image
-                loader={sanityLoader}
+            {srcC ? (
+              <PortfolioSanityImage
                 src={srcC}
                 alt={c?.alt || ''}
                 fill
                 className={
                   objectFit === 'cover' ? 'object-cover' : 'object-contain'
                 }
-                sizes="(max-width:768px) 33vw, 0px"
+                sizes={PORTFOLIO_SIZES.threeMobile}
                 placeholder={c?.blurDataURL ? 'blur' : 'empty'}
                 blurDataURL={c?.blurDataURL}
-                priority={priority}
-                loading={priority ? 'eager' : 'lazy'}
-                fetchPriority={priority ? 'high' : 'low'}
+                sourceWidth={c?.width}
+                {...siblingLoadProps}
               />
+            ) : (
+              <div aria-hidden className="absolute inset-0 bg-[#f3f3f3]" />
             )}
           </div>
         </div>

@@ -1,0 +1,16 @@
+{
+  "name": "Cole Ferguson",
+  "short_name": "Cole Ferguson",
+  "description": "Portfolio of photographer and director Cole Ferguson.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/favicon-32x32_light.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    }
+  ]
+}

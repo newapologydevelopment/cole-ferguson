@@ -6,14 +6,16 @@ import { cn } from '@/utils';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
-import { useBreakpoint } from '../hooks';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useBreakpoint, useDialogFocus } from '../hooks';
+import { CopyableContact } from './CopyableContact';
 
 export function InfoShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
-  const { isMobile } = useBreakpoint();
+  const { isCompact } = useBreakpoint();
   const [videoHover, setVideoHover] = useState(false);
   const touchStartY = useRef(0);
+  const infoPanelRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -34,8 +36,19 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
     videoCredit: '',
   });
   const [showVideo, setShowVideo] = useState(false);
+  const [videoAspectRatio, setVideoAspectRatio] = useState(4 / 3);
   const videoButtonRef = useRef<HTMLButtonElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const closeInfo = useCallback(() => setOpen(false), []);
+  useDialogFocus(infoPanelRef, closeInfo, open && !showVideo);
+
+  useEffect(() => {
+    if (!showVideo) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [showVideo]);
 
   useEffect(() => {
     // fetch once on mount
@@ -145,6 +158,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
   }, [open, showVideo]);
 
   useGSAP(() => {
+    if (isCompact) return;
     const tl = gsap.timeline();
     tl.to(
       '.text',
@@ -189,10 +203,13 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
         const informationRect = informationControl.getBoundingClientRect();
         const currentIndexY = Number(gsap.getProperty(indexLink, 'y')) || 0;
         const indexTargetY =
-          currentIndexY + headerTextRect.bottom + 14 - indexTextRect.top;
+          currentIndexY + headerTextRect.bottom + 11 - indexTextRect.top;
         const informationTargetTop = window.innerHeight * 0.5 + 6;
 
-        gsap.set(indexContainer, { zIndex: 10002 });
+        gsap.set(indexContainer, {
+          zIndex: 10002,
+          pointerEvents: 'auto',
+        });
         gsap.to(indexLink, {
           y: indexTargetY,
           duration: 0.5,
@@ -214,7 +231,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
         });
       }
     }
-  }, [open]);
+  }, [isCompact, open]);
 
   useGSAP(() => {
     const videoEl = videoButtonRef.current;
@@ -232,8 +249,6 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
     const targetY = viewportHeight / 2 - (rect.top + rect.height / 2);
 
     if (showVideo) {
-      document.body.style.overflow = 'hidden';
-
       gsap.to(videoEl, {
         x: targetX,
         y: targetY,
@@ -264,8 +279,6 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
         });
       }
     } else {
-      document.body.style.overflow = 'auto';
-
       gsap.to(videoEl, {
         x: 0,
         y: 0,
@@ -313,7 +326,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
     }
   }, [showVideo]);
 
-  if (isMobile) return <>{children}</>;
+  if (isCompact) return <>{children}</>;
 
   return (
     <>
@@ -328,15 +341,17 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
           )}
           onClick={(e) => e.stopPropagation()}
         />
-        <button
-          type="button"
-          className="fixed right-[20px] top-[20px] sm:right-6 sm:top-6 z-[102] opacity-0 cursor-pointer video-bg hover:text-[#717171] transition-colors duration-300"
-          aria-label="Close lightbox"
-          data-hide-cursor="true"
-          onClick={() => setShowVideo(false)}
-        >
-          Close
-        </button>
+        {showVideo && (
+          <button
+            type="button"
+            className="fixed right-[20px] top-[20px] sm:right-6 sm:top-6 z-[10061] cursor-pointer video-bg hover:text-[#717171] transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-offset-2"
+            aria-label="Close video"
+            data-hide-cursor="true"
+            onClick={() => setShowVideo(false)}
+          >
+            Close
+          </button>
+        )}
 
         <div
           className={cn('transition-transform duration-500', {
@@ -358,22 +373,27 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
         </div>
 
         <div
+          ref={infoPanelRef}
           className={cn(
             'fixed left-0 right-0 bottom-0 transition-[height] duration-500 z-[30] hidden sm:block',
             {
-              'pointer-events-none': showVideo,
+              'pointer-events-auto': open && !showVideo,
+              'pointer-events-none': !open || showVideo,
             }
           )}
           style={{ height: open ? '100vh' : '0' }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Information"
+          aria-hidden={!open}
+          tabIndex={-1}
           onClick={() => {
             if (open) setOpen(false);
           }}
-          aria-expanded={open}
-          role="button"
           data-hide-cursor="true"
         >
           <div className="h-full overflow-auto px-[24px] bg-white text-left text-[12px] text-primary-dark hidden sm:block ">
-            <div className="h-[50vh] absolute left-0 right-0 bottom-[24px] grid grid-cols-8 px-[24px] text">
+            <div className="h-0 overflow-hidden absolute left-0 right-0 bottom-[24px] grid grid-cols-8 px-[24px] text">
               <div className="sm:col-start-1 xl:col-start-2 col-end-[-1] flex flex-col justify-between text-info opacity-0">
                 <h1 className="text-[64px] leading-[115%] whitespace-pre-line">
                   {info.title}
@@ -396,8 +416,8 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
 
                   <div className="col-span-3 col-start-13 flex flex-col justify-between self-end min-h-[124px]">
                     <h3>Contact</h3>
-                    <p className="text-[16px] whitespace-pre-line">
-                      {info.contact}
+                    <p className="text-[16px]">
+                      <CopyableContact contact={info.contact} />
                     </p>
                   </div>
 
@@ -415,36 +435,51 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                   <button
                     ref={videoButtonRef}
                     type="button"
-                    className="video-button absolute bottom-[0] right-[24px] w-[194px] aspectRatio-[4/3] z-[60] pointer-events-auto"
+                    className="video-button absolute bottom-0 right-[24px] z-[60] w-[194px] pointer-events-auto"
+                    style={{
+                      aspectRatio: showVideo ? videoAspectRatio : 4 / 3,
+                    }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      setShowVideo(true);
+                      if (!showVideo) setShowVideo(true);
                     }}
                     onMouseEnter={() => setVideoHover(true)}
                     onMouseLeave={() => setVideoHover(false)}
                     data-video-credit={info.videoCredit}
                   >
-                    {info.videoUrl && (
+                    {info.videoUrl && (open || showVideo) && (
                       <video
-                        ref={videoRef}
                         src={info.videoUrl}
+                        poster={info.coverImage ?? undefined}
+                        preload="metadata"
                         autoPlay
                         loop
                         muted
                         playsInline
                         controls={false}
+                        disablePictureInPicture
+                        controlsList="nodownload noplaybackrate nofullscreen"
+                        tabIndex={-1}
+                        onLoadedMetadata={(event) => {
+                          const { videoWidth, videoHeight } =
+                            event.currentTarget;
+                          if (videoWidth > 0 && videoHeight > 0) {
+                            setVideoAspectRatio(videoWidth / videoHeight);
+                          }
+                        }}
                         className={cn(
-                          'video-button-video relative transition-opacity duration-300',
+                          'video-button-video pointer-events-none relative select-none transition-opacity duration-300',
                           {
                             'opacity-30 cursor-pointer':
                               videoHover && !showVideo,
                             'is-playing': showVideo,
+                            'object-contain': showVideo,
+                            'object-cover': !showVideo,
                           }
                         )}
                         style={{
                           width: '100%',
                           height: '100%',
-                          objectFit: 'cover',
                         }}
                       />
                     )}
