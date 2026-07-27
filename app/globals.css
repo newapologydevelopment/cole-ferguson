@@ -302,3 +302,12 @@ body {
 .video-button-video--expanded::before {
   opacity: 0;
 } */
+
+.video-no-controls::-webkit-media-controls,
+.video-no-controls::-webkit-media-controls-enclosure,
+.video-no-controls::-webkit-media-controls-panel,
+.video-no-controls::-webkit-media-controls-play-button,
+.video-no-controls::-webkit-media-controls-start-playback-button {
+  display: none !important;
+  -webkit-appearance: none;
+}

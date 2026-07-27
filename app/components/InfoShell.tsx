@@ -443,23 +443,23 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                 </h1>
 
                 <div className="grid grid-cols-20 gap-x-[32px]">
-                  <div className="col-start-1 col-span-5 flex flex-col gap-[12px] self-end">
+                  <div className="col-start-1 col-span-5 flex flex-col gap-[24px] self-end">
                     <h3>Clients</h3>
-                    <p className="text-[16px] whitespace-pre-line">
+                    <p className="text-[16px] leading-[1.5] whitespace-pre-line">
                       {info.clients}
                     </p>
                   </div>
 
-                  <div className="col-span-5 col-start-7 flex flex-col gap-[12px] self-end">
+                  <div className="col-span-5 col-start-7 flex flex-col gap-[24px] self-end">
                     <h3>Publications</h3>
-                    <p className="text-[16px] whitespace-pre-line">
+                    <p className="text-[16px] leading-[1.5] whitespace-pre-line">
                       {info.publications}
                     </p>
                   </div>
 
-                  <div className="col-span-3 col-start-13 flex flex-col justify-between self-end min-h-[124px]">
+                  <div className="col-span-3 col-start-13 flex flex-col justify-end gap-[24px] self-end min-h-[124px]">
                     <h3>Contact</h3>
-                    <p className="text-[16px]">
+                    <p className="text-[16px] leading-[1.5]">
                       <CopyableContact
                         contact={info.contact}
                         lowerEmailOnDesktop
@@ -509,6 +509,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                         playsInline
                         controls={false}
                         disablePictureInPicture
+                        disableRemotePlayback
                         controlsList="nodownload noplaybackrate nofullscreen"
                         tabIndex={-1}
                         onLoadedMetadata={(event) => {
@@ -525,7 +526,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                           if (showVideo) setVideoPlaybackBlocked(true);
                         }}
                         className={cn(
-                          'video-button-video pointer-events-none relative select-none transition-opacity duration-300',
+                          'video-button-video video-no-controls pointer-events-none relative select-none transition-opacity duration-300',
                           {
                             'opacity-30 cursor-pointer':
                               videoHover && !showVideo,

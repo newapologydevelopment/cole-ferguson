@@ -24,13 +24,6 @@ export const LightBox: React.FC<Props> = ({ close, children, title }) => {
 
     const tl = gsap.timeline();
 
-    // Загальний fade/scale контейнера
-    tl.fromTo(
-      boxRef.current,
-      { scale: 0.95, opacity: 0 },
-      { scale: 1, opacity: 1, ease: 'power1.inOut', duration: 0.25 }
-    );
-
     const isMobile = window.matchMedia('(max-width: 640px)').matches;
     const titleEl = titleRef.current;
 
@@ -101,7 +94,7 @@ export const LightBox: React.FC<Props> = ({ close, children, title }) => {
       </button>
       <Link
         href="/"
-        className="absolute left-[20px] top-[20px] sm:left-[24px] sm:top-[24px] z-[102] hover:text-[#717171] transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-offset-2"
+        className="absolute left-[20px] top-[20px] sm:left-[24px] sm:top-[24px] z-[102] xl:hidden hover:text-[#717171] transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-offset-2"
         data-hide-cursor="true"
       >
         Cole Ferguson

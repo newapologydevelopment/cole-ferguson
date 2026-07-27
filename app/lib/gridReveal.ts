@@ -9,13 +9,14 @@ export const GRID_REVEAL_OFFSET = 4;
 /** Gap between items in the currently visible sequence. */
 export const GRID_REVEAL_STAGGER = 0.022;
 
-/** One desktop row or three mobile rows, keeping the full cascade under 120ms. */
+/** Default reveal group for surfaces that do not provide their own load window. */
 export const GRID_REVEAL_SEQUENCE_LENGTH = 6;
 
 export function getGridRevealDelay(
   index: number,
-  reduceMotion: boolean | null
+  reduceMotion: boolean | null,
+  sequenceLength = GRID_REVEAL_SEQUENCE_LENGTH
 ): number {
   if (reduceMotion) return 0;
-  return (index % GRID_REVEAL_SEQUENCE_LENGTH) * GRID_REVEAL_STAGGER;
+  return (index % sequenceLength) * GRID_REVEAL_STAGGER;
 }

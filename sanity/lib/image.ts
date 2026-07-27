@@ -11,7 +11,7 @@ export const urlFor = (source: SanityImageSource) => {
   return builder.image(source)
 }
 
-export const PORTFOLIO_IMAGE_QUALITY = 75
+export const PORTFOLIO_IMAGE_QUALITY = 80
 export const DPR_CAP = 3
 
 export const PORTFOLIO_DEVICE_SIZES = [320, 480, 640, 960, 1280, 1600, 2000] as const

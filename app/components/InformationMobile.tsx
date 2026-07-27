@@ -169,21 +169,21 @@ export const InformationMobile: React.FC<Props> = ({ isOpen, onClose }) => {
                   ref={videoRef}
                   src={videoUrl}
                   poster={coverImage}
-                  className="absolute inset-0 h-full w-full select-none object-contain"
+                  className="video-no-controls pointer-events-none absolute inset-0 h-full w-full select-none object-contain"
                   preload="metadata"
                   autoPlay
                   loop
                   muted
                   playsInline
-                  controls
+                  controls={false}
                   disablePictureInPicture
-                  controlsList="nodownload noplaybackrate"
+                  disableRemotePlayback
+                  controlsList="nodownload noplaybackrate nofullscreen"
+                  tabIndex={-1}
                   onCanPlay={(event) => {
                     event.currentTarget.muted = true;
                     event.currentTarget.defaultMuted = true;
-                    void event.currentTarget.play().catch(() => {
-                      // Native controls remain available if Safari blocks autoplay.
-                    });
+                    void event.currentTarget.play().catch(() => undefined);
                   }}
                 />
               ) : (

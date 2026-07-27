@@ -106,7 +106,7 @@ export default function RootLayout({
           {SHOW_GRID && <GridOverlay />}
           <Link
           href="/"
-          className="fixed z-[10001] md:top-[24px] top-[20px] md:left-[24px] left-[20px] text-[12px] text-primary-dark cursor-pointer bg-white hidden xl:block hover:text-[#717171] transition-colors duration-300"
+          className="fixed z-[10080] md:top-[24px] top-[20px] md:left-[24px] left-[20px] text-[12px] text-primary-dark cursor-pointer bg-white hidden xl:block hover:text-[#717171] transition-colors duration-300"
           data-hide-cursor="true"
           data-brand-header
         >

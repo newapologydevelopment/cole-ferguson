@@ -3,7 +3,7 @@
 import { urlFor } from '@/sanity/lib/image';
 import type { ProjectImage, Project as ProjectType } from '@/types/project';
 import { cn } from '@/utils';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { GridRevealImage } from './GridRevealImage';
 import { usePreloaderDone } from './PreloaderGate';
 // import { LenisProvider } from "./LenisProvider"
@@ -31,36 +31,13 @@ type Props = {
 
 const DESKTOP_SIZES_ATTRIBUTE =
   '(min-width: 2400px) 420px, (min-width: 2000px) 360px, (min-width: 1700px) 300px, (min-width: 1440px) 240px, (min-width: 1024px) 200px, 160px';
-
-const THUMBNAIL_BREAKPOINTS = [
-  { minViewport: 2400, width: 560, quality: 82 },
-  { minViewport: 2000, width: 460, quality: 82 },
-  { minViewport: 1700, width: 360, quality: 80 },
-  { minViewport: 1440, width: 280, quality: 80 },
-] as const;
-
-const resolveThumbnailConfig = (
-  viewportWidth: number,
-  fallbackWidth: number
-) => {
-  const breakpoint = THUMBNAIL_BREAKPOINTS.find(
-    ({ minViewport }) => viewportWidth >= minViewport
-  );
-  if (!breakpoint) {
-    return { width: fallbackWidth, quality: 78 };
-  }
-  return {
-    width: Math.max(breakpoint.width, fallbackWidth),
-    quality: breakpoint.quality,
-  };
-};
+const DESKTOP_INITIAL_REVEAL_COUNT = 18;
 
 export const GalleryGridView = ({
   items,
   projects,
   selectedProject = null,
   onHoverProject,
-  thumbWidth = 130,
   className,
   onClick,
   selectActualPhoto,
@@ -68,18 +45,7 @@ export const GalleryGridView = ({
   const seen = new Map<string, number>();
   const [isScrolling, setIsScrolling] = useState(false);
   const gridRef = useRef<HTMLDivElement>(null);
-  const [dpr, setDpr] = useState(1);
-  const [screenWidth, setScreenWidth] = useState(0);
   const preloaderDone = usePreloaderDone();
-
-  const fallbackThumbWidth = useMemo(
-    () => Math.max(thumbWidth, 200),
-    [thumbWidth]
-  );
-  const { width: resolvedThumbWidth, quality: resolvedQuality } = useMemo(
-    () => resolveThumbnailConfig(screenWidth, fallbackThumbWidth),
-    [screenWidth, fallbackThumbWidth]
-  );
 
   useEffect(() => {
     let timeout: NodeJS.Timeout;
@@ -95,18 +61,6 @@ export const GalleryGridView = ({
       scrollTarget.removeEventListener('scroll', handleScroll);
       clearTimeout(timeout);
     };
-  }, []);
-
-  useEffect(() => {
-    const next = Math.min(3, Math.ceil(window.devicePixelRatio || 1));
-    setDpr(next);
-  }, []);
-
-  useEffect(() => {
-    const updateWidth = () => setScreenWidth(window.innerWidth);
-    updateWidth();
-    window.addEventListener('resize', updateWidth);
-    return () => window.removeEventListener('resize', updateWidth);
   }, []);
 
   const handleProjectSelect = (project: GalleryGridItem) => {
@@ -133,18 +87,7 @@ export const GalleryGridView = ({
 
           const w = it.image?.width || 1;
           const h = it.image?.height || 1;
-          const assetWidth = it.image?.width ?? resolvedThumbWidth;
-          const effectiveWidth = Math.max(
-            1,
-            Math.round(Math.min(assetWidth, resolvedThumbWidth))
-          );
-
           const src = urlFor({ _type: 'image', asset: { _ref: ref } })
-            .width(effectiveWidth)
-            .dpr(dpr)
-            .auto('format')
-            .quality(resolvedQuality)
-            .fit('max')
             .url();
           const projectImageIndex = (seen.get(it.projectId) ?? -1) + 1;
           seen.set(it.projectId, projectImageIndex);
@@ -180,6 +123,7 @@ export const GalleryGridView = ({
                 <GridRevealImage
                   index={i}
                   immediate={i === 0}
+                  sequenceLength={DESKTOP_INITIAL_REVEAL_COUNT}
                   src={src}
                   alt={it.image?.alt || ''}
                   fill
@@ -187,8 +131,11 @@ export const GalleryGridView = ({
                   placeholder={it.image?.blurDataURL ? 'blur' : 'empty'}
                   blurDataURL={it.image?.blurDataURL}
                   sizes={DESKTOP_SIZES_ATTRIBUTE}
+                  sourceWidth={it.image?.width}
                   priority={i === 0}
-                  loading={i < 18 ? 'eager' : 'lazy'}
+                  loading={
+                    i < DESKTOP_INITIAL_REVEAL_COUNT ? 'eager' : 'lazy'
+                  }
                   fetchPriority={i === 0 ? 'high' : 'auto'}
                   decoding="async"
                 />

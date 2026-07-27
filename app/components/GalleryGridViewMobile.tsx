@@ -1,9 +1,11 @@
 "use client"
 
-import { sanityLoader, urlFor } from "@/sanity/lib/image"
+import { urlFor } from "@/sanity/lib/image"
 import type { ProjectImage, Project as ProjectType } from "@/types/project"
 import { GridRevealImage } from "./GridRevealImage"
 import { usePreloaderDone } from "./PreloaderGate"
+
+const MOBILE_INITIAL_REVEAL_COUNT = 8
 
 export type GalleryGridItem = {
     projectId: string
@@ -85,7 +87,7 @@ export const GalleryGridViewMobile = ({
                             <GridRevealImage
                                 index={i}
                                 immediate={i === 0}
-                                loader={sanityLoader}
+                                sequenceLength={MOBILE_INITIAL_REVEAL_COUNT}
                                 src={src}
                                 alt={it.image?.alt || ""}
                                 fill
@@ -93,8 +95,9 @@ export const GalleryGridViewMobile = ({
                                 placeholder={it.image?.blurDataURL ? "blur" : "empty"}
                                 blurDataURL={it.image?.blurDataURL}
                                 sizes="(min-width: 640px) calc((100vw - 68px) / 2), calc((100vw - 60px) / 2)"
+                                sourceWidth={it.image?.width}
                                 priority={i === 0}
-                                loading={i < 8 ? "eager" : "lazy"}
+                                loading={i < MOBILE_INITIAL_REVEAL_COUNT ? "eager" : "lazy"}
                                 fetchPriority={i === 0 ? "high" : "auto"}
                                 decoding="async"
                             />

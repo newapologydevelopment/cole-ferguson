@@ -7,18 +7,23 @@ import {
   GRID_REVEAL_OFFSET,
 } from '@/app/lib/gridReveal';
 import { motion, useInView, useReducedMotion } from 'framer-motion';
-import Image, { type ImageProps } from 'next/image';
+import { type ImageProps } from 'next/image';
 import { useRef, useState } from 'react';
+import { PortfolioSanityImage } from './PortfolioSanityImage';
 import { usePreloaderDone } from './PreloaderGate';
 
 type GridRevealImageProps = ImageProps & {
   index: number;
   immediate?: boolean;
+  sequenceLength?: number;
+  sourceWidth?: number;
 };
 
 export function GridRevealImage({
   index,
   immediate = false,
+  sequenceLength,
+  sourceWidth,
   className,
   alt = '',
   onLoad,
@@ -54,14 +59,17 @@ export function GridRevealImage({
       }}
       transition={{
         duration: skipMotion ? 0 : GRID_REVEAL_DURATION,
-        delay: skipMotion ? 0 : getGridRevealDelay(index, false),
+        delay: skipMotion
+          ? 0
+          : getGridRevealDelay(index, false, sequenceLength),
         ease: GRID_REVEAL_EASE,
       }}
     >
-      <Image
+      <PortfolioSanityImage
         {...props}
         alt={alt}
         className={className}
+        sourceWidth={sourceWidth}
         onLoad={(event) => {
           setLoaded(true);
           onLoad?.(event);

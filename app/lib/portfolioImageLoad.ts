@@ -10,6 +10,6 @@ export function getPortfolioImageLoadProps(isPrimary: boolean, isActive: boolean
   return {
     priority: false,
     loading: (isActive ? 'eager' : 'lazy') as 'eager' | 'lazy',
-    fetchPriority: (isActive ? 'auto' : 'low') as 'auto' | 'low',
+    fetchPriority: (isActive ? 'high' : 'low') as 'high' | 'low',
   };
 }
