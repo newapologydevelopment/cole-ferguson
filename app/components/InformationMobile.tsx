@@ -77,6 +77,7 @@ export const InformationMobile: React.FC<Props> = ({ isOpen, onClose }) => {
     if (!video) return;
 
     video.muted = true;
+    video.defaultMuted = true;
     void video.play().catch(() => {
       // Mobile browsers can reject autoplay; native controls remain available.
     });
@@ -177,6 +178,13 @@ export const InformationMobile: React.FC<Props> = ({ isOpen, onClose }) => {
                   controls
                   disablePictureInPicture
                   controlsList="nodownload noplaybackrate"
+                  onCanPlay={(event) => {
+                    event.currentTarget.muted = true;
+                    event.currentTarget.defaultMuted = true;
+                    void event.currentTarget.play().catch(() => {
+                      // Native controls remain available if Safari blocks autoplay.
+                    });
+                  }}
                 />
               ) : (
                 <Image

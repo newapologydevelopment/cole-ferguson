@@ -1,10 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 
-const CHROME_PAD = 28;
-
-/** Four custom-cursor states — never a native cursor on desktop */
-type CursorMode = 'solid' | 'outline' | 'prev' | 'next';
+type CursorMode = 'prev' | 'next' | null;
 
 function isNavZoneEnabled(el: Element | null) {
   if (!el) return false;
@@ -18,31 +15,12 @@ function isNavZoneEnabled(el: Element | null) {
 function getCursorMode(x: number, y: number): CursorMode {
   const hit = document.elementFromPoint(x, y);
 
-  // Interactive text/UI chrome → solid + outline
-  if (hit?.closest('[data-hide-cursor="true"]')) return 'outline';
-
-  // Explicit photo nav hit targets
   const prev = hit?.closest('[data-cursor="prev"]') ?? null;
   if (isNavZoneEnabled(prev)) return 'prev';
   const next = hit?.closest('[data-cursor="next"]') ?? null;
   if (isNavZoneEnabled(next)) return 'next';
 
-  // Soft approach toward chrome → solid
-  const zones = document.querySelectorAll('[data-hide-cursor="true"]');
-  for (let i = 0; i < zones.length; i++) {
-    const r = zones[i].getBoundingClientRect();
-    if (r.width <= 0 || r.height <= 0) continue;
-    if (
-      x >= r.left - CHROME_PAD &&
-      x <= r.right + CHROME_PAD &&
-      y >= r.top - CHROME_PAD &&
-      y <= r.bottom + CHROME_PAD
-    ) {
-      return 'solid';
-    }
-  }
-
-  return 'solid';
+  return null;
 }
 
 function isDesktopPointer() {
@@ -71,21 +49,24 @@ export const CursorLabel = () => {
   }, []);
 
   useEffect(() => {
-    if (!enabled) return;
-    // Re-assert on mount; DesktopCursorPolicy owns the html classes
-    document.documentElement.style.setProperty('cursor', 'none', 'important');
-    document.body.style.setProperty('cursor', 'none', 'important');
+    document.documentElement.classList.toggle(
+      'carousel-cursor-enabled',
+      enabled
+    );
+    return () => {
+      document.documentElement.classList.remove('carousel-cursor-enabled');
+    };
   }, [enabled]);
 
   useEffect(() => {
     if (!enabled) return;
     let frame = 0;
     let latestEvent: MouseEvent | null = null;
-    let mode: CursorMode = 'solid';
+    let mode: CursorMode = null;
     const cursor = cursorRef.current;
     if (cursor) {
-      cursor.dataset.mode = 'solid';
-      cursor.style.opacity = '1';
+      cursor.dataset.mode = 'next';
+      cursor.style.opacity = '0';
     }
 
     const apply = (event: MouseEvent) => {
@@ -99,16 +80,12 @@ export const CursorLabel = () => {
       else if (nextMode === 'next') label.textContent = 'Next';
 
       cursorEl.style.transform = `translate3d(${event.clientX}px, ${event.clientY}px, 0) translate(-50%, -50%)`;
-      cursorEl.style.opacity = '1';
+      cursorEl.style.opacity = nextMode ? '1' : '0';
 
       if (nextMode !== mode) {
         mode = nextMode;
-        cursorEl.dataset.mode = mode;
+        if (mode) cursorEl.dataset.mode = mode;
       }
-
-      // Re-assert every frame — Safari can restore native cursors on hover
-      document.documentElement.style.setProperty('cursor', 'none', 'important');
-      document.body.style.setProperty('cursor', 'none', 'important');
     };
 
     const move = (e: MouseEvent) => {
@@ -120,11 +97,16 @@ export const CursorLabel = () => {
       });
     };
 
+    const leave = () => {
+      if (cursorRef.current) cursorRef.current.style.opacity = '0';
+    };
+
     window.addEventListener('mousemove', move, { passive: true });
-    window.addEventListener('mouseover', move, { passive: true, once: true });
+    document.documentElement.addEventListener('mouseleave', leave);
 
     return () => {
       window.removeEventListener('mousemove', move);
+      document.documentElement.removeEventListener('mouseleave', leave);
       if (frame) cancelAnimationFrame(frame);
     };
   }, [enabled]);
@@ -134,12 +116,13 @@ export const CursorLabel = () => {
   return (
     <div
       ref={cursorRef}
-      data-mode="solid"
+      data-mode="next"
+      aria-hidden="true"
       className="cursor-label pointer-events-none fixed select-none"
       style={{
         left: 0,
         top: 0,
-        opacity: 1,
+        opacity: 0,
         transform: 'translate3d(-100px, -100px, 0)',
         willChange: 'transform, opacity',
       }}

@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import Link from 'next/link';
 import {
+  CursorLabel,
   DesktopCursorPolicy,
   GridOverlay,
   MenuMobile,
@@ -100,6 +101,7 @@ export default function RootLayout({
           Skip to content
         </a>
         <DesktopCursorPolicy />
+        <CursorLabel />
         <PreloaderGate>
           {SHOW_GRID && <GridOverlay />}
           <Link

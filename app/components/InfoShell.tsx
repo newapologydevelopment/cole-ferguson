@@ -36,10 +36,42 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
     videoCredit: '',
   });
   const [showVideo, setShowVideo] = useState(false);
+  const [allowVideoOverflow, setAllowVideoOverflow] = useState(false);
+  const [videoPlaybackBlocked, setVideoPlaybackBlocked] = useState(false);
   const [videoAspectRatio, setVideoAspectRatio] = useState(4 / 3);
   const videoButtonRef = useRef<HTMLButtonElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const closeInfo = useCallback(() => setOpen(false), []);
   useDialogFocus(infoPanelRef, closeInfo, open && !showVideo);
+
+  const attemptVideoPlayback = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = true;
+    video.defaultMuted = true;
+    const playback = video.play();
+    if (playback) {
+      void playback
+        .then(() => setVideoPlaybackBlocked(false))
+        .catch(() => setVideoPlaybackBlocked(true));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!open || !info.videoUrl) return;
+    attemptVideoPlayback();
+  }, [attemptVideoPlayback, info.videoUrl, open]);
+
+  useEffect(() => {
+    if (showVideo) {
+      setAllowVideoOverflow(true);
+      return;
+    }
+
+    const timer = window.setTimeout(() => setAllowVideoOverflow(false), 500);
+    return () => window.clearTimeout(timer);
+  }, [showVideo]);
 
   useEffect(() => {
     if (!showVideo) return;
@@ -242,8 +274,9 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
 
     const rect = videoEl.getBoundingClientRect();
 
-    const targetSize = viewportWidth * 0.46;
-    const scale = targetSize / rect.width;
+    const widthScale = (viewportWidth * 0.46) / rect.width;
+    const heightScale = (viewportHeight * 0.72) / rect.height;
+    const scale = Math.min(widthScale, heightScale);
 
     const targetX = viewportWidth / 2 - (rect.left + rect.width / 2);
     const targetY = viewportHeight / 2 - (rect.top + rect.height / 2);
@@ -392,8 +425,18 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
           }}
           data-hide-cursor="true"
         >
-          <div className="h-full overflow-auto px-[24px] bg-white text-left text-[12px] text-primary-dark hidden sm:block ">
-            <div className="h-0 overflow-hidden absolute left-0 right-0 bottom-[24px] grid grid-cols-8 px-[24px] text">
+          <div
+            className={cn(
+              'h-full px-[24px] bg-white text-left text-[12px] text-primary-dark hidden sm:block',
+              allowVideoOverflow ? 'overflow-visible' : 'overflow-auto'
+            )}
+          >
+            <div
+              className={cn(
+                'h-0 absolute left-0 right-0 bottom-[24px] grid grid-cols-8 px-[24px] text',
+                allowVideoOverflow ? 'overflow-visible' : 'overflow-hidden'
+              )}
+            >
               <div className="sm:col-start-1 xl:col-start-2 col-end-[-1] flex flex-col justify-between text-info opacity-0">
                 <h1 className="text-[64px] leading-[115%] whitespace-pre-line">
                   {info.title}
@@ -417,7 +460,10 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                   <div className="col-span-3 col-start-13 flex flex-col justify-between self-end min-h-[124px]">
                     <h3>Contact</h3>
                     <p className="text-[16px]">
-                      <CopyableContact contact={info.contact} />
+                      <CopyableContact
+                        contact={info.contact}
+                        lowerEmailOnDesktop
+                      />
                     </p>
                   </div>
 
@@ -441,7 +487,11 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                     }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (!showVideo) setShowVideo(true);
+                      attemptVideoPlayback();
+                      if (!showVideo) {
+                        setAllowVideoOverflow(true);
+                        setShowVideo(true);
+                      }
                     }}
                     onMouseEnter={() => setVideoHover(true)}
                     onMouseLeave={() => setVideoHover(false)}
@@ -449,6 +499,7 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                   >
                     {info.videoUrl && (open || showVideo) && (
                       <video
+                        ref={videoRef}
                         src={info.videoUrl}
                         poster={info.coverImage ?? undefined}
                         preload="metadata"
@@ -466,6 +517,12 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                           if (videoWidth > 0 && videoHeight > 0) {
                             setVideoAspectRatio(videoWidth / videoHeight);
                           }
+                          attemptVideoPlayback();
+                        }}
+                        onCanPlay={attemptVideoPlayback}
+                        onPlay={() => setVideoPlaybackBlocked(false)}
+                        onPause={() => {
+                          if (showVideo) setVideoPlaybackBlocked(true);
                         }}
                         className={cn(
                           'video-button-video pointer-events-none relative select-none transition-opacity duration-300',
@@ -487,11 +544,13 @@ export function InfoShell({ children }: { children: React.ReactNode }) {
                       className={cn(
                         'w-full h-full absolute inset-0 flex items-center justify-center text-[12px] opacity-0 transition-opacity duration-300 cursor-pointer',
                         {
-                          'opacity-100': videoHover && !showVideo,
+                          'opacity-100':
+                            (videoHover && !showVideo) ||
+                            (videoPlaybackBlocked && showVideo),
                         }
                       )}
                     >
-                      Expand
+                      {videoPlaybackBlocked && showVideo ? 'Play' : 'Expand'}
                     </div>
                   </button>
                 </div>

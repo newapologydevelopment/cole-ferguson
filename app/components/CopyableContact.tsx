@@ -42,7 +42,13 @@ function InstagramContact({ value }: { value: string }) {
   );
 }
 
-export function CopyableContact({ contact }: { contact: string }) {
+export function CopyableContact({
+  contact,
+  lowerEmailOnDesktop = false,
+}: {
+  contact: string;
+  lowerEmailOnDesktop?: boolean;
+}) {
   const [copied, setCopied] = useState(false);
   const resetTimer = useRef<number | null>(null);
   const email = useMemo(() => contact.match(EMAIL_PATTERN)?.[0] ?? '', [contact]);
@@ -87,7 +93,9 @@ export function CopyableContact({ contact }: { contact: string }) {
               event.stopPropagation();
               void copyEmail();
             }}
-            className="relative inline-grid cursor-copy text-left underline decoration-transparent underline-offset-2 transition-[text-decoration-color] duration-150 hover:decoration-current focus-visible:outline-2 focus-visible:outline-offset-2"
+            className={`relative inline-grid cursor-copy text-left underline decoration-transparent underline-offset-2 transition-[text-decoration-color] duration-150 hover:decoration-current focus-visible:outline-2 focus-visible:outline-offset-2 ${
+              lowerEmailOnDesktop ? 'xl:translate-y-[18px]' : ''
+            }`}
             aria-label={`Copy ${email}`}
           >
             <span className="invisible col-start-1 row-start-1" aria-hidden="true">

@@ -110,9 +110,16 @@ body {
   cursor: default;
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .carousel-cursor-enabled [data-cursor='prev']:not(:disabled),
+  .carousel-cursor-enabled [data-cursor='next']:not(:disabled) {
+    cursor: none;
+  }
+}
+
 .cursor-label {
-  /* Above mobile chrome (z-10040) and desktop title; pointer-events none */
-  z-index: 10050;
+  /* Above project lightboxes (z-10050); pointer-events none */
+  z-index: 10070;
   display: grid;
   place-items: center;
   mix-blend-mode: difference;
