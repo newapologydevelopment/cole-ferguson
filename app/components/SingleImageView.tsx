@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { sanityLoader, urlFor } from '@/sanity/lib/image'
+import { PORTFOLIO_SIZES, urlFor } from '@/sanity/lib/image'
+import { getPortfolioImageLoadProps } from '@/app/lib/portfolioImageLoad'
 import type { ProjectImage } from '@/types/project'
-import Image from 'next/image'
+import { PortfolioSanityImage } from './PortfolioSanityImage'
 
 type Ratio = '16:10' | '5:4' | '4:5' | '3:2' | '2:3' | '1:1'
 
@@ -50,7 +51,7 @@ const SINGLE_LAYOUT = {
 type LayoutKey = keyof typeof SINGLE_LAYOUT
 const FALLBACK: LayoutKey = '3:2'
 
-export function SingleImageView({ image }: { image: ProjectImage }) {
+export function SingleImageView({ image, priority = true }: { image: ProjectImage; priority?: boolean }) {
 
     const showRatio = !true;
 
@@ -62,27 +63,28 @@ export function SingleImageView({ image }: { image: ProjectImage }) {
     const layout = SINGLE_LAYOUT[ratio]
     const { wrap, aspect } = layout
     const shift = 'shift' in layout ? layout.shift : ''
+    const loadProps = getPortfolioImageLoadProps(true, priority)
 
     return (
         <div className="px-[24px] grid grid-cols-24 h-screen w-screen content-center items-center auto-rows-max">
             <div className={`relative flex items-center justify-center ${wrap} ${aspect} ${shift}`}>
                 {src ? (
-                    <Image
+                    <PortfolioSanityImage
                         key={image?.asset?._ref || 'single'}
-                        loader={sanityLoader}
                         src={src}
                         alt={image?.alt || ''}
                         fill
-                        sizes="(min-width:1280px) 60vw, (min-width:768px) 70vw, 100vw"
+                        sizes={PORTFOLIO_SIZES.singleDesktop}
                         placeholder={image?.blurDataURL ? 'blur' : 'empty'}
                         blurDataURL={image?.blurDataURL}
                         className="object-contain"
-                        priority
-                        loading="eager"
+                        sourceWidth={image?.width}
                         decoding="async"
-                        fetchPriority="high"
+                        {...loadProps}
                     />
-                ) : null}
+                ) : (
+                    <div aria-hidden className="absolute inset-0 bg-[#f3f3f3]" />
+                )}
             </div>
             {showRatio && <div className='absolute bottom-20 right-20 bg-pink-200 text-[40px]'>{ratio}</div>}
         </div>

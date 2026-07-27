@@ -1,16 +1,15 @@
 'use client';
 
-import { buildOptimizedImageUrl } from '@/sanity/lib/image';
+import { urlFor } from '@/sanity/lib/image';
 import type { Project, ProjectImage } from '@/types';
 import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
-import Image from 'next/image';
 import type React from 'react';
+import { PortfolioSanityImage } from './PortfolioSanityImage';
 
 const getRef = (img?: ProjectImage | null) => img?.asset?._ref;
 const toSource = (img: ProjectImage): SanityImageSource =>
   img as unknown as SanityImageSource;
-const buildSrc = (img: ProjectImage, width?: number) =>
-  buildOptimizedImageUrl(toSource(img), width);
+const buildSrc = (img: ProjectImage) => urlFor(toSource(img)).url();
 
 const alt = (project?: Project | null, img?: ProjectImage | null) =>
   (img?.alt && img.alt.trim()) || project?.title || 'Project image';
@@ -26,7 +25,8 @@ export function GalleryListView({ project }: { project: Project | null }) {
   const renderImage = (
     img: ProjectImage,
     index: number,
-    style?: React.CSSProperties
+    style?: React.CSSProperties,
+    sizes = '(min-width:1280px) 54vw, (min-width:768px) 50vw, 100vw'
   ) => {
     const width = img.width ?? 1600;
     const height = img.height ?? 1000;
@@ -37,17 +37,19 @@ export function GalleryListView({ project }: { project: Project | null }) {
         className="relative flex w-full items-center justify-end overflow-hidden"
         style={style}
       >
-        <Image
-          src={buildSrc(img, Math.min(width, 1600))}
+        <PortfolioSanityImage
+          src={buildSrc(img)}
           alt={alt(project, img)}
           width={width}
           height={height}
-          sizes="(min-width:1280px) 33vw, (min-width:768px) 33vw, 100vw"
+          sizes={sizes}
+          sourceWidth={img.width}
           placeholder={img.blurDataURL ? 'blur' : 'empty'}
           blurDataURL={img.blurDataURL}
           decoding="async"
           className="h-full w-auto object-contain object-right"
-          loading={index === 0 ? 'eager' : 'lazy'}
+          loading="eager"
+          fetchPriority="high"
         />
       </div>
     );
@@ -75,7 +77,12 @@ export function GalleryListView({ project }: { project: Project | null }) {
     return (
       <div className="flex h-full w-full flex-col gap-[24px] min-h-0">
         {manual.map((img, i) =>
-          renderImage(img, i, { height: 'calc((100% - 24px) / 2)' })
+          renderImage(
+            img,
+            i,
+            { height: 'calc((100% - 24px) / 2)' },
+            '(min-width:1280px) 42vw, (min-width:768px) 42vw, 100vw'
+          )
         )}
       </div>
     );

@@ -1,8 +1,8 @@
-import { getHighlightsCached } from '@/sanity/lib/client';
+import { getHomepageProjectsCached } from '@/sanity/lib/client';
 import { Home as HomeView } from './views';
 
 export default async function Page() {
-  const highlights = await getHighlightsCached();
+  const projects = await getHomepageProjectsCached();
 
-  return <HomeView projects={highlights} />;
+  return <HomeView projects={projects} />;
 }

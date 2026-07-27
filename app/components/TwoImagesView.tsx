@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { sanityLoader, urlFor } from '@/sanity/lib/image'
+import { PORTFOLIO_SIZES, urlFor } from '@/sanity/lib/image'
+import {
+    getPortfolioImageLoadProps,
+} from '@/app/lib/portfolioImageLoad'
 import type { ProjectImage } from '@/types/project'
-import Image from 'next/image'
+import { PortfolioSanityImage } from './PortfolioSanityImage'
 
 type Ratio = '3:2' | '4:5' | '5:4' | '2:3'
 
@@ -58,7 +61,7 @@ const ASPECT_BY_RATIO: Record<Ratio, string> = {
 
 const PAIR_H = 'h-[clamp(360px,60vh,820px)]'
 
-export function TwoImagesView({ images }: { images: ProjectImage[] }) {
+export function TwoImagesView({ images, priority = true }: { images: ProjectImage[]; priority?: boolean }) {
     const showRatio = !true;
 
     const [a, b] = images ?? []
@@ -86,32 +89,36 @@ export function TwoImagesView({ images }: { images: ProjectImage[] }) {
     const { a: aCls, b: bCls, shift } = LAYOUT[key];
     const isMixed = !!(ra && rb && ra !== rb)
 
-    const aAspect = !isMixed && ra ? ASPECT_BY_RATIO[ra] : ''
-    const bAspect = !isMixed && rb ? ASPECT_BY_RATIO[rb] : ''
+    // `fill` images need a wrapper with a real height. Unknown or custom crops
+    // previously produced a zero-height wrapper and appeared to never load.
+    const aAspect = !isMixed ? ASPECT_BY_RATIO[ra ?? '3:2'] : ''
+    const bAspect = !isMixed ? ASPECT_BY_RATIO[rb ?? '3:2'] : ''
 
     const aHeight = isMixed ? PAIR_H : ''
     const bHeight = isMixed ? PAIR_H : ''
+    const primaryLoadProps = getPortfolioImageLoadProps(true, priority)
+    const siblingLoadProps = getPortfolioImageLoadProps(false, priority)
 
     return (
         <div className="px-[24px] grid grid-cols-24 w-screen md:min-h-screen content-center items-center">
             {/* A */}
             <div className={`relative min-w-0 ${aCls} ${aAspect} ${aHeight} ${shift || ''}`}>
-                {srcA && (
-                    <Image
-                        loader={sanityLoader}
+                {srcA ? (
+                    <PortfolioSanityImage
                         key={a?.asset?._ref || 'two-a'}
                         src={srcA}
                         alt={a?.alt || ''}
                         fill
-                        sizes="(min-width:1280px) 42vw, (min-width:768px) 48vw, 100vw"
+                        sizes={PORTFOLIO_SIZES.twoDesktop}
                         placeholder={a?.blurDataURL ? 'blur' : 'empty'}
                         blurDataURL={a?.blurDataURL}
                         className="object-contain"
-                        priority
-                        loading="eager"
+                        sourceWidth={a?.width}
                         decoding="async"
-                        fetchPriority="high"
+                        {...primaryLoadProps}
                     />
+                ) : (
+                    <div aria-hidden className="absolute inset-0 bg-[#f3f3f3]" />
                 )}
             </div>
 
@@ -119,21 +126,22 @@ export function TwoImagesView({ images }: { images: ProjectImage[] }) {
 
             {/* B */}
             <div className={`relative min-w-0 ${bCls} ${bAspect} ${bHeight} ${shift || ''}`}>
-                {srcB && (
-                    <Image
-                        loader={sanityLoader}
+                {srcB ? (
+                    <PortfolioSanityImage
                         key={b?.asset?._ref || 'two-b'}
                         src={srcB}
                         alt={b?.alt || ''}
                         fill
-                        sizes="(min-width:1280px) 42vw, (min-width:768px) 48vw, 100vw"
+                        sizes={PORTFOLIO_SIZES.twoDesktop}
                         placeholder={b?.blurDataURL ? 'blur' : 'empty'}
                         blurDataURL={b?.blurDataURL}
                         className="object-contain"
-                        loading="eager"
+                        sourceWidth={b?.width}
                         decoding="async"
-                        fetchPriority="high"
+                        {...siblingLoadProps}
                     />
+                ) : (
+                    <div aria-hidden className="absolute inset-0 bg-[#f3f3f3]" />
                 )}
             </div>
             {showRatio && <div className='absolute bottom-20 right-20 bg-pink-200 text-[40px]'>{`ra: ${ra}, rb: ${rb}`}</div>}

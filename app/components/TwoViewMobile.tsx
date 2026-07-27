@@ -1,14 +1,18 @@
 'use client';
 
-import { urlFor } from '@/sanity/lib/image';
+import { PORTFOLIO_SIZES, urlFor } from '@/sanity/lib/image';
+import {
+  getPortfolioImageLoadProps,
+} from '@/app/lib/portfolioImageLoad';
 import type { ProjectImage } from '@/types/project';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { PortfolioSanityImage } from './PortfolioSanityImage';
 
 type Props = {
   images: ProjectImage[];
   className?: string;
   disableFade?: boolean;
+  priority?: boolean;
 };
 
 // Визначення aspect-ratio (аналогічно десктопній логіці)
@@ -52,6 +56,7 @@ export function TwoViewMobile({
   images,
   className,
   disableFade = false,
+  priority = true,
 }: Props) {
   const [a, b] = images ?? [];
   const [ready, setReady] = useState(disableFade ? true : false);
@@ -107,6 +112,8 @@ export function TwoViewMobile({
     : sameRatio && rb
       ? ASPECT_BY_RATIO[rb]
       : PAIR_H;
+  const primaryLoadProps = getPortfolioImageLoadProps(true, priority);
+  const siblingLoadProps = getPortfolioImageLoadProps(false, priority);
 
   return (
     <section
@@ -120,17 +127,20 @@ export function TwoViewMobile({
           {/* A */}
           <div className={aCol}>
             <div className={`relative w-full overflow-hidden ${aHCls} min-w-0`}>
-              {srcA && (
-                <Image
+              {srcA ? (
+                <PortfolioSanityImage
                   src={srcA}
                   alt={a?.alt || ''}
                   fill
                   className="object-contain object-center"
-                  sizes="(max-width: 768px) 50vw, 0px"
+                  sizes={PORTFOLIO_SIZES.twoMobile}
                   placeholder={a?.blurDataURL ? 'blur' : 'empty'}
                   blurDataURL={a?.blurDataURL}
-                  priority
+                  sourceWidth={a?.width}
+                  {...primaryLoadProps}
                 />
+              ) : (
+                <div aria-hidden className="absolute inset-0 bg-[#f3f3f3]" />
               )}
             </div>
           </div>
@@ -138,16 +148,20 @@ export function TwoViewMobile({
           {/* B */}
           <div className={bCol}>
             <div className={`relative w-full overflow-hidden ${bHCls} min-w-0`}>
-              {srcB && (
-                <Image
+              {srcB ? (
+                <PortfolioSanityImage
                   src={srcB}
                   alt={b?.alt || ''}
                   fill
                   className="object-contain object-center"
-                  sizes="(max-width: 768px) 50vw, 0px"
+                  sizes={PORTFOLIO_SIZES.twoMobile}
                   placeholder={b?.blurDataURL ? 'blur' : 'empty'}
                   blurDataURL={b?.blurDataURL}
+                  sourceWidth={b?.width}
+                  {...siblingLoadProps}
                 />
+              ) : (
+                <div aria-hidden className="absolute inset-0 bg-[#f3f3f3]" />
               )}
             </div>
           </div>

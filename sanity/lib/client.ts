@@ -38,7 +38,10 @@ const projectsQuery = `*[_type == "project"]|order(orderRank asc){
     images[]{
       ...,
       "alt": coalesce(alt, ""),
-      "blurDataURL": asset->metadata.lqip,
+      "blurDataURL": select(
+        ^.^._id == *[_type == "project"]|order(orderRank asc)[0]._id => asset->metadata.lqip,
+        null
+      ),
       "width": asset->metadata.dimensions.width,
       "height": asset->metadata.dimensions.height
     }
@@ -54,6 +57,81 @@ export const getProjectsCached = unstable_cache(
   ['sanity-projects-v1'],
   { revalidate: 60 * 60 }
 )
+
+// Homepage-only projection: titles and counts for navigation, plus only the
+// first renderable view (or first legacy image fallback) for initial paint.
+const homepageProjectsQuery = `*[_type == "project"]|order(orderRank asc){
+  _id,
+  title,
+  "viewCount": count(views),
+  "imageCount": select(
+    count(views) > 0 => count(views[].images[]),
+    count(images[])
+  ),
+  "views": views[0...1]{
+    _type,
+    images[]{
+      ...,
+      "alt": coalesce(alt, ""),
+      "blurDataURL": select(
+        ^._id == *[_type == "project"]|order(orderRank asc)[0]._id => asset->metadata.lqip,
+        null
+      ),
+      "width": asset->metadata.dimensions.width,
+      "height": asset->metadata.dimensions.height
+    }
+  },
+  "images": select(
+    count(views) == 0 && count(images) > 0 => images[0...1]{
+      ...,
+      "alt": coalesce(alt, ""),
+      "blurDataURL": asset->metadata.lqip,
+      "width": asset->metadata.dimensions.width,
+      "height": asset->metadata.dimensions.height
+    },
+    []
+  )
+}`
+
+export const getHomepageProjectsCached = unstable_cache(
+  async () => client.fetch<Project[]>(homepageProjectsQuery),
+  ['sanity-homepage-projects-v8'],
+  { revalidate: 60 * 60 }
+)
+
+const projectViewsQuery = `*[_type == "project" && _id == $id][0]{
+  images[]{
+    ...,
+    "alt": coalesce(alt, ""),
+    "blurDataURL": asset->metadata.lqip,
+    "width": asset->metadata.dimensions.width,
+    "height": asset->metadata.dimensions.height
+  },
+  views[]{
+    _type,
+    images[]{
+      ...,
+      "alt": coalesce(alt, ""),
+      "blurDataURL": asset->metadata.lqip,
+      "width": asset->metadata.dimensions.width,
+      "height": asset->metadata.dimensions.height
+    }
+  }
+}`
+
+export async function getProjectViewsById(id: string) {
+  return client.fetch<{
+    images?: Project['images']
+    views?: Project['views']
+  } | null>(projectViewsQuery, { id })
+}
+
+export const getProjectViewsByIdCached = (id: string) =>
+  unstable_cache(
+    async () => getProjectViewsById(id),
+    ['sanity-project-views-v2', id],
+    { revalidate: 60 * 60 }
+  )();
 
 // Archive projects
 export type ArchiveProject = {

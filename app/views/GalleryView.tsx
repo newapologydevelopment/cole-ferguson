@@ -1,10 +1,8 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 'use client';
 
 import { Project as ProjectType } from '@/types';
 import { cn, collectAllImages } from '@/utils';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
   useCallback,
   useEffect,
@@ -31,86 +29,43 @@ export const GalleryView = ({
   archiveCount?: number;
 }) => {
   const [view, setView] = useState('grid');
-  const { isMobile } = useBreakpoint();
+  const { isMobile, isCompact } = useBreakpoint();
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [lightBoxOpen, setLightBoxOpen] = useState(false);
   const [listViewSelectedProject, setListViewSelectedProject] =
     useState<ProjectType | null>(projects[0]);
   const [actualPhoto, setActualPhoto] = useState<string | null>(null);
+  const galleryScrollRef = useRef<HTMLDivElement>(null);
+  const reduceMotion = useReducedMotion();
   const allImages = collectAllImages(projects);
+  const tabsRef = useRef<HTMLDivElement>(null);
+  const gridTabRef = useRef<HTMLButtonElement>(null);
+  const listTabRef = useRef<HTMLButtonElement>(null);
+  const [tabUnderline, setTabUnderline] = useState({ left: 0, width: 0 });
 
   useScrollToTop();
 
-  const mobileTabsWrapRef = useRef<HTMLDivElement | null>(null);
-  const mobileGridRef = useRef<HTMLDivElement | null>(null);
-  const mobileListRef = useRef<HTMLDivElement | null>(null);
-  const [mobileUnderline, setMobileUnderline] = useState({ left: 0, width: 0 });
-  const measureMobile = useCallback(() => {
-    const wrap = mobileTabsWrapRef.current;
-    const active =
-      view === 'grid' ? mobileGridRef.current : mobileListRef.current;
-    if (!wrap || !active) return;
-    const wr = wrap.getBoundingClientRect();
-    const ar = active.getBoundingClientRect();
-    const left = ar.left - wr.left;
-    const width = ar.width;
-    setMobileUnderline((prev) =>
-      prev.left === left && prev.width === width ? prev : { left, width }
-    );
-  }, [view]);
-  useLayoutEffect(() => {
-    measureMobile();
-  }, [measureMobile]);
-  useEffect(() => {
-    const onResize = () => measureMobile();
-    window.addEventListener('resize', onResize);
-    const id = window.requestAnimationFrame(measureMobile);
-    const ro = mobileTabsWrapRef.current
-      ? new ResizeObserver(() => measureMobile())
-      : null;
-    if (mobileTabsWrapRef.current && ro) ro.observe(mobileTabsWrapRef.current);
-    // after fonts load — recalc
-    // @ts-ignore
-    if (document?.fonts?.ready) {
-      // @ts-ignore
-      document.fonts.ready.then(() => measureMobile()).catch(() => { });
-    }
-    return () => {
-      window.removeEventListener('resize', onResize);
-      window.cancelAnimationFrame(id);
-      if (ro && mobileTabsWrapRef.current) ro.disconnect();
-    };
-  }, [measureMobile]);
+  const measureTabUnderline = useCallback(() => {
+    const tabs = tabsRef.current;
+    const active = view === 'grid' ? gridTabRef.current : listTabRef.current;
+    if (!tabs || !active) return;
 
-  // underline (desktop)
-  const deskTabsWrapRef = useRef<HTMLDivElement | null>(null);
-  const deskGridRef = useRef<HTMLDivElement | null>(null);
-  const deskListRef = useRef<HTMLDivElement | null>(null);
-  const [deskUnderline, setDeskUnderline] = useState({ left: 0, width: 0 });
-  const measureDesk = () => {
-    const wrap = deskTabsWrapRef.current;
-    const active = view === 'grid' ? deskGridRef.current : deskListRef.current;
-    if (!wrap || !active) return;
-    const wr = wrap.getBoundingClientRect();
-    const ar = active.getBoundingClientRect();
-    const left = ar.left - wr.left;
-    const width = ar.width;
-    setDeskUnderline((prev) =>
-      prev.left === left && prev.width === width ? prev : { left, width }
-    );
-  };
-  useLayoutEffect(() => {
-    measureDesk();
+    const tabsRect = tabs.getBoundingClientRect();
+    const activeRect = active.getBoundingClientRect();
+    setTabUnderline({
+      left: activeRect.left - tabsRect.left,
+      width: activeRect.width,
+    });
   }, [view]);
+
+  useLayoutEffect(() => {
+    measureTabUnderline();
+  }, [isCompact, measureTabUnderline]);
+
   useEffect(() => {
-    const onResize = () => measureDesk();
-    window.addEventListener('resize', onResize);
-    const id = window.requestAnimationFrame(measureDesk);
-    return () => {
-      window.removeEventListener('resize', onResize);
-      window.cancelAnimationFrame(id);
-    };
-  }, []);
+    window.addEventListener('resize', measureTabUnderline);
+    return () => window.removeEventListener('resize', measureTabUnderline);
+  }, [measureTabUnderline]);
 
   const handleLightBoxOpen = (project: ProjectType) => {
     setLightBoxOpen(!lightBoxOpen);
@@ -122,113 +77,90 @@ export const GalleryView = ({
     }
   };
 
-  if (isMobile)
+  if (isCompact)
     return (
-      <div className="pt-[83px] xl:hidden h-[100dvh] w-full text-[12px] text-primary-dark px-[20px] pb-[40px]">
-        {/* MOBILE VIEW SWITCH — full-width white bar tight under mobile menu */}
-        <div className="fixed z-[2] top-[40px] left-0 right-0 bg-white">
-          <div
-            ref={mobileTabsWrapRef}
-            className="relative flex justify-center gap-[15px] py-[10px]"
-          >
-            <div
-              ref={mobileGridRef}
-              className={cn('cursor-pointer transition-transform', {
-                'translate-y-[-4px]': view === 'grid',
-              })}
-              onClick={() => setView('grid')}
-            >
-              Grid
-            </div>
-            <div
-              ref={mobileListRef}
-              className={cn('cursor-pointer transition-transform', {
-                'translate-y-[-4px]': view === 'list',
-              })}
-              onClick={() => setView('list')}
-            >
-              List
-            </div>
-            <motion.div
-              className="absolute h-[1px] bg-black"
-              style={{ bottom: 8 }}
-              initial={false}
-              animate={{
-                left: mobileUnderline.left,
-                width: mobileUnderline.width,
-              }}
-              transition={{
-                type: 'spring',
-                stiffness: 380,
-                damping: 36,
-                mass: 0.2,
-              }}
-            />
-          </div>
-        </div>
-
-        {view === 'list' && (
-          <GalleryList
-            items={projects}
-            archiveCount={archiveCount}
-            onHoverProject={(project) => setListViewSelectedProject(project)}
-            onClick={handleLightBoxOpen}
-          />
-        )}
-
-        {view === 'grid' && (
-          <GalleryGridViewMobile
-            items={allImages}
-            projects={projects}
-            selectedProject={selectedProject}
-            onClick={handleLightBoxOpen}
-            selectActualPhoto={setActualPhoto}
-          />
-        )}
+      <div
+        className="pt-[64px] xl:hidden h-[100dvh] w-full overflow-y-auto overscroll-contain hide-scrollbar text-[12px] text-primary-dark px-[20px] pb-[40px]"
+        data-gallery-scroll
+      >
+        <h1 className="sr-only">Photography index</h1>
+        <GalleryGridViewMobile
+          items={allImages}
+          projects={projects}
+          selectedProject={selectedProject}
+          onClick={handleLightBoxOpen}
+          selectActualPhoto={setActualPhoto}
+        />
 
         {lightBoxOpen && (
           <LightBox
             close={() => setLightBoxOpen(false)}
             title={listViewSelectedProject?.title || ''}
           >
-            <ProjectMobile
-              actualPhoto={actualPhoto}
-              project={listViewSelectedProject as unknown as ProjectType}
-              showIndicator={true}
-              showBottomTitle={false}
-            />
+            {isMobile ? (
+              <ProjectMobile
+                actualPhoto={actualPhoto}
+                project={listViewSelectedProject as unknown as ProjectType}
+                showIndicator={true}
+                showBottomTitle={false}
+              />
+            ) : (
+              <Project
+                actualPhoto={actualPhoto}
+                project={listViewSelectedProject as unknown as ProjectType}
+              />
+            )}
           </LightBox>
         )}
       </div>
     );
 
   return (
-    <div className="hidden sm:grid grid-cols-24 w-full h-full text-[12px] text-primary-dark p-[24px] ">
+    <div
+      ref={galleryScrollRef}
+      className="hidden sm:grid grid-cols-24 w-full h-full overflow-y-auto overscroll-contain hide-scrollbar text-[12px] text-primary-dark p-[24px]"
+      data-gallery-scroll
+    >
+      <h1 className="sr-only">Photography index</h1>
       <div className="hidden fixed z-[2] sm:block sm:top-[50px] sm:left-1/2 sm:-translate-x-1/2 xl:top-[50%] xl:translate-y-[-50%] xl:left-[24px] xl:translate-x-0">
-        <div ref={deskTabsWrapRef} className="relative flex gap-[15px]">
-          <div
-            ref={deskGridRef}
-            className={cn('cursor-pointer transition-transform', {
-              'translate-y-[-4px]': view === 'grid',
-            })}
+        <div
+          ref={tabsRef}
+          className="relative flex gap-[15px]"
+          role="group"
+          aria-label="Gallery view"
+        >
+          <button
+            ref={gridTabRef}
+            type="button"
+            className={cn(
+              'min-h-[24px] cursor-pointer pb-[2px] transition-transform focus-visible:outline-2 focus-visible:outline-offset-2',
+              {
+                'translate-y-[-4px]': view === 'grid',
+              }
+            )}
             onClick={() => setView('grid')}
+            aria-pressed={view === 'grid'}
           >
             Grid
-          </div>
-          <div
-            ref={deskListRef}
-            className={cn('cursor-pointer transition-transform', {
-              'translate-y-[-4px]': view === 'list',
-            })}
+          </button>
+          <button
+            ref={listTabRef}
+            type="button"
+            className={cn(
+              'min-h-[24px] cursor-pointer pb-[2px] transition-transform focus-visible:outline-2 focus-visible:outline-offset-2',
+              {
+                'translate-y-[-4px]': view === 'list',
+              }
+            )}
             onClick={() => setView('list')}
+            aria-pressed={view === 'list'}
           >
             List
-          </div>
+          </button>
           <motion.div
-            className="absolute h-[1px] bg-black"
-            style={{ bottom: -2 }}
+            className="absolute bottom-0 h-px bg-black"
             initial={false}
-            animate={{ left: deskUnderline.left, width: deskUnderline.width }}
+            animate={tabUnderline}
             transition={{
               type: 'spring',
               stiffness: 380,
@@ -239,31 +171,58 @@ export const GalleryView = ({
         </div>
       </div>
 
-      {view === 'list' && (
-        <GalleryList
-          items={projects}
-          archiveCount={archiveCount}
-          onHoverProject={(project) => setListViewSelectedProject(project)}
-          onClick={handleLightBoxOpen}
-        />
-      )}
-
-      {view === 'grid' && (
-        <GalleryGridView
-          items={allImages}
-          projects={projects}
-          selectedProject={selectedProject}
-          onHoverProject={setSelectedProject}
-          onClick={handleLightBoxOpen}
-          selectActualPhoto={setActualPhoto}
-        />
-      )}
-
-      {view === 'list' && (
-        <div className="col-start-12 col-span-13 h-full xl:flex hidden min-h-0">
-          <GalleryListView project={listViewSelectedProject} />
-        </div>
-      )}
+      <AnimatePresence
+        initial={false}
+        mode="sync"
+        onExitComplete={() => galleryScrollRef.current?.scrollTo({ top: 0 })}
+      >
+        <motion.div
+          key={view}
+          className="col-start-1 col-span-full row-start-1 grid grid-cols-24 min-h-full"
+          initial={{ opacity: reduceMotion ? 1 : 0 }}
+          animate={{ opacity: 1 }}
+          exit={
+            reduceMotion
+              ? { opacity: 1, transition: { duration: 0 } }
+              : {
+                  opacity: 0,
+                  transition: {
+                    duration: 0.16,
+                    ease: [0.4, 0, 1, 1],
+                  },
+                }
+          }
+          transition={{
+            duration: reduceMotion ? 0 : 0.24,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+        >
+          {view === 'list' ? (
+            <>
+              <GalleryList
+                items={projects}
+                archiveCount={archiveCount}
+                onHoverProject={(project) =>
+                  setListViewSelectedProject(project)
+                }
+                onClick={handleLightBoxOpen}
+              />
+              <div className="col-start-12 col-span-13 h-full xl:flex hidden min-h-0">
+                <GalleryListView project={listViewSelectedProject} />
+              </div>
+            </>
+          ) : (
+            <GalleryGridView
+              items={allImages}
+              projects={projects}
+              selectedProject={selectedProject}
+              onHoverProject={setSelectedProject}
+              onClick={handleLightBoxOpen}
+              selectActualPhoto={setActualPhoto}
+            />
+          )}
+        </motion.div>
+      </AnimatePresence>
 
       {lightBoxOpen && (
         <LightBox

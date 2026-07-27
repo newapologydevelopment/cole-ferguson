@@ -3,7 +3,7 @@
 
 import type { Project as ProjectType, ProjectView } from '@/types/project';
 import { cn } from '@/utils';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import {
   useCallback,
@@ -13,6 +13,11 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useHydratedProjectViews } from '../hooks';
+import {
+  preloadAdjacentProjectViews,
+  preloadInitialProjectViews,
+} from './prefetchProjectViews';
 import { SingleViewMobile } from './SingleViewMobile';
 import { ThreeViewMobile } from './ThreeViewMobile';
 import { TwoViewMobile } from './TwoViewMobile';
@@ -22,7 +27,13 @@ interface Props {
   actualPhoto?: string | null;
   showIndicator?: boolean;
   showBottomTitle?: boolean;
+  priorityImages?: boolean;
 }
+
+const VIEW_CROSSFADE = {
+  duration: 0.72,
+  ease: 'linear' as const,
+};
 
 const normalizeViews = (project: ProjectType): ProjectView[] => {
   const base: ProjectView[] =
@@ -41,20 +52,35 @@ const normalizeViews = (project: ProjectType): ProjectView[] => {
   });
 };
 
+const findViewIndexForImage = (
+  views: ProjectView[],
+  globalImageIndex: number
+): number => {
+  let accumulated = 0;
+
+  for (let viewIndex = 0; viewIndex < views.length; viewIndex++) {
+    const count = views[viewIndex].images?.length ?? 0;
+    if (globalImageIndex < accumulated + count) return viewIndex;
+    accumulated += count;
+  }
+
+  return Math.max(0, views.length - 1);
+};
+
 export const ProjectMobile: React.FC<Props> = ({
   project,
   actualPhoto,
   showIndicator = true,
   showBottomTitle = true,
+  priorityImages = true,
 }) => {
   // стабільний ключ проєкту
   const projectKey =
     project?._id || (project as any)?.slug || project?.title || 'project';
-  const views = useMemo(() => normalizeViews(project), [project]);
+  const hydratedProject = useHydratedProjectViews(project, priorityImages);
+  const views = useMemo(() => normalizeViews(hydratedProject), [hydratedProject]);
+  const reduceMotion = useReducedMotion();
   const [index, setIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const transitionTimerRef = useRef<number | null>(null);
-  const TRANSITION_MS = 280;
   const pathname = usePathname();
   const isNotHomePage = pathname !== '/';
 
@@ -76,37 +102,39 @@ export const ProjectMobile: React.FC<Props> = ({
   }, [actualPhoto, views]);
 
   const goPrev = useCallback(() => {
-    if (views.length === 0 || isTransitioning) return;
-    setIsTransitioning(true);
+    if (views.length === 0) return;
     setIndex((i) => (i - 1 + views.length) % views.length);
-    if (transitionTimerRef.current)
-      window.clearTimeout(transitionTimerRef.current);
-    transitionTimerRef.current = window.setTimeout(
-      () => setIsTransitioning(false),
-      TRANSITION_MS
-    );
-  }, [views.length, isTransitioning]);
+  }, [views.length]);
 
   const goNext = useCallback(() => {
-    if (views.length === 0 || isTransitioning) return;
-    setIsTransitioning(true);
+    if (views.length === 0) return;
     setIndex((i) => (i + 1) % views.length);
-    if (transitionTimerRef.current)
-      window.clearTimeout(transitionTimerRef.current);
-    transitionTimerRef.current = window.setTimeout(
-      () => setIsTransitioning(false),
-      TRANSITION_MS
-    );
-  }, [views.length, isTransitioning]);
+  }, [views.length]);
+
+  const goToImage = useCallback(
+    (globalImageIndex: number) => {
+      if (views.length === 0) return;
+      const nextIndex = findViewIndexForImage(views, globalImageIndex);
+      if (nextIndex === index) return;
+
+      setIndex(nextIndex);
+    },
+    [index, views]
+  );
 
   // індикатор (логіка ідентична десктопу)
   const imageCounts = views.map((v) => v.images?.length ?? 0);
-  const totalImages = imageCounts.reduce((a, b) => a + b, 0);
+  const loadedImageTotal = imageCounts.reduce((a, b) => a + b, 0);
+  const expectedViewCount = hydratedProject.viewCount ?? views.length;
+  const hasAllViews = views.length >= expectedViewCount;
+  const totalImages = hasAllViews
+    ? (hydratedProject.imageCount ?? loadedImageTotal)
+    : loadedImageTotal;
   const beforeCount = imageCounts.slice(0, index).reduce((a, b) => a + b, 0);
   const currentCount = current?.images?.length ?? 0;
 
   const digitsRef = useRef<HTMLDivElement | null>(null);
-  const digitRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const digitRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const [underline, setUnderline] = useState({ left: 0, width: 0 });
 
   // скидаємо refs коли змінюється кількість цифр
@@ -144,39 +172,39 @@ export const ProjectMobile: React.FC<Props> = ({
     return () => window.removeEventListener('resize', onResize);
   }, [measure, showIndicator]);
 
+  useEffect(() => {
+    if (!priorityImages || views.length === 0) return;
+    preloadInitialProjectViews(views);
+  }, [priorityImages, views]);
+
+  useEffect(() => {
+    if (!priorityImages || views.length === 0) return;
+    preloadAdjacentProjectViews(views, index);
+  }, [index, priorityImages, views]);
+
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
   const onTouchStart = (e: React.TouchEvent) => {
-    if (isTransitioning) return;
     touchStartX.current = e.touches[0].clientX;
+    touchEndX.current = e.touches[0].clientX;
   };
   const onTouchMove = (e: React.TouchEvent) => {
-    if (isTransitioning) return;
     touchEndX.current = e.touches[0].clientX;
   };
   const onTouchEnd = () => {
-    if (isTransitioning) return;
     const dx = touchStartX.current - touchEndX.current;
     const threshold = 48;
     if (dx > threshold) goNext();
     else if (dx < -threshold) goPrev();
   };
 
-  // cleanup таймера при анмаунті
-  useEffect(() => {
-    return () => {
-      if (transitionTimerRef.current)
-        window.clearTimeout(transitionTimerRef.current);
-    };
-  }, []);
-
   const renderView = (v?: ProjectView | null) => {
     if (!v || !v.images || v.images.length === 0) return null;
     if (v._type === 'twoView' && v.images.length === 2)
-      return <TwoViewMobile images={v.images} disableFade />;
+      return <TwoViewMobile images={v.images} disableFade priority={priorityImages} />;
     if (v._type === 'threeView' && v.images.length === 3)
-      return <ThreeViewMobile images={v.images} />;
-    return <SingleViewMobile image={v.images[0]} />;
+      return <ThreeViewMobile images={v.images} priority={priorityImages} />;
+    return <SingleViewMobile image={v.images[0]} priority={priorityImages} />;
   };
 
   return (
@@ -192,17 +220,21 @@ export const ProjectMobile: React.FC<Props> = ({
     >
       {/* STAGE */}
       <div className="relative w-full h-full">
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence initial={false} mode="sync">
           <motion.div
             key={viewKey}
-            className={cn('absolute inset-0 z-0 will-change-transform', {
+            className={cn('absolute inset-0', {
               'pointer-events-none': !isNotHomePage,
               'pointer-events-auto': isNotHomePage,
             })}
-            initial={false} // ← щоб не було початкового мерехтіння
+            initial={{ opacity: reduceMotion ? 1 : 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.22, ease: [0.4, 0.0, 0.2, 1] }}
+            exit={{ opacity: reduceMotion ? 1 : 0 }}
+            transition={
+              reduceMotion
+                ? { duration: 0 }
+                : VIEW_CROSSFADE
+            }
           >
             <div className={cn('h-full w-full', {
               'pointer-events-none': !isNotHomePage,
@@ -219,7 +251,7 @@ export const ProjectMobile: React.FC<Props> = ({
       </div>
 
       {showIndicator && totalImages > 0 && (
-        <div className="pointer-events-none fixed bottom-[24px] left-1/2 -translate-x-1/2 z-[40]">
+        <div className="fixed bottom-[24px] left-1/2 -translate-x-1/2 z-[70]">
           <div
             ref={digitsRef}
             className="relative flex gap-[4px] text-[12px] pb-[2px] leading-none"
@@ -228,15 +260,22 @@ export const ProjectMobile: React.FC<Props> = ({
               const isActive =
                 i >= beforeCount && i < beforeCount + currentCount;
               return (
-                <span
+                <button
                   key={i}
+                  type="button"
+                  aria-label={`Go to image ${i + 1}`}
+                  aria-current={isActive ? 'true' : undefined}
                   ref={(el) => {
                     digitRefs.current[i] = el;
                   }}
-                  className={`inline-block px-[1px] ${isActive ? '-translate-y-[2px]' : ''}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    goToImage(i);
+                  }}
+                  className={`inline-block px-[1px] cursor-pointer transition-[color,transform] duration-200 hover:text-[#717171] ${isActive ? '-translate-y-[2px]' : ''}`}
                 >
                   {i + 1}
-                </span>
+                </button>
               );
             })}
             {currentCount > 0 && (
@@ -262,32 +301,20 @@ export const ProjectMobile: React.FC<Props> = ({
         type="button"
         aria-label="Previous"
         onClick={(e) => {
-          if (isTransitioning) return;
           e.stopPropagation();
           goPrev();
         }}
-        onTouchStart={(e) => {
-          if (isTransitioning) return;
-          e.stopPropagation();
-          goPrev();
-        }}
-        className={`pointer-events-none sm:pointer-events-auto absolute left-[6px] top-0 h-full w-[calc(50%-6px)] z-[60] ${isTransitioning ? 'pointer-events-none' : 'pointer-events-auto'} focus:outline-none`}
+        className="pointer-events-auto absolute left-[6px] top-0 h-full w-[calc(50%-6px)] z-[60] focus-visible:outline-2 focus-visible:outline-black focus-visible:outline-offset-[-4px]"
         style={{ background: 'transparent' }}
       />
       <button
         type="button"
         aria-label="Next"
         onClick={(e) => {
-          if (isTransitioning) return;
           e.stopPropagation();
           goNext();
         }}
-        onTouchStart={(e) => {
-          if (isTransitioning) return;
-          e.stopPropagation();
-          goNext();
-        }}
-        className={`pointer-events-none sm:pointer-events-auto absolute right-0 top-0 h-full w-1/2 z-[60] ${isTransitioning ? 'pointer-events-none' : 'pointer-events-auto'} focus:outline-none`}
+        className="pointer-events-auto absolute right-0 top-0 h-full w-1/2 z-[60] focus-visible:outline-2 focus-visible:outline-black focus-visible:outline-offset-[-4px]"
         style={{ background: 'transparent' }}
       />
 
