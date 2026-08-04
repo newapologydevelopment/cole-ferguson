@@ -111,7 +111,7 @@ export const MenuMobile = () => {
                 className="py-3 z-[4]"
                 onClick={() => setInformationOpen(false)}
               >
-                Index
+                Overview
               </Link>
 
               <Link

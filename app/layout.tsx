@@ -116,7 +116,7 @@ export default function RootLayout({
                 className="cursor-pointer xl:block hidden hover:text-[#717171] transition-colors duration-300 pointer-events-auto"
                 data-hide-cursor="true"
               >
-                Index
+                Overview
               </Link>
               <div className="pointer-events-auto">
                 <InformationButton />
