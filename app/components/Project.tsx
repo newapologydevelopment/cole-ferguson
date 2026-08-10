@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { urlFor } from '@/sanity/lib/image';
 import type { Project as ProjectType, ProjectView } from '@/types/project';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
   useCallback,
   useEffect,
@@ -12,7 +10,11 @@ import {
   useRef,
   useState,
 } from 'react';
-import { CursorLabel } from './CursorLabel';
+import { useHydratedProjectViews } from '../hooks';
+import {
+  preloadAdjacentProjectViews,
+  preloadInitialProjectViews,
+} from './prefetchProjectViews';
 import { SingleImageView } from './SingleImageView';
 import { ThreeImagesView } from './ThreeImagesView';
 import { TwoImagesView } from './TwoImagesView';
@@ -21,7 +23,13 @@ interface Props {
   project: ProjectType;
   actualPhoto?: string | null;
   showIndicator?: boolean;
+  priorityImages?: boolean;
 }
+
+const VIEW_CROSSFADE = {
+  duration: 0.72,
+  ease: 'linear' as const,
+};
 
 // ——— helpers ———
 const normalizeViews = (project: ProjectType): ProjectView[] => {
@@ -42,12 +50,30 @@ const normalizeViews = (project: ProjectType): ProjectView[] => {
   });
 };
 
+const findViewIndexForImage = (
+  views: ProjectView[],
+  globalImageIndex: number
+): number => {
+  let accumulated = 0;
+
+  for (let viewIndex = 0; viewIndex < views.length; viewIndex++) {
+    const count = views[viewIndex].images?.length ?? 0;
+    if (globalImageIndex < accumulated + count) return viewIndex;
+    accumulated += count;
+  }
+
+  return Math.max(0, views.length - 1);
+};
+
 export const Project: React.FC<Props> = ({
   project,
   actualPhoto,
   showIndicator = true,
+  priorityImages = true,
 }) => {
-  const views = useMemo(() => normalizeViews(project), [project]);
+  const hydratedProject = useHydratedProjectViews(project, priorityImages);
+  const views = useMemo(() => normalizeViews(hydratedProject), [hydratedProject]);
+  const reduceMotion = useReducedMotion();
 
   const [index, setIndex] = useState(0);
 
@@ -69,16 +95,31 @@ export const Project: React.FC<Props> = ({
     setIndex((i) => (i + 1) % views.length);
   }, [views.length]);
 
+  const goToImage = useCallback(
+    (globalImageIndex: number) => {
+      if (views.length === 0) return;
+      const nextIndex = findViewIndexForImage(views, globalImageIndex);
+      if (nextIndex === index) return;
+      setIndex(nextIndex);
+    },
+    [index, views]
+  );
+
   const current = views[index];
 
   // Indicator
   const imageCounts = views.map((v) => v.images?.length ?? 0);
-  const totalImages = imageCounts.reduce((a, b) => a + b, 0);
+  const loadedImageTotal = imageCounts.reduce((a, b) => a + b, 0);
+  const expectedViewCount = hydratedProject.viewCount ?? views.length;
+  const hasAllViews = views.length >= expectedViewCount;
+  const totalImages = hasAllViews
+    ? (hydratedProject.imageCount ?? loadedImageTotal)
+    : loadedImageTotal;
   const beforeCount = imageCounts.slice(0, index).reduce((a, b) => a + b, 0);
   const currentCount = current?.images?.length ?? 0;
 
   const digitsRef = useRef<HTMLDivElement | null>(null);
-  const digitRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const digitRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const [underline, setUnderline] = useState({ left: 0, width: 0 });
 
   const measure = useCallback(() => {
@@ -118,107 +159,48 @@ export const Project: React.FC<Props> = ({
     };
   }, [showIndicator, measure, beforeCount, currentCount, totalImages]);
 
-  // ——— Прелоад найближчих кадрів (позакулісно) ———
-  const preloadedUrlsRef = useRef<Set<string>>(new Set());
-
-  const getFirstAssetRef = (v?: ProjectView | null): string | null => {
-    const img = v?.images && v.images[0];
-    const ref = img?.asset?._ref;
-    return typeof ref === 'string' ? ref : null;
-  };
-
-  const getWidthFactor = (v?: ProjectView | null): number => {
-    if (!v) return 0.6;
-    if (v._type === 'threeView') return 0.28;
-    if (v._type === 'twoView') return 0.42;
-    return 0.6;
-  };
-
-  const buildCdnUrl = (assetRef: string, factor: number): string | null => {
-    if (typeof window === 'undefined') return null;
-    const w = Math.max(640, Math.round(window.innerWidth * factor));
-    try {
-      return urlFor({ _type: 'image', asset: { _ref: assetRef } })
-        .width(w)
-        .fit('max')
-        .auto('format')
-        .quality(75)
-        .url();
-    } catch {
-      return null;
-    }
-  };
-
-  const preloadView = useCallback(
-    (vi: number) => {
-      const v = views[vi];
-      const ref = getFirstAssetRef(v);
-      if (!ref) return;
-      const url = buildCdnUrl(ref, getWidthFactor(v));
-      if (!url) return;
-      if (preloadedUrlsRef.current.has(url)) return;
-      preloadedUrlsRef.current.add(url);
-      const img = new Image();
-      if (typeof (img as any).fetchPriority !== 'undefined') {
-        (img as any).fetchPriority = 'low';
-      }
-      img.decoding = 'async';
-      img.src = url;
-    },
-    [views]
-  );
-
-  // На старті: крім першого, одразу підтягуємо другий і останній
   useEffect(() => {
-    if (views.length === 0) return;
-    const preloadInitial = () => {
-      if (views.length >= 2) preloadView(1);
-      if (views.length >= 1) preloadView(views.length - 1);
-    };
-    if (typeof window.requestIdleCallback === 'function') {
-      window.requestIdleCallback(preloadInitial);
-    } else {
-      setTimeout(preloadInitial, 0);
-    }
-  }, [views, preloadView]);
+    if (!priorityImages || views.length === 0) return;
+    preloadInitialProjectViews(views);
+  }, [priorityImages, views]);
 
-  // На кожному кроці: підвантажити попередній і наступний
   useEffect(() => {
-    if (views.length === 0) return;
-    const next = (index + 1) % views.length;
-    const prev = (index - 1 + views.length) % views.length;
-    preloadView(next);
-    preloadView(prev);
-  }, [index, views.length, preloadView]);
+    if (!priorityImages || views.length === 0) return;
+    preloadAdjacentProjectViews(views, index);
+  }, [index, priorityImages, views]);
 
   // ——— єдина точка рендеру view без дубляжу single ———
   const renderView = (v?: ProjectView | null) => {
     if (!v || !v.images || v.images.length === 0) return null;
     if (v._type === 'twoView' && v.images.length === 2) {
-      return <TwoImagesView images={v.images} />;
+      return <TwoImagesView images={v.images} priority={priorityImages} />;
     }
     if (v._type === 'threeView' && v.images.length === 3) {
-      return <ThreeImagesView images={v.images} />;
+      return <ThreeImagesView images={v.images} priority={priorityImages} />;
     }
     // усе, що має 1 фото — завжди один шлях:
     if (v.images.length === 1) {
-      return <SingleImageView image={v.images[0]} />;
+      return <SingleImageView image={v.images[0]} priority={priorityImages} />;
     }
     // (неочікуваний кейс)  — на всяк випадок покажемо перше як single
-    return <SingleImageView image={v.images[0]} />;
+    return <SingleImageView image={v.images[0]} priority={priorityImages} />;
   };
 
   return (
-    <div className="relative h-screen w-screen flex items-center justify-center select-none overflow-x-hidden cursor-none">
+    <div className="relative h-screen w-screen flex items-center justify-center select-none overflow-x-hidden">
       <div className="relative w-full h-full">
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence initial={false} mode="sync">
           <motion.div
             key={`desktop-${index}`}
-            className="absolute inset-0 z-0 pointer-events-none will-change-transform"
-            initial={false}
+            className="absolute inset-0 pointer-events-none"
+            initial={{ opacity: reduceMotion ? 1 : 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.18, ease: [0.4, 0.0, 0.2, 1] }}
+            exit={{ opacity: reduceMotion ? 1 : 0 }}
+            transition={
+              reduceMotion
+                ? { duration: 0 }
+                : VIEW_CROSSFADE
+            }
           >
             <div className="pointer-events-none">
               {renderView(current) ?? (
@@ -233,7 +215,7 @@ export const Project: React.FC<Props> = ({
 
       {showIndicator && totalImages > 0 && (
         <div
-          className="pointer-events-none fixed bottom-[24px] left-1/2 -translate-x-1/2 z-[40]"
+          className="fixed bottom-[24px] left-1/2 -translate-x-1/2 z-[70]"
           data-hide-cursor="true"
         >
           <div ref={digitsRef} className="relative flex gap-[4px] text-[12px]">
@@ -241,15 +223,19 @@ export const Project: React.FC<Props> = ({
               const isActive =
                 i >= beforeCount && i < beforeCount + currentCount;
               return (
-                <span
+                <button
                   key={i}
+                  type="button"
+                  aria-label={`Go to image ${i + 1}`}
+                  aria-current={isActive ? 'true' : undefined}
                   ref={(el) => {
                     digitRefs.current[i] = el;
                   }}
-                  className={`inline-block px-[1px] ${isActive ? '-translate-y-[2px]' : ''}`}
+                  onClick={() => goToImage(i)}
+                  className={`inline-block px-[1px] cursor-pointer transition-[color,transform] duration-200 hover:text-[#717171] ${isActive ? '-translate-y-[2px]' : ''}`}
                 >
                   {i + 1}
-                </span>
+                </button>
               );
             })}
             {currentCount > 0 && (
@@ -271,25 +257,30 @@ export const Project: React.FC<Props> = ({
       )}
 
       {/* Tablet title (desktop Project used on tablets): show title at the bottom like mobile */}
-      <div className="fixed bottom-[25px] left-0 right-0 p-[20px] text-center z-[10] xl:hidden">
-        {project.title}
-      </div>
+      {showIndicator && (
+        <div className="fixed bottom-[25px] left-0 right-0 p-[20px] text-center z-[10] xl:hidden">
+          {project.title}
+        </div>
+      )}
 
       <button
         type="button"
         aria-label="Previous"
         onClick={goPrev}
-        className="absolute left-0 top-0 h-full w-1/2 cursor-none focus:outline-none prev-btn"
+        disabled={!showIndicator}
+        data-cursor="prev"
+        className="absolute left-0 top-0 h-full w-1/2 focus-visible:outline-2 focus-visible:outline-black focus-visible:outline-offset-[-4px] prev-btn"
         style={{ background: 'transparent' }}
       />
       <button
         type="button"
         aria-label="Next"
         onClick={goNext}
-        className="absolute right-0 top-0 h-full w-1/2 cursor-none focus:outline-none next-btn"
+        disabled={!showIndicator}
+        data-cursor="next"
+        className="absolute right-0 top-0 h-full w-1/2 focus-visible:outline-2 focus-visible:outline-black focus-visible:outline-offset-[-4px] next-btn"
         style={{ background: 'transparent' }}
       />
-      <CursorLabel />
     </div>
   );
 };

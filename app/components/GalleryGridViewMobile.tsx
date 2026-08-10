@@ -2,7 +2,10 @@
 
 import { urlFor } from "@/sanity/lib/image"
 import type { ProjectImage, Project as ProjectType } from "@/types/project"
-import Image from "next/image"
+import { GridRevealImage } from "./GridRevealImage"
+import { usePreloaderDone } from "./PreloaderGate"
+
+const MOBILE_INITIAL_REVEAL_COUNT = 8
 
 export type GalleryGridItem = {
     projectId: string
@@ -27,6 +30,7 @@ export const GalleryGridViewMobile = ({
 
 }: Props) => {
     const seen = new Map<string, number>()
+    const preloaderDone = usePreloaderDone()
     // const [isScrolling, setIsScrolling] = useState(false)
 
     // useEffect(() => {
@@ -57,10 +61,12 @@ export const GalleryGridViewMobile = ({
                 const h = it.image?.height || 1
 
                 const src = urlFor({ _type: "image", asset: { _ref: ref } })
-                    .width(800)
-                    .auto("format")
-                    .quality(70)
                     .url()
+                const projectImageIndex = (seen.get(it.projectId) ?? -1) + 1
+                seen.set(it.projectId, projectImageIndex)
+                const imageLabel =
+                    it.label ??
+                    (projectImageIndex === 0 ? it.projectTitle : String(projectImageIndex + 1))
 
                 return (
                     <div
@@ -69,6 +75,7 @@ export const GalleryGridViewMobile = ({
                     >
                         <button
                             type="button"
+                            aria-label={`Open ${it.projectTitle}, image ${projectImageIndex + 1}`}
                             className="relative block w-full overflow-hidden active:opacity-80 transition-opacity duration-150"
                             style={{
                                 aspectRatio: `${w} / ${h}`,
@@ -77,26 +84,31 @@ export const GalleryGridViewMobile = ({
                             }}
                             onClick={() => handleProjectSelect(it)}
                         >
-                            <Image
+                            <GridRevealImage
+                                index={i}
+                                immediate={i === 0}
+                                sequenceLength={MOBILE_INITIAL_REVEAL_COUNT}
                                 src={src}
                                 alt={it.image?.alt || ""}
                                 fill
                                 className="object-cover"
                                 placeholder={it.image?.blurDataURL ? "blur" : "empty"}
                                 blurDataURL={it.image?.blurDataURL}
-                                sizes="(max-width: 768px) 50vw, 0px"
-                                loading="lazy"
+                                sizes="(min-width: 640px) calc((100vw - 68px) / 2), calc((100vw - 60px) / 2)"
+                                sourceWidth={it.image?.width}
+                                priority={i === 0}
+                                loading={i < MOBILE_INITIAL_REVEAL_COUNT ? "eager" : "lazy"}
+                                fetchPriority={i === 0 ? "high" : "auto"}
                                 decoding="async"
                             />
                         </button>
 
-                        <p className="text-center text-[10px] leading-[1.2]">
-                            {(() => {
-                                const prev = seen.get(it.projectId) ?? -1
-                                const cur = prev + 1
-                                seen.set(it.projectId, cur)
-                                return it.label ?? (cur === 0 ? it.projectTitle : String(cur + 1))
-                            })()}
+                        <p
+                            className={`text-center text-[10px] leading-[1.2] ${
+                                preloaderDone ? "visible" : "invisible"
+                            }`}
+                        >
+                            {imageLabel}
                         </p>
                     </div>
                 )

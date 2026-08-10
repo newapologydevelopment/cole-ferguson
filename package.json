@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "format": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
-    "format:check": "eslint . --ext .js,.jsx,.ts,.tsx"
+    "format:check": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "test:images": "node scripts/audit-images.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

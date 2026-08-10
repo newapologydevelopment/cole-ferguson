@@ -2,6 +2,9 @@
 
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
+import Link from 'next/link';
+import { useRef } from 'react';
+import { useDialogFocus } from '../hooks';
 
 interface Props {
   close?: () => void;
@@ -9,6 +12,8 @@ interface Props {
 }
 
 export const ArchiveLightBox: React.FC<Props> = ({ close, children }) => {
+  const boxRef = useRef<HTMLDivElement>(null);
+  useDialogFocus(boxRef, close);
   useGSAP(() => {
     const isMobile = window.matchMedia('(max-width: 640px)').matches;
     if (isMobile) {
@@ -27,14 +32,30 @@ export const ArchiveLightBox: React.FC<Props> = ({ close, children }) => {
   }, []);
 
   return (
-    <div className="light-box text-primary-dark text-[12px] fixed inset-0 bg-white flex items-center justify-center z-[10060]">
-      <div
+    <div
+      ref={boxRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Archive project"
+      tabIndex={-1}
+      className="light-box text-primary-dark text-[12px] fixed inset-0 bg-white flex items-center justify-center z-[10060]"
+    >
+      <button
+        type="button"
         onClick={close}
-        className="absolute top-[24px] right-[24px] cursor-pointer z-[102] hover:text-[#717171] transition-colors duration-300"
+        className="absolute top-[24px] right-[24px] cursor-pointer z-[102] hover:text-[#717171] transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-offset-2"
         data-hide-cursor="true"
+        aria-label="Close archive project"
       >
         Close
-      </div>
+      </button>
+      <Link
+        href="/"
+        className="absolute left-[20px] top-[20px] sm:left-[24px] sm:top-[24px] z-[102] hover:text-[#717171] transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-offset-2"
+        data-hide-cursor="true"
+      >
+        Cole Ferguson
+      </Link>
       {children}
     </div>
   );

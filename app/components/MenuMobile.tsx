@@ -3,14 +3,12 @@ import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useBreakpoint } from '../hooks';
 import { InformationMobile } from './InformationMobile';
 
 export const MenuMobile = () => {
   const [open, setOpen] = useState(false);
   const [informationOpen, setInformationOpen] = useState(false);
   const pathname = usePathname();
-  const { isMobile } = useBreakpoint();
 
   useEffect(() => {
     setOpen(false);
@@ -42,12 +40,25 @@ export const MenuMobile = () => {
     };
   }, [informationOpen]);
 
+  useEffect(() => {
+    if (!open) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [open]);
+
   return (
     <>
-      <div className="fixed left-0 right-0 top-[0] flex items-center justify-between px-[20px] sm:px-[24px] pt-[20px] sm:pt-[24px] pb-[4px] sm:pb-[8px] bg-white z-[10040] xl:hidden pointer-events-none">
+      <div
+        className="fixed left-0 right-0 top-[0] flex items-center justify-between px-[20px] sm:px-[24px] pt-[20px] sm:pt-[24px] pb-[4px] sm:pb-[8px] bg-white z-[10040] xl:hidden pointer-events-none"
+        data-hide-cursor="true"
+      >
         <Link
           href="/"
           className="text-[12px] text-primary-dark relative inline-flex items-center pointer-events-auto"
+          data-hide-cursor="true"
         >
           <span
             className="relative inline-block overflow-hidden"
@@ -82,18 +93,25 @@ export const MenuMobile = () => {
             <span className="invisible">Cole Ferguson</span>
           </span>
         </Link>
-        <div
+        <button
+          type="button"
           onClick={() => setOpen(!open)}
-          className=" text-[12px] text-primary-dark bg-white z-[1] relative pointer-events-auto"
+          className="min-h-[24px] text-[12px] text-primary-dark bg-white z-[1] relative pointer-events-auto focus-visible:outline-2 focus-visible:outline-offset-2"
+          data-hide-cursor="true"
+          aria-expanded={open}
+          aria-controls="mobile-menu"
         >
           {!open ? 'Menu' : 'Close'}
-        </div>
+        </button>
       </div>
       <div className="fixed left-0 right-0 top-0 h-[64px] bg-white md:hidden pointer-events-none" />
 
       <AnimatePresence>
         {open && (
           <motion.div
+            id="mobile-menu"
+            role="navigation"
+            aria-label="Primary"
             initial={{ y: -24 }}
             animate={{ y: 0 }}
             exit={{ y: -24 }}
@@ -128,11 +146,7 @@ export const MenuMobile = () => {
                 className="z-[2]"
                 onClick={() => {
                   setOpen(false);
-                  if (isMobile) {
-                    setInformationOpen(true);
-                  } else {
-                    window.dispatchEvent(new Event('infoshell:open'));
-                  }
+                  setInformationOpen(true);
                 }}
               >
                 Information
