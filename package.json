@@ -9,7 +9,8 @@
     "lint": "eslint",
     "format": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "format:check": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "test:images": "node scripts/audit-images.mjs"
+    "test:images": "node scripts/audit-images.mjs",
+    "test:avif": "node scripts/audit-images.mjs --avif-only"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

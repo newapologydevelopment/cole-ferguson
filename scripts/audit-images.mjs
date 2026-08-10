@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import { readFile } from 'node:fs/promises';
+
 /**
  * Deterministic image performance audit for the homepage.
  * Usage: npm run test:images [-- --url=https://example.com]
@@ -9,17 +11,21 @@ const DEFAULT_BASE_URL = process.env.IMAGE_AUDIT_URL || 'http://localhost:3000';
 const MAX_PRELOADS = 2;
 const MAX_HTML_BYTES = 105 * 1024;
 const MAX_SANITY_CANDIDATE = 2000;
+const MAX_LIVE_IMAGE_CHECKS = 12;
 
 function parseArgs(argv) {
   let baseUrl = DEFAULT_BASE_URL;
+  let avifOnly = false;
   for (const arg of argv) {
     if (arg.startsWith('--url=')) {
       baseUrl = arg.slice('--url='.length);
     } else if (arg.startsWith('--base-url=')) {
       baseUrl = arg.slice('--base-url='.length);
+    } else if (arg === '--avif-only') {
+      avifOnly = true;
     }
   }
-  return { baseUrl: baseUrl.replace(/\/$/, '') };
+  return { baseUrl: baseUrl.replace(/\/$/, ''), avifOnly };
 }
 
 function decodeHtmlEntities(value) {
@@ -64,11 +70,11 @@ function getAttr(tag, name) {
   return unquoted?.[1] ?? '';
 }
 
-async function checkImageResponses(html, baseUrl) {
-  const failures = [];
+function extractImageUrls(html, baseUrl) {
+  html = decodeHtmlEntities(html);
+  const urls = new Set();
   const srcsetPattern = /srcset=["']([^"']+)["']/gi;
   const srcPattern = /src=["']([^"']+)["']/gi;
-  const urls = new Set();
 
   let match = srcsetPattern.exec(html);
   while (match) {
@@ -85,9 +91,56 @@ async function checkImageResponses(html, baseUrl) {
     match = srcPattern.exec(html);
   }
 
-  for (const url of urls) {
-    const decodedUrl = decodeHtmlEntities(url);
-    if (!/cdn\.sanity\.io/.test(decodedUrl)) {
+  return [...urls];
+}
+
+async function checkAvifConfiguration() {
+  const failures = [];
+  const notes = [];
+  const [nextConfig, sanityImageHelper] = await Promise.all([
+    readFile(new URL('../next.config.ts', import.meta.url), 'utf8'),
+    readFile(new URL('../sanity/lib/image.ts', import.meta.url), 'utf8'),
+  ]);
+
+  if (!/formats:\s*\[\s*['"]image\/avif['"]\s*,\s*['"]image\/webp['"]\s*\]/.test(nextConfig)) {
+    failures.push('Next.js must prefer AVIF and retain WebP as its fallback format.');
+  } else {
+    notes.push('Next.js output formats: AVIF, then WebP fallback');
+  }
+
+  if (!/auto=format/.test(sanityImageHelper)) {
+    failures.push('Sanity image URLs must include auto=format for AVIF negotiation.');
+  } else {
+    notes.push('Sanity image negotiation: auto=format enabled');
+  }
+
+  return { failures, notes };
+}
+
+async function checkImageResponses(html, baseUrl) {
+  const failures = [];
+  const notes = [];
+  const urls = extractImageUrls(html, baseUrl);
+  const sanityUrls = urls.filter((url) => /cdn\.sanity\.io/.test(url));
+  const discoveredNextImageUrls = urls.filter(
+    (url) => new URL(url).pathname === '/_next/image'
+  );
+  const nextImageUrls = discoveredNextImageUrls.length
+    ? discoveredNextImageUrls
+    : [
+        new URL(
+          '/_next/image?url=%2Fpreloader_images%2F1.webp&w=640&q=75',
+          baseUrl
+        ).toString(),
+      ];
+  let sanityAvifResponses = 0;
+  let sanityFallbackResponses = 0;
+  let nextAvifResponses = 0;
+
+  for (const decodedUrl of sanityUrls.slice(0, MAX_LIVE_IMAGE_CHECKS)) {
+    const parsed = new URL(decodedUrl);
+    if (parsed.searchParams.get('auto') !== 'format') {
+      failures.push(`Sanity image is missing auto=format: ${decodedUrl}`);
       continue;
     }
 
@@ -100,10 +153,41 @@ async function checkImageResponses(html, baseUrl) {
 
     if (!response.ok) {
       failures.push(`Image request failed (${response.status}): ${decodedUrl}`);
+      continue;
+    }
+
+    const contentType = response.headers.get('content-type')?.split(';')[0] ?? '';
+    if (contentType === 'image/avif') {
+      sanityAvifResponses += 1;
+    } else if (/^image\/(webp|jpeg|png)$/.test(contentType)) {
+      // Sanity may return WebP/JPEG/PNG while a new AVIF rendition is generated.
+      sanityFallbackResponses += 1;
+    } else {
+      failures.push(`Unexpected Sanity image content type (${contentType || 'missing'}): ${decodedUrl}`);
     }
   }
 
-  return failures;
+  for (const url of nextImageUrls.slice(0, MAX_LIVE_IMAGE_CHECKS)) {
+    const response = await fetch(url, {
+      headers: { Accept: 'image/avif,image/webp,image/*,*/*;q=0.8' },
+      redirect: 'follow',
+    });
+    const contentType = response.headers.get('content-type')?.split(';')[0] ?? '';
+    if (!response.ok) {
+      failures.push(`Next image request failed (${response.status}): ${url}`);
+    } else if (contentType !== 'image/avif') {
+      failures.push(`Next image optimizer did not return AVIF (${contentType || 'missing'}): ${url}`);
+    } else {
+      nextAvifResponses += 1;
+    }
+  }
+
+  notes.push(
+    `Sanity AVIF negotiation: ${sanityAvifResponses} AVIF, ${sanityFallbackResponses} temporary fallback response(s)`
+  );
+  notes.push(`Next.js AVIF responses: ${nextAvifResponses}`);
+
+  return { failures, notes };
 }
 
 function detectDuplicateAssets(html) {
@@ -121,7 +205,7 @@ function detectDuplicateAssets(html) {
 }
 
 async function main() {
-  const { baseUrl } = parseArgs(process.argv.slice(2));
+  const { baseUrl, avifOnly } = parseArgs(process.argv.slice(2));
   const failures = [];
   const notes = [];
 
@@ -141,30 +225,34 @@ async function main() {
   const preloadCount = countImagePreloads(html);
   const sanityWidths = extractSanityWidths(html);
   const initialImages = extractInitialImages(html);
+  const avifConfiguration = await checkAvifConfiguration();
+  failures.push(...avifConfiguration.failures);
+  notes.push(...avifConfiguration.notes);
 
   notes.push(`Base URL: ${baseUrl}`);
   notes.push(`HTML transfer: ${htmlBytes} bytes (${(htmlBytes / 1024).toFixed(1)} KB)`);
   notes.push(`Image preloads: ${preloadCount}`);
   notes.push(`Sanity candidate widths: ${sanityWidths.join(', ') || 'none'}`);
   notes.push(`Initial <img> count: ${initialImages.length}`);
+  if (avifOnly) notes.push('Audit mode: AVIF support only');
 
-  if (preloadCount > MAX_PRELOADS) {
+  if (!avifOnly && preloadCount > MAX_PRELOADS) {
     failures.push(`Image preload count ${preloadCount} exceeds budget of ${MAX_PRELOADS}`);
   }
 
-  if (htmlBytes > MAX_HTML_BYTES) {
+  if (!avifOnly && htmlBytes > MAX_HTML_BYTES) {
     failures.push(
       `HTML transfer ${htmlBytes} bytes exceeds budget of ${MAX_HTML_BYTES} bytes`
     );
   }
 
-  for (const width of sanityWidths) {
+  for (const width of avifOnly ? [] : sanityWidths) {
     if (width > MAX_SANITY_CANDIDATE) {
       failures.push(`Sanity candidate width ${width}px exceeds ${MAX_SANITY_CANDIDATE}px`);
     }
   }
 
-  for (const tag of initialImages) {
+  for (const tag of avifOnly ? [] : initialImages) {
     const src = getAttr(tag, 'src');
     if (!/cdn\.sanity\.io/.test(src)) continue;
     const sizes = getAttr(tag, 'sizes');
@@ -173,10 +261,33 @@ async function main() {
     }
   }
 
-  failures.push(...detectDuplicateAssets(html));
+  if (!avifOnly) failures.push(...detectDuplicateAssets(html));
 
   try {
-    failures.push(...(await checkImageResponses(html, baseUrl)));
+    const routeDocuments = [{ route: '/', html }];
+    if (avifOnly) {
+      for (const route of ['/gallery', '/archive']) {
+        const routeResponse = await fetch(`${baseUrl}${route}`, {
+          headers: { Accept: 'text/html,application/xhtml+xml' },
+        });
+        if (!routeResponse.ok) {
+          failures.push(`Failed to fetch ${route} (${routeResponse.status})`);
+          continue;
+        }
+        routeDocuments.push({ route, html: await routeResponse.text() });
+      }
+    }
+
+    for (const routeDocument of routeDocuments) {
+      const imageResponses = await checkImageResponses(
+        routeDocument.html,
+        `${baseUrl}${routeDocument.route}`
+      );
+      failures.push(...imageResponses.failures);
+      notes.push(
+        ...imageResponses.notes.map((note) => `${routeDocument.route}: ${note}`)
+      );
+    }
   } catch (error) {
     notes.push(`Skipped live image response checks: ${error instanceof Error ? error.message : String(error)}`);
   }
