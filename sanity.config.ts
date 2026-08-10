@@ -14,6 +14,7 @@ import {schema} from './sanity/schemaTypes'
 import {structure} from './sanity/structure'
 
 export default defineConfig({
+  title: 'Cole Ferguson',
   basePath: '/studio',
   projectId,
   dataset,
