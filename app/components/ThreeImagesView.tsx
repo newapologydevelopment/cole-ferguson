@@ -102,9 +102,8 @@ export function ThreeImagesView({ images, priority = true }: { images: ProjectIm
                                         alt={a.alt || ''}
                                         fill
                                         sizes={PORTFOLIO_SIZES.threeDesktop}
-                                        placeholder={a.blurDataURL ? 'blur' : 'empty'}
-                                        blurDataURL={a.blurDataURL}
                                         className="object-contain"
+                                        disableBlur
                                         sourceWidth={a.width}
                                         decoding="async"
                                         {...primaryLoadProps}
@@ -127,9 +126,8 @@ export function ThreeImagesView({ images, priority = true }: { images: ProjectIm
                                         alt={b.alt || ''}
                                         fill
                                         sizes={PORTFOLIO_SIZES.threeDesktop}
-                                        placeholder={b.blurDataURL ? 'blur' : 'empty'}
-                                        blurDataURL={b.blurDataURL}
                                         className="object-contain"
+                                        disableBlur
                                         sourceWidth={b.width}
                                         decoding="async"
                                         {...siblingLoadProps}
@@ -152,9 +150,8 @@ export function ThreeImagesView({ images, priority = true }: { images: ProjectIm
                                         alt={c.alt || ''}
                                         fill
                                         sizes={PORTFOLIO_SIZES.threeDesktop}
-                                        placeholder={c.blurDataURL ? 'blur' : 'empty'}
-                                        blurDataURL={c.blurDataURL}
                                         className="object-contain"
+                                        disableBlur
                                         sourceWidth={c.width}
                                         decoding="async"
                                         {...siblingLoadProps}

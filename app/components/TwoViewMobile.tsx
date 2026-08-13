@@ -134,8 +134,7 @@ export function TwoViewMobile({
                   fill
                   className="object-contain object-center"
                   sizes={PORTFOLIO_SIZES.twoMobile}
-                  placeholder={a?.blurDataURL ? 'blur' : 'empty'}
-                  blurDataURL={a?.blurDataURL}
+                  disableBlur
                   sourceWidth={a?.width}
                   {...primaryLoadProps}
                 />
@@ -155,8 +154,7 @@ export function TwoViewMobile({
                   fill
                   className="object-contain object-center"
                   sizes={PORTFOLIO_SIZES.twoMobile}
-                  placeholder={b?.blurDataURL ? 'blur' : 'empty'}
-                  blurDataURL={b?.blurDataURL}
+                  disableBlur
                   sourceWidth={b?.width}
                   {...siblingLoadProps}
                 />

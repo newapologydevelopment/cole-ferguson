@@ -110,9 +110,8 @@ export function TwoImagesView({ images, priority = true }: { images: ProjectImag
                         alt={a?.alt || ''}
                         fill
                         sizes={PORTFOLIO_SIZES.twoDesktop}
-                        placeholder={a?.blurDataURL ? 'blur' : 'empty'}
-                        blurDataURL={a?.blurDataURL}
                         className="object-contain"
+                        disableBlur
                         sourceWidth={a?.width}
                         decoding="async"
                         {...primaryLoadProps}
@@ -133,9 +132,8 @@ export function TwoImagesView({ images, priority = true }: { images: ProjectImag
                         alt={b?.alt || ''}
                         fill
                         sizes={PORTFOLIO_SIZES.twoDesktop}
-                        placeholder={b?.blurDataURL ? 'blur' : 'empty'}
-                        blurDataURL={b?.blurDataURL}
                         className="object-contain"
+                        disableBlur
                         sourceWidth={b?.width}
                         decoding="async"
                         {...siblingLoadProps}

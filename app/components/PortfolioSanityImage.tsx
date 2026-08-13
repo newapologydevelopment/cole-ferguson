@@ -10,12 +10,14 @@ type PortfolioSanityImageProps = Omit<ImageProps, 'loader' | 'onError'> & {
   loader?: ImageProps['loader'];
   onError?: ImageProps['onError'];
   sourceWidth?: number;
+  disableBlur?: boolean;
 };
 
 export function PortfolioSanityImage({
   src,
   alt = '',
   sourceWidth,
+  disableBlur = false,
   onError: callerOnError,
   onLoad: callerOnLoad,
   className,
@@ -87,12 +89,15 @@ export function PortfolioSanityImage({
       alt={alt}
       loader={props.loader ?? loader}
       src={src}
+      placeholder={disableBlur ? 'empty' : props.placeholder}
       onError={handleError}
       onLoad={handleLoad}
-      className={`${className ?? ''} transition-[filter,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]`}
+      className={`${className ?? ''} ${
+        disableBlur ? 'transition-opacity' : 'transition-[filter,opacity]'
+      } duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]`}
       style={{
         ...style,
-        filter: decoded ? 'blur(0px)' : 'blur(10px)',
+        filter: disableBlur ? 'none' : decoded ? 'blur(0px)' : 'blur(10px)',
         opacity: decoded ? 1 : 0.96,
       }}
     />

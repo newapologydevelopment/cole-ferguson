@@ -88,8 +88,7 @@ export function ThreeViewMobile({
                   objectFit === 'cover' ? 'object-cover' : 'object-contain'
                 }
                 sizes={PORTFOLIO_SIZES.threeMobile}
-                placeholder={a?.blurDataURL ? 'blur' : 'empty'}
-                blurDataURL={a?.blurDataURL}
+                disableBlur
                 sourceWidth={a?.width}
                 {...primaryLoadProps}
               />
@@ -114,8 +113,7 @@ export function ThreeViewMobile({
                   objectFit === 'cover' ? 'object-cover' : 'object-contain'
                 }
                 sizes={PORTFOLIO_SIZES.threeMobile}
-                placeholder={b?.blurDataURL ? 'blur' : 'empty'}
-                blurDataURL={b?.blurDataURL}
+                disableBlur
                 sourceWidth={b?.width}
                 {...siblingLoadProps}
               />
@@ -140,8 +138,7 @@ export function ThreeViewMobile({
                   objectFit === 'cover' ? 'object-cover' : 'object-contain'
                 }
                 sizes={PORTFOLIO_SIZES.threeMobile}
-                placeholder={c?.blurDataURL ? 'blur' : 'empty'}
-                blurDataURL={c?.blurDataURL}
+                disableBlur
                 sourceWidth={c?.width}
                 {...siblingLoadProps}
               />
