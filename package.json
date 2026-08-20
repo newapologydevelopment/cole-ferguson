@@ -2,6 +2,9 @@
   "name": "cole-ferguson",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=22.12 <26"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,6 +12,7 @@
     "lint": "eslint",
     "format": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "format:check": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "test:content": "node scripts/audit-content.mjs",
     "test:images": "node scripts/audit-images.mjs",
     "test:avif": "node scripts/audit-images.mjs --avif-only"
   },
@@ -18,14 +22,13 @@
     "@sanity/orderable-document-list": "^1.4.0",
     "@sanity/vision": "^4.10.2",
     "clsx": "^2.1.1",
-    "clxx": "^2.1.3",
     "framer-motion": "^12.23.22",
     "gsap": "^3.13.0",
     "lenis": "^1.3.11",
-    "next": "15.5.9",
+    "next": "15.5.23",
     "next-sanity": "^11.4.2",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
     "sanity": "^4.10.2",
     "styled-components": "^6.1.19",
     "tailwind-merge": "^2.6.0"
@@ -38,7 +41,7 @@
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.21",
     "eslint": "^9",
-    "eslint-config-next": "15.5.4",
+    "eslint-config-next": "15.5.23",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.14",
     "typescript": "^5"
